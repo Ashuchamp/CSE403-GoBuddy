@@ -115,6 +115,22 @@ Students often want to try new activities or maintain habits but lack someone to
 **Extensions:** (a) User later edit profile; (b) User ignore uploading photo (default avatar display).  
 **Exceptions:** (E1) Invalid or missing input ⇒ show validation error; (E2) Database error ⇒ show save failed message and notice user to try again. 
 
+### UC‑4: Keyword-based activity search  *(Owner: Ray Xu)*
+
+**Actors:** User (verified user)
+**Trigger:** User click in the search field and type the keyword.   
+**Preconditions:** User account was verified.   
+**Postconditions:** A list of activities that contain the keyword will show up.  
+
+**Main flow:**
+1. User click the search field.
+2. User type in the keyword. (e.g. user type "hiking")
+3. System take in the keyword.
+4. System searches through the databased for activities.
+5. System returns a list of activities that contain keyword and available for user to view.
+
+**Extensions:** (a) Save activities interested in to user's wishlist; (b) Search activities based on keyword related terms.  
+**Exceptions:** (E1) Keyword doesn't exist in the database ⇒ suggest user to create an activity; (E2) Keyword exceeds the available input length ⇒ deny the search and suggest shorten the keyword. 
 ---
 
 ## 4) Non‑Functional Requirements
