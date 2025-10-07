@@ -10,7 +10,7 @@
 | Aaryan Jain (@Ashuchamp, `aaryaj@uw.edu`) | ****          |
 | Kehan Jin (@Jinkehan, `jinkehan@uw.edu`) | ****           | 
 | Ray Xu (@iurux, `rayxr@uw.edu`) | **** | 
-| Member D (@githubD, `d@uw.edu`) | ****      |
+| Ting-Yu Hsu (@alisa01-ali, `tingyu01@uw.edu`) | ****      |
 | Member E (@githubE, `e@uw.edu`) | ****            |
 
 ### Project artifacts (links)
@@ -99,21 +99,22 @@ Students often want to try new activities or maintain habits but lack someone to
 **Extensions:** (a) More chat between users; (b) Possibly one user un-connect or block another; (c) Possibly one user report spam or harrassment on conversation.  
 **Exceptions:** (E1) Internet failure while sending message ⇒ ask to try later; (E2) One user has blocked the other ⇒ reject with generic failure.
 
-### UC‑3: Create and Customize Profile  *(Owner: Ting-Yu Hsu)*
+### UC‑3: Create Profile  *(Owner: Ting-Yu Hsu)*
 
 **Actors:** User (verified user)       
-**Trigger:** User sign in for the first time or choose "edit profile"   
-**Preconditions:** User account was verified.  
+**Trigger:** User sign in for the first time to create profile. 
+**Preconditions:** User account(uw email) was verified.  
 **Postconditions:** Profile data are saved and available to be searched. 
 
 **Main flow:**
-1. User enter a short bio, select activity tags, and upload profile picture.
-2. System valiadate input.
-3. System store the new profile in the database.
-4. Profile become visible to others through searching and browsing.
+1. User click on "edit profile"
+2. User enter a username, short bio, select activity tags, and upload profile picture.
+3. System valiadate input (eg. must have username, other fields can be skipped).
+4. System store the new profile in the database.
+5. Profile become visible to other users through searching and browsing.
 
 **Extensions:** (a) User later edit profile; (b) User ignore uploading photo (default avatar display).  
-**Exceptions:** (E1) Invalid or missing input ⇒ show validation error; (E2) Database error ⇒ show save failed message and notice user to try again. 
+**Exceptions:** (E1) Invalid or missing input ⇒ show validation error message; (E2) System unable to save edit profile due to internet connection error ⇒ show save failed message and notice user to try again. 
 
 ### UC‑4: Keyword-based activity search  *(Owner: Ray Xu)*
 
@@ -131,6 +132,7 @@ Students often want to try new activities or maintain habits but lack someone to
 
 **Extensions:** (a) Save activities interested in to user's wishlist; (b) Search activities based on keyword related terms.  
 **Exceptions:** (E1) Keyword doesn't exist in the database ⇒ suggest user to create an activity; (E2) Keyword exceeds the available input length ⇒ deny the search and suggest shorten the keyword. 
+
 ---
 
 ## 4) Non‑Functional Requirements
