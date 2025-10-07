@@ -107,7 +107,7 @@ Students often want to try new activities or maintain habits but lack someone to
 **Postconditions:** Profile data are saved and available to be searched. 
 
 **Main flow:**
-1. User click on "edit profile"
+1. System navigate to profile creation page after user first sign in.
 2. User enter a username, short bio, select activity tags, and upload profile picture.
 3. System valiadate input (eg. must have username, other fields can be skipped).
 4. System store the new profile in the database.
