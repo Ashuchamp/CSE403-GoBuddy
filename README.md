@@ -117,7 +117,7 @@ Students often want to try new activities or maintain habits but lack someone to
 
 ### UC‑4: Keyword-based activity search  *(Owner: Ray Xu)*
 
-**Actors:** User (verified user).
+**Actors:** User (verified user).         
 **Trigger:** User click in the search field and type the keyword.   
 **Preconditions:** User account was verified.   
 **Postconditions:** A list of activities that contain the keyword will show up.  
