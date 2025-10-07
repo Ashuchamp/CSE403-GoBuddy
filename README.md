@@ -11,6 +11,7 @@
 | Kehan Jin (@Jinkehan, `jinkehan@uw.edu`) | ****           | 
 | Ray Xu (@iurux, `rayxr@uw.edu`) | **** | 
 | Ting-Yu Hsu (@alisa01-ali, `tingyu01@uw.edu`) | ****      |
+| Sophia Su (@SuJning, `sjn0305@uw.edu`) | ****            |
 | Member E (@githubE, `e@uw.edu`) | ****            |
 
 ### Project artifacts (links)
@@ -132,6 +133,22 @@ Students often want to try new activities or maintain habits but lack someone to
 
 **Extensions:** (a) Save activities interested in to user's wishlist; (b) Search activities based on keyword related terms.  
 **Exceptions:** (E1) Keyword doesn't exist in the database ⇒ suggest user to create an activity; (E2) Keyword exceeds the available input length ⇒ deny the search and suggest shorten the keyword. 
+
+### UC‑5: Group Activity Formation  *(Owner: Sophia Su)*
+
+**Actors:** Organizor (verified user), Participants (verified user)  
+**Trigger:** Organizer converts an individual intent into a group activity.   
+**Preconditions:** Organizer has at least one posted intent.
+**Postconditions:** The system creates a shared group activity with multiple participants.  
+
+**Main flow:**
+1. Organizer selects “Convert to group activity” on an intent.
+2. System prompts the organizer to set maximum participants and visibility (public/private).
+3. Interested users can join until the group is full.
+4. Once full, the system automatically creates a group confirmation summary.
+
+**Extensions:** (a) Organizer can reopen or close the group; (b) Users can leave before event date.
+**Exceptions:** (E1) Group reaches full capacity ⇒ show “activity full”; (E2) Organizer cancels ⇒ notify all participants.
 
 ---
 
