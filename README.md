@@ -85,19 +85,19 @@ Students often want to try new activities or maintain habits but lack someone to
 **Extensions:** (a) Withdraw request; (b) Recipient pre‑filters (auto‑ignore certain tags).  
 **Exceptions:** (E1) Recipient has blocked requester ⇒ reject with generic failure; (E2) Rate limit exceeded ⇒ ask to try later.  
 
-### UC-2: Chat to schedule meeting  *(Owner: Kehan Jin)*
+### UC-2: Create new activity intent  *(Owner: Kehan Jin)*
 
-**Actors:** User1 (verified user), User2 (verified user)  
-**Trigger:** User1 starts a new conversation with User2  
-**Preconditions:** Both have verified accounts, and are already connected.  
-**Postconditions:** Two users successfully schedule a time to meet, chat history available for both to view.   
+**Actors:** User (verified user)  
+**Trigger:** User fill in info about a new activity intent and post it.    
+**Preconditions:** User has verified account with existing profile.    
+**Postconditions:** The user has an actility intent associated to their profile and other users can view it.   
 **Main flow:**
-1. User1 starts a new chat and sends User2 an initial message.
-2. During the chat each User are able to send new messages and get notification upon receiving new messages.
-3. After each message being sent, the new message is stored in the database and available for both users to view  
+1. User goes to a create intent page and fill in information about the new intent.
+2. User verifies information are correct and post it.
+3. Other users can view this new activity intent and connect with the user.  
 
-**Extensions:** (a) More chat between users; (b) Possibly one user un-connect or block another; (c) Possibly one user report spam or harrassment on conversation.  
-**Exceptions:** (E1) Internet failure while sending message ⇒ ask to try later; (E2) One user has blocked the other ⇒ reject with generic failure.
+**Extensions:** (a) Another user views the intent and intend to connect; (b) User decide to delete the activity intent.  
+**Exceptions:** (E1) Internet failure while sending message ⇒ ask to try later; (E2) User don't have an existing profile ⇒ direct to profile set up page.
 
 ### UC‑3: Create Profile  *(Owner: Ting-Yu Hsu)*
 
