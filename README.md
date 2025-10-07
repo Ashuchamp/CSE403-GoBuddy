@@ -150,6 +150,22 @@ Students often want to try new activities or maintain habits but lack someone to
 **Extensions:** (a) Organizer can reopen or close the group; (b) Users can leave before event date.
 **Exceptions:** (E1) Group reaches full capacity ⇒ show “activity full”; (E2) Organizer cancels ⇒ notify all participants.
 
+### UC‑6: Exchange Contact Info *(Owner: Matthew Lua)*
+
+**Actors:** User (verified & connected user).         
+**Trigger:** One user taps “Exchange contact info” after both have accepted a connection request.
+**Preconditions:** Both have verified accounts; requester has an existing profile. 
+**Postconditions:** Users involved receive the other’s shared contact info, depending on their privacy settings.
+
+**Main flow:**
+1. User opens connection detail page.
+2. User taps “Exchange contact info.”
+3. System verifies connection status and retrieves both users’ contact details.
+4. System displays the shared contact info to both users.
+
+**Extensions:** (a) User edits or removes shared info later; (b) User selects which contact method to share.
+**Exceptions:** (E1) One user disables sharing -> show “Contact exchange unavailable”; (E2) Network error -> prompt to try again later.
+
 ---
 
 ## 4) Non‑Functional Requirements
