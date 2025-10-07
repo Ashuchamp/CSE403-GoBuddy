@@ -9,7 +9,7 @@
 | ------------------------------- | ------------------------------ |
 | Aaryan Jain (@Ashuchamp, `aaryaj@uw.edu`) | ****          |
 | Kehan Jin (@Jinkehan, `jinkehan@uw.edu`) | ****           | 
-| Member C (@githubC, `c@uw.edu`) | **** | 
+| Ray Xu (@iurux, `rayxr@uw.edu`) | **** | 
 | Member D (@githubD, `d@uw.edu`) | ****      |
 | Member E (@githubE, `e@uw.edu`) | ****            |
 
