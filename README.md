@@ -194,7 +194,7 @@ Students often want to try new activities or maintain habits but lack someone to
 
 * **Languages:** TypeScript (shared types client/server), SQL (Postgres).
 * **Mobile:** React Native (Expo).
-* **Backend:** Node.js + Express (monolith for MVP), Prisma ORM, Zod for schema validation.
+* **Backend:** Python, Node.js + Express (monolith for MVP), Prisma ORM, Zod for schema validation.
 * **DB:** Postgres (Dockerized locally; managed on staging).
 * **Auth/Email:** Magic links via SendGrid (or Mailgun) with domain restriction to `uw.edu`.
 * **CI/CD:** GitHub Actions (lint, typecheck, unit/integration tests, Prisma migrate).
