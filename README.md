@@ -97,7 +97,23 @@ Students often want to try new activities or maintain habits but lack someone to
 3. After each message being sent, the new message is stored in the database and available for both users to view  
 
 **Extensions:** (a) More chat between users; (b) Possibly one user un-connect or block another; (c) Possibly one user report spam or harrassment on conversation.  
-**Exceptions:** (E1) Internet failure while sending message ⇒ ask to try later; (E2) One user has blocked the other ⇒ reject with generic failure.   
+**Exceptions:** (E1) Internet failure while sending message ⇒ ask to try later; (E2) One user has blocked the other ⇒ reject with generic failure.
+
+### UC‑3: Create and Customize Profile  *(Owner: Ting-Yu Hsu)*
+
+**Actors:** User (verified), system 
+**Trigger:** User sign in for the first time or choose "edit profile"   
+**Preconditions:** User account was verified.  
+**Postconditions:** Profile data are saved and available to be searched. 
+
+**Main flow:**
+1. User enter a short bio, select activity tags, and upload profile picture.
+2. System valiadate input.
+3. System store the new profile in the database.
+4. Profile become visible to others through searching and browsing.
+
+**Extensions:** (a) User later edit profile; (b) User ignore uploading photo (default avatar display).  
+**Exceptions:** (E1) invalid or missing input ⇒ show validation error; (E2) Database error ⇒ show save failed message and notice user to try again. 
 
 ---
 
