@@ -8,7 +8,7 @@
 | Member                          | Role                           |
 | ------------------------------- | ------------------------------ |
 | Aaryan Jain (@Ashuchamp, `aaryaj@uw.edu`) | ****          |
-| Member B (@githubB, `b@uw.edu`) | ****           | 
+| Kehan Jin (@Jinkehan, `jinkehan@uw.edu`) | ****           | 
 | Member C (@githubC, `c@uw.edu`) | **** | 
 | Member D (@githubD, `d@uw.edu`) | ****      |
 | Member E (@githubE, `e@uw.edu`) | ****            |
@@ -72,18 +72,32 @@ Students often want to try new activities or maintain habits but lack someone to
 
 ### UC‑1: Send request to connect  *(Owner: Aaryan Jain)*
 
-**Actors:** Requester (verified user), Recipient (verified user)
-**Trigger:** Requester taps “Request to connect” on a profile.
-**Preconditions:** Both have verified accounts; requester has an existing profile.
-**Postconditions:** Recipient receives a pending request with optional message.
-**Main flow:**
+**Actors:** Requester (verified user), Recipient (verified user)  
+**Trigger:** Requester taps “Request to connect” on a profile.   
+**Preconditions:** Both have verified accounts; requester has an existing profile.   
+**Postconditions:** Recipient receives a pending request with optional message.  
 
+**Main flow:**
 1. Requester writes an optional note (e.g., “Free M/W mornings at IMA”).
 2. System validates request rate limits (spam control) and creates a **Pending** request.
 3. Recipient gets an in‑app notification and email summary.
-   **Extensions:** (a) Withdraw request; (b) Recipient pre‑filters (auto‑ignore certain tags).
-   **Exceptions:** (E1) Recipient has blocked requester ⇒ reject with generic failure; (E2) Rate limit exceeded ⇒ ask to try later.
 
+**Extensions:** (a) Withdraw request; (b) Recipient pre‑filters (auto‑ignore certain tags).  
+**Exceptions:** (E1) Recipient has blocked requester ⇒ reject with generic failure; (E2) Rate limit exceeded ⇒ ask to try later.  
+
+### UC-2: Chat to schedule meeting  *(Owner: Kehan Jin)*
+
+**Actors:** User1 (verified user), User2 (verified user)  
+**Trigger:** User1 starts a new conversation with User2  
+**Preconditions:** Both have verified accounts, and are already connected.  
+**Postconditions:** Two users successfully schedule a time to meet, chat history available for both to view.   
+**Main flow:**
+1. User1 starts a new chat and sends User2 an initial message.
+2. During the chat each User are able to send new messages and get notification upon receiving new messages.
+3. After each message being sent, the new message is stored in the database and available for both users to view  
+
+**Extensions:** (a) More chat between users; (b) Possibly one user un-connect or block another; (c) Possibly one user report spam or harrassment on conversation.  
+**Exceptions:** (E1) Internet failure while sending message ⇒ ask to try later; (E2) One user has blocked the other ⇒ reject with generic failure.   
 
 ---
 
