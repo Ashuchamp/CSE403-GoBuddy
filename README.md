@@ -101,7 +101,7 @@ Students often want to try new activities or maintain habits but lack someone to
 
 ### UC‑3: Create and Customize Profile  *(Owner: Ting-Yu Hsu)*
 
-**Actors:** User (verified), system 
+**Actors:** User (verified), system    
 **Trigger:** User sign in for the first time or choose "edit profile"   
 **Preconditions:** User account was verified.  
 **Postconditions:** Profile data are saved and available to be searched. 
