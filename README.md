@@ -113,7 +113,7 @@ Students often want to try new activities or maintain habits but lack someone to
 4. Profile become visible to others through searching and browsing.
 
 **Extensions:** (a) User later edit profile; (b) User ignore uploading photo (default avatar display).  
-**Exceptions:** (E1) invalid or missing input ⇒ show validation error; (E2) Database error ⇒ show save failed message and notice user to try again. 
+**Exceptions:** (E1) Invalid or missing input ⇒ show validation error; (E2) Database error ⇒ show save failed message and notice user to try again. 
 
 ---
 
