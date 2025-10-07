@@ -102,7 +102,7 @@ Students often want to try new activities or maintain habits but lack someone to
 ### UC‑3: Create Profile  *(Owner: Ting-Yu Hsu)*
 
 **Actors:** User (verified user)       
-**Trigger:** User sign in for the first time to create profile. 
+**Trigger:** User sign in for the first time to create profile.       
 **Preconditions:** User account(uw email) was verified.  
 **Postconditions:** Profile data are saved and available to be searched. 
 
