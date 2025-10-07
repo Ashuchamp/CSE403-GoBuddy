@@ -12,7 +12,7 @@
 | Ray Xu (@iurux, `rayxr@uw.edu`) | **** | 
 | Ting-Yu Hsu (@alisa01-ali, `tingyu01@uw.edu`) | ****      |
 | Sophia Su (@SuJning, `sjn0305@uw.edu`) | ****            |
-| Member E (@githubE, `e@uw.edu`) | ****            |
+| Ian Matthew Lua (@Dev1cey, `luam@uw.edu`) | ****            |
 
 ### Project artifacts (links)
 
