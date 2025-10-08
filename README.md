@@ -5,14 +5,14 @@
 
 ### Team roster & roles
 
-| Member                          | Role                           |
-| ------------------------------- | ------------------------------ |
-| Aaryan Jain (@Ashuchamp, `aaryaj@uw.edu`) | ****          |
-| Kehan Jin (@Jinkehan, `jinkehan@uw.edu`) | ****           | 
-| Ray Xu (@iurux, `rayxr@uw.edu`) | **** | 
-| Ting-Yu Hsu (@alisa01-ali, `tingyu01@uw.edu`) | ****      |
-| Sophia Su (@SuJning, `sjn0305@uw.edu`) | ****            |
-| Ian Matthew Lua (@Dev1cey, `luam@uw.edu`) | ****            |
+| Member | Role Focus | Notes |
+| -- | -- | -- |
+| Aaryan Jain (@Ashuchamp, `aaryaj@uw.edu`) | Backend / API Design | Database and authentication lead; responsible for API structure and endpoint consistency. |
+| Kehan Jin (@Jinkehan, `jinkehan@uw.edu`) | Backend / Search Logic | Implements query optimization and user-matching logic for efficient discovery. |
+| Ray Xu (@iurux, `rayxr@uw.edu`) | Frontend / UI Development | Focuses on state management, component testing, and UI consistency. |
+| Ting-Yu Hsu (@alisa01-ali, `tingyu01@uw.edu`) | UI / Design Integration | Converts Figma mockups into React Native components; ensures design fidelity. |
+| Sophia Su (@SuJning, `sjn0305@uw.edu`) | Frontend / Integration | React Native lead; oversees QA testing and ensures smooth view integration. |
+| Ian Matthew Lua (@Dev1cey, `luam@uw.edu`) | Full-Stack / Testing | Handles CI/CD setup, documentation, and end-to-end testing workflows. |
 
 ### Project artifacts (links)
 
@@ -220,6 +220,12 @@ Students often want to try new activities or maintain habits but lack someone to
 
 ### Roles & justification
 
+- Aaryan Jain – Backend / API Design: Leads backend and API development, leveraging strong Node.js and database design skills to ensure reliable server communication.  
+- Kehan Jin – Backend / Search Logic: Implements and optimizes search and matching algorithms critical to GoBuddy’s discovery features.  
+- Ray Xu – Frontend / UI Development: Develops and tests React Native components, ensuring consistent state management and responsive user interfaces.  
+- Ting-Yu Hsu – UI / Design Integration: Translates Figma designs into React Native views, maintaining visual consistency and usability across the app.  
+- Sophia Su – Frontend / Integration: Oversees frontend integration and QA testing, ensuring all views and APIs connect seamlessly.  
+- Ian Matthew Lua – Full-Stack / Testing: Manages CI/CD pipelines and full-stack testing to maintain build stability and deployment quality.  
 
 ### Branching & quality gates
 
