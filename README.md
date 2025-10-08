@@ -235,7 +235,150 @@ Students often want to try new activities or maintain habits but lack someone to
 
 ### Week‑by‑week schedule (measurable milestones)
 
-> 10‑week plan; adjust dates to course calendar. Each item is **demo‑able**.
+<details>
+<summary> Week 3 — Setup & UI Finalization</summary>
+
+**Goals:** Finalize designs, set up infrastructure, and verify navigation.
+
+| Member | Task | Concrete Milestone |
+|---------|------|--------------------|
+| **Sophia** | Create base React Native app with tab navigation (Home, Browse, Profile). | App launches; user can tap between tabs without errors. |
+| **Aaryan** | Initialize Node.js/Express backend and connect to Firestore. | `GET /health` returns “OK”. |
+| **Kehan** | Draft database schema (`users`, `activities`, `connections`). | JSON schema committed & loaded in DB. |
+| **Ray** | Build reusable button/input components from Figma. | Components render correctly in Expo. |
+| **Ting-Yu** | Finalize all Figma mockups with labeled components. | Exported Figma file linked in repo. |
+| **Matthew** | Configure CI workflow for lint + build checks. | Sample commit triggers and passes CI pipeline. |
+
+**Milestone:** Functional skeleton app + backend server health check.
+</details>
+
+---
+
+<details>
+<summary> Week 4 — Authentication & User Profiles</summary>
+
+**Goals:** Implement login/signup and store user info.
+
+| Member | Task | Concrete Milestone |
+|---------|------|--------------------|
+| **Sophia** | Build Login View with email/password fields. | User can type credentials and see alert response. |
+| **Aaryan** | Implement `/auth/signup` and `/auth/login` routes (JWT/Firebase). | Curl request creates user and returns token. |
+| **Kehan** | Create Firestore `users` collection with sample data. | Two users retrievable by API. |
+| **Ray** | Implement Email Verification View + API hook. | Clicking “Send Code” returns success message. |
+| **Ting-Yu** | Build Profile View UI (name, bio, image upload placeholder). | Profile View shows editable fields. |
+| **Matthew** | Connect frontend auth forms to backend. | Successful login navigates to Home View with token. |
+
+**Milestone:** User can register, verify, log in, and edit profile data in DB.
+</details>
+
+---
+
+<details>
+<summary> Week 5 — Home & Browse (Search and Filter)</summary>
+
+**Goals:** Browsing and searching for activities/users works.
+
+| Member | Task | Concrete Milestone |
+|---------|------|--------------------|
+| **Sophia** | Implement Home View fetching activities from `/activities`. | Displays ≥3 activities from DB. |
+| **Aaryan** | Build `/search` API with filters (date, location). | API returns filtered JSON via Postman. |
+| **Kehan** | Write query logic for partial matches. | “Yoga” → “Morning Yoga” returns correctly. |
+| **Ray** | Create Browse View UI + search bar and filters. | Typing keyword updates results on screen. |
+| **Ting-Yu** | Add loading & empty-state UI. | “No results found” renders properly. |
+| **Matthew** | Connect Browse View to `/search` API. | Typing “tennis” fetches backend results. |
+
+**Milestone:** User can search and see matching activities from backend.
+</details>
+
+---
+
+<details>
+<summary> Week 6 — Recommendations & Connections</summary>
+
+**Goals:** Recommendation algorithm and connection requests functional.
+
+| Member | Task | Concrete Milestone |
+|---------|------|--------------------|
+| **Sophia** | Build Recommendation View UI. | Displays mock recommendation cards. |
+| **Aaryan** | Create `/recommendations` endpoint (shared interests). | Returns top 3 matches as JSON. |
+| **Kehan** | Add ElasticSearch/cosine similarity fuzzy matching. | “Run” matches “Running Club”. |
+| **Ray** | Build Connections View (show pending/accepted). | Loads mock connection data. |
+| **Ting-Yu** | Add “Send Request” button + pending state UI. | Clicking updates to “Pending”. |
+| **Matthew** | Connect to `/connections/send` and `/connections/accept`. | Sending request creates DB record. |
+
+**Milestone:** User can view recommendations and send/accept connections.
+</details>
+
+---
+
+<details>
+<summary> Week 7 — Activities (Create, View, Detail)</summary>
+
+**Goals:** Full activity lifecycle (create → view → detail).
+
+| Member | Task | Concrete Milestone |
+|---------|------|--------------------|
+| **Sophia** | Implement Create Activity View with form validation. | Submitting logs form values to console. |
+| **Aaryan** | Backend `/activities/create` and `/activities/:id`. | Posting adds record retrievable by ID. |
+| **Kehan** | Add “join activity” endpoint (user ↔ activity). | User ID added to participants array. |
+| **Ray** | Build Activity Detail View. | Displays title, date, and host. |
+| **Ting-Yu** | Build Activity List View (joined/created). | Lists correct items per user. |
+| **Matthew** | Integrate image upload (Firebase Storage). | Uploaded image URL saved to DB. |
+
+**Milestone:** User can create, view, and join activities successfully.
+</details>
+
+---
+
+<details>
+<summary> Week 8 — Integration & Testing</summary>
+
+**Goals:** Combine all modules and perform E2E tests.
+
+| Member | Task | Concrete Milestone |
+|---------|------|--------------------|
+| **Sophia** | UI regression test & fix navigation. | No crashes navigating 10 views. |
+| **Aaryan** | Backend integration tests (Postman). | All endpoints return 200/400 as expected. |
+| **Kehan** | Add server-side validation for bad inputs. | API returns 400 on missing fields. |
+| **Ray** | Implement toast/error alerts on frontend. | Invalid login shows “Incorrect credentials”. |
+| **Ting-Yu** | Accessibility tests on iPhone SE + iPad. | No overlaps or cut-offs on screens. |
+| **Matthew** | Record full user flow test (video). | Demo runs login → browse → connect → activity smoothly. |
+
+**Milestone:** Full end-to-end workflow runs without errors.
+</details>
+
+---
+
+<details>
+<summary> Week 9 — Finalization & Presentation</summary>
+
+**Goals:** Polish, document, and present final app.
+
+| Member | Task | Concrete Milestone |
+|---------|------|--------------------|
+| **Sophia** | Compile release build with icon + splash. | Expo build completes without error. |
+| **Aaryan** | Write API docs (endpoints, params, examples). | README includes cURL examples. |
+| **Kehan** | Prepare system architecture slide + diagram. | Diagram included in slides. |
+| **Ray** | Record live app demo (video + voiceover). | 2-min video added to repo. |
+| **Ting-Yu** | Design poster (UI highlights + use cases). | Poster PDF finalized. |
+| **Matthew** | QA final build & ensure clean console. | App logs “No errors found” on start. |
+
+**Milestone:** Final build + docs + demo ready for submission.
+</details>
+
+---
+
+## Summary Timeline
+
+| Week | Deliverable |
+|------|--------------|
+| 3 | Project skeleton + working navigation |
+| 4 | Login & Profile flow functional |
+| 5 | Search & Browse connected to backend |
+| 6 | Recommendations + Connections live |
+| 7 | Activity creation and view cycle complete |
+| 8 | Full integration and tested beta |
+| 9 | Final release + presentation materials |
 
 
 ### Major risks & mitigations
