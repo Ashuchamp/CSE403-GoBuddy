@@ -398,10 +398,11 @@ Students often want to try new activities or maintain habits but lack someone to
 
 ### External feedback plan
 
-* **End of W3:** Onboarding/verification UX test with 5 UW students; capture time‑to‑verify.
-* **End of W5:** Discovery/search test (task‑based); measure success rate/latency.
-* **End of W7:** Request/accept flow test; clarity & perceived safety.
-* **Channels:** Short intercept surveys + in‑person pilots at IMA/Library; opt‑in only.
+* **End of W3:** Login/Profile/Browse UX test with 5 UW students; capture time-to-sign-in and navigation clarity.
+* **End of W5:** Activity creation & detail-view test (task-based); measure completion rate and error frequency.
+* **End of W6:** Full end-to-end flow review with project manager; evaluate stability, usability, and responsiveness.
+* **End of W7:** Recommendation/connection flow test; assess clarity, trust, and perceived matching accuracy.
+* **Channels:** Short intercept surveys + brief in-person pilot sessions (HUB/IMA); opt-in participants only.
 
 ### Definition of Done (per feature)
 
