@@ -1,0 +1,24 @@
+repos:
+  - repo: https://github.com/pre-commit/mirrors-golangci-lint
+    rev: v1.59.0
+    hooks:
+      - id: golangci-lint
+        args: ["run", "--config", ".golangci.yml", "./..."]
+
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.241
+    hooks:
+      - id: ruff
+        args: ["check", "."]
+
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v8.50.0
+    hooks:
+      - id: eslint
+        additional_dependencies: ["@typescript-eslint/parser@^6.0.0", "@typescript-eslint/eslint-plugin@^6.0.0"]
+        files: '\\.(js|ts|jsx|tsx)$'
+
+  - repo: https://github.com/pre-commit/mirrors-gofmt
+    rev: v0.0.0
+    hooks:
+      - id: gofmt
