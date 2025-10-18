@@ -1,0 +1,52 @@
+run:
+  timeout: 5m
+
+linters-settings:
+  govet:
+    check-shadowing: true
+
+linters:
+  enable:
+    - govet
+    - staticcheck
+    - gosimple
+    - unused
+    - errcheck
+    - gofmt
+    - goimports
+    - revive
+    - typecheck
+    - deadcode
+    - ineffassign
+    - goconst
+    - gosec
+    - dupl
+    - misspell
+
+  disable:
+    - maligned
+
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+linters-settings:
+  revive:
+    severity: warning
+    rules:
+      - name: indent-error-flow
+      - name: var-naming
+      - name: import-shadowing
+
+  gofumpt:
+    extra: true
+
+  gosec:
+    severity: error
+
+# Align formatting with gofmt/goimports and stricter checks that match Google's style
+run:
+  tests: true
+  skip-dirs:
+    - vendor
