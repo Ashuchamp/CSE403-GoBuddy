@@ -1,9 +1,9 @@
-# Code Guidelines
+## Code Guidelines
 
-1. **Python:** [https://google.github.io/styleguide/pyguide.html](https://google.github.io/styleguide/pyguide.html)
+**TypeScript/JavaScript (Frontend):** https://google.github.io/styleguide/tsguide.html — Google's TypeScript Style Guide covers type safety, naming conventions, module structure, and React best practices.
 
-2. **Front End (React Native / TypeScript):** [https://google.github.io/styleguide/jsguide.html](https://google.github.io/styleguide/jsguide.html)
+**Python (Backend):** https://google.github.io/styleguide/pyguide.html — Google's Python Style Guide (based on PEP 8) covers formatting, naming, documentation, and Python-specific patterns.
 
-3. **Enforcement:** Adding automatic checks into the PR process that require these checks to pass before merging into `main`.
+**Rationale:** Chose Google style guides because they are industry standard, comprehensive (cover formatting, naming, structure, best practices), well-supported by linters (ESLint, Prettier, Pylint, Black), and team members have prior experience.
 
-4. **Reasoning:** Google code guidelines are industry standard and cover most coding practices.
+**Enforcement:** ESLint + Prettier for TypeScript/JavaScript (config: `eslint-config-google`), Pylint/Flake8 + Black for Python. All linters run in GitHub Actions CI pipeline on every PR; PRs must pass linting before merge. Pre-commit hooks via husky (frontend) and pre-commit framework (backend). PRs require 1 reviewer approval; reviewers check style adherence. Style guides linked in `CONTRIBUTING.md`; examples in developer guide; required review during onboarding.
