@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "GoBuddy",
+    "slug": "go-buddy",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "primaryColor": "#007AFF",
+    "description": "Find activity buddies on campus. Connect with students for sports, study sessions, and social activities.",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourcompany.gobuddy",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to upload profile pictures and activity photos.",
+        "NSPhotoLibraryUsageDescription": "This app accesses your photo library to select profile pictures and activity photos.",
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to show nearby activities and buddies."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.yourcompany.gobuddy",
+      "versionCode": 1,
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
