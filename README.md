@@ -248,56 +248,67 @@ The app uses a **Node.js + Express** backend with a **Postgres** database manage
 
 ## 6) Team Process Description
 
-### Toolset (and rationale)
+### Risk Assessment
 
-* **Languages:** TypeScript (shared types client/server), SQL (Postgres).
-* **Mobile:** React Native (Expo).
-* **Backend:** Python, Node.js + Express (monolith for MVP), Prisma ORM, Zod for schema validation.
-* **DB:** Postgres (Dockerized locally; managed on staging).
-* **Auth:** Primary authentication via UW SSO (OAuth 2.0 / SAML); fallback to magic links via SendGrid with domain restriction to `uw.edu`. No passwords stored by the application.
-* **CI/CD:** GitHub Actions (lint, typecheck, unit/integration tests, Prisma migrate).
-* **Infra:** Docker Compose for dev; Render/Railway/Fly.io for staging (choose one); object storage for images (e.g., Cloudflare R2).
-* **Design:** Figma for wireframes and component library.
-* **Tracking:** GitHub Issues and GitHub Projects (Kanban), milestones per week.
+#### Risk 1: Firebase Authentication or Email Deliverability Issues
 
-### Roles & justification
+* **Likelihood:** Medium
+* **Impact:** High
+* **Evidence:** Firebase Auth is in place, but we haven't fully tested email verification workflows in production settings. Mail delivery via Firebase's default or custom ESP is often delayed or blocked in test environments.
+* **Steps to Reduce Risk:** We started UC‑1 implementation early. We will support multiple ESPs and use Mailhog for local testing. The resend verification flow is designed to be robust and user-triggered.
+* **Detection:** Backend logs and frontend alerts when verification emails fail; monitor low registration conversion.
+* **Mitigation Plan:** Fallback to verified domain senders; enable temporary login bypass via admin approval in dev/staging environments.
 
-- Aaryan Jain – Backend / API Design: Leads backend and API development, leveraging strong Node.js and database design skills to ensure reliable server communication.  
-- Kehan Jin – Backend / Search Logic: Implements and optimizes search and matching algorithms critical to GoBuddy’s discovery features.  
-- Ray Xu – Frontend / UI Development: Develops and tests React Native components, ensuring consistent state management and responsive user interfaces.  
-- Ting-Yu Hsu – UI / Design Integration: Translates Figma designs into React Native views, maintaining visual consistency and usability across the app.  
-- Sophia Su – Frontend / Integration: Oversees frontend integration and QA testing, ensuring all views and APIs connect seamlessly.  
-- Ian Matthew Lua – Full-Stack / Testing: Manages CI/CD pipelines and full-stack testing to maintain build stability and deployment quality.  
+#### Risk 2: Scope Creep Due to Feature Expansion
 
-### Branching & quality gates
+* **Likelihood:** Medium
+* **Impact:** High
+* **Evidence:** Team has discussed multiple stretch features (in-app messaging, profile analytics, etc.), and there's natural excitement around these beyond core use cases.
+* **Steps to Reduce Risk:** We've locked a rigid MVP focused on UC‑1 through UC‑5. Stretch goals are only evaluated once core flows are stable.
+* **Detection:** Weekly scope review in team standups; GitHub issues labeled by priority.
+* **Mitigation Plan:** Use feature flags to hide incomplete features; document scope freeze before integration week.
 
-* Feature‑based development with short‑lived feature branches.
-* PRs require 1 reviewer + green CI (lint/type).
-* Conventional Commits; auto‑changelog; code owners for sensitive paths.
+#### Risk 3: Mobile Build & App Store Deployment Delays
 
-### Week‑by‑week schedule (measurable milestones)
+* **Likelihood:** Medium
+* **Impact:** Medium
+* **Evidence:** While Expo simplifies development, publishing to App Store / Google Play often involves review lag and code signing friction.
+* **Steps to Reduce Risk:** Use Expo Go and internal distribution via QR codes during early testing. App functionality is web-readable, supporting a fallback demo route.
+* **Detection:** Manual Expo test builds each week; CI alerts on failed builds.
+* **Mitigation Plan:** Fall back to deploying a static read-only web version using Firebase Hosting to support demo/presentation use cases.
+
+#### Risk 4: Data Quality & Search Relevance Issues
+
+* **Likelihood:** Medium
+* **Impact:** Medium
+* **Evidence:** Freeform user inputs and inconsistent tagging may lead to noisy or irrelevant search results. Prior teams have flagged this as a late-stage usability blocker.
+* **Steps to Reduce Risk:** Provide curated tag suggestions, enforce basic input validation, and use simple search scoring (partial matches, token overlap).
+* **Detection:** Monitor number of searches with zero results; track tag usage frequency.
+* **Mitigation Plan:** Dynamically adjust tag suggestions; build a feedback loop into the Browse view for irrelevant results.
+
+#### Risk 5: Integration or Merge Conflicts in Final Week
+
+* **Likelihood:** Low
+* **Impact:** High
+* **Evidence:** As multiple features land across frontend and backend in parallel, and with six contributors, timing mismatches can delay integration.
+* **Steps to Reduce Risk:** Use a shared integration branch with required PR reviews and CI checks; complete all core feature work by end of Week 7.
+* **Detection:** CI pipeline failures; GitHub issue labels indicating blockers.
+* **Mitigation Plan:** Freeze all non-critical PRs during Week 8; nightly test builds; dedicate time to bug triage and stabilization.
+
+### Project Schedule
 
 #### Week 3 — Setup & UI Finalization
 
 **Goals:** Finalize designs, set up infrastructure, and verify navigation.
 
-<table>
-<thead>
-<tr>
-<th width="12%">Member</th>
-<th width="48%">Task</th>
-<th width="40%">Concrete Milestone</th>
-</tr>
-</thead>
-<tbody>
-<tr><td><strong>Sophia</strong></td><td>Create base React Native app with tab navigation (Home, Browse, Profile).</td><td>App launches; user can tap between tabs without errors.</td></tr>
-<tr><td><strong>Aaryan</strong></td><td>Initialize Node.js/Express backend and connect to Firestore.</td><td><code>GET /health</code> returns "OK".</td></tr>
-<tr><td><strong>Kehan</strong></td><td>Draft database schema (<code>users</code>, <code>activities</code>, <code>connections</code>).</td><td>JSON schema committed & loaded in DB.</td></tr>
-<tr><td><strong>Ray</strong></td><td>Build reusable button/input components from Figma.</td><td>Components render correctly in Expo.</td></tr>
-<tr><td><strong>Ting-Yu</strong></td><td>Finalize all Figma mockups with labeled components.</td><td>Exported Figma file linked in repo.</td></tr>
-<tr><td><strong>Matthew</strong></td><td>Configure CI workflow for lint + build checks.</td><td>Sample commit triggers and passes CI pipeline.</td></tr>
-</tbody>
-</table>
+| Member | Task | Concrete Milestone | Effort | Dependencies |
+|--------|------|-------------------|--------|--------------|
+| **Sophia** | Finalize Figma UI mockups and implement Profile View skeleton in React Native. | App launches; user can tap between tabs without errors. | 1.0 | Figma designs in progress |
+| **Aaryan** | Initialize Firebase project and configure CI workflow for lint + build checks. | GitHub Actions runs successfully and the Firebase project is connected. | 1.0 | Local dev environment ready |
+| **Kehan** | Draft database schema for Firestore (users, activities, connections). | JSON schema committed & loaded in DB. | 0.5 | App skeleton + Firebase initialized |
+| **Ray** | Build Browse View and Recommendation View UI and create reusable button/input components. | Components render correctly in Expo and connect to Browse and Recommendation screens. | 1.0 | Figma mockups finalized |
+| **Ting-Yu** | Finalize Connections View and Send Request View layouts. | Views load with mock data and pending/accepted states. | 0.5 | Component library (Ray) initialized |
+| **Matthew** | Set up tab navigation and Login screen scaffold. | App launches and users can tap between tabs without errors. | 0.5 | None |
 
 **Milestone:** Functional skeleton app + backend server health check.
 
@@ -307,23 +318,14 @@ The app uses a **Node.js + Express** backend with a **Postgres** database manage
 
 **Goals:** Implement login/signup and store user info.
 
-<table>
-<thead>
-<tr>
-<th width="12%">Member</th>
-<th width="48%">Task</th>
-<th width="40%">Concrete Milestone</th>
-</tr>
-</thead>
-<tbody>
-<tr><td><strong>Sophia</strong></td><td>Build Login View with SSO button and magic link option.</td><td>User can initiate UW SSO or request magic link.</td></tr>
-<tr><td><strong>Aaryan</strong></td><td>Implement <code>/auth/sso</code> and <code>/auth/magic-link</code> routes with UW OAuth integration.</td><td>SSO callback creates user session and returns token.</td></tr>
-<tr><td><strong>Kehan</strong></td><td>Create Postgres <code>users</code> collection with sample data.</td><td>Two users retrievable by API.</td></tr>
-<tr><td><strong>Ray</strong></td><td>Implement SSO callback handler and magic link verification flow.</td><td>UW SSO redirect completes successfully with user session.</td></tr>
-<tr><td><strong>Ting-Yu</strong></td><td>Build Profile View UI (name, bio, image upload placeholder).</td><td>Profile View shows editable fields.</td></tr>
-<tr><td><strong>Matthew</strong></td><td>Connect frontend auth forms to backend SSO and magic link endpoints.</td><td>Successful SSO login navigates to Home View with token.</td></tr>
-</tbody>
-</table>
+| Member | Task | Concrete Milestone | Effort | Dependencies |
+|--------|------|-------------------|--------|--------------|
+| **Sophia** | Build Profile View UI (name, bio, image upload placeholder). | Profile View updates user information fields and syncs with backend. | 1.0 | Firebase Auth ready (Aaryan) |
+| **Aaryan** | Implement /auth/signup and /auth/login routes (JWT/Firebase). | Curl signup creates user and returns token; login returns valid token. | 1.0 | Firebase initialized (Week 3) |
+| **Kehan** | Create Firestore users collection with sample data. | Two users retrievable by API. | 0.5 | Schema finalized (Week 3) |
+| **Ray** | Implement Email Verification View + API hook. | Clicking "Send Code" returns success message. | 0.5 | Auth routes functional |
+| **Ting-Yu** | Connect Request and Connections View with authenticated user state. | Pending connections display correctly after login. | 0.5 | Auth + mock data loaded |
+| **Matthew** | Build Login View with email/password fields and navigation to Home View after successful login. | Successful login redirects to Home View with stored token. | 1.0 | Auth routes + tab navigation ready |
 
 **Milestone:** User can register, verify, log in, and edit profile data in DB.
 
@@ -333,23 +335,14 @@ The app uses a **Node.js + Express** backend with a **Postgres** database manage
 
 **Goals:** Browsing and searching for activities/users works.
 
-<table>
-<thead>
-<tr>
-<th width="12%">Member</th>
-<th width="48%">Task</th>
-<th width="40%">Concrete Milestone</th>
-</tr>
-</thead>
-<tbody>
-<tr><td><strong>Sophia</strong></td><td>Implement Home View fetching activities from <code>/activities</code>.</td><td>Displays ≥3 activities from DB.</td></tr>
-<tr><td><strong>Aaryan</strong></td><td>Build <code>/search</code> API with filters (date, location).</td><td>API returns filtered JSON via Postman.</td></tr>
-<tr><td><strong>Kehan</strong></td><td>Write query logic for partial matches.</td><td>"Yoga" → "Morning Yoga" returns correctly.</td></tr>
-<tr><td><strong>Ray</strong></td><td>Create Browse View UI + search bar and filters.</td><td>Typing keyword updates results on screen.</td></tr>
-<tr><td><strong>Ting-Yu</strong></td><td>Add loading & empty-state UI.</td><td>"No results found" renders properly.</td></tr>
-<tr><td><strong>Matthew</strong></td><td>Connect Browse View to <code>/search</code> API.</td><td>Typing "tennis" fetches backend results.</td></tr>
-</tbody>
-</table>
+| Member | Task | Concrete Milestone | Effort | Dependencies |
+|--------|------|-------------------|--------|--------------|
+| **Sophia** | Implement Home View fetching activities from /activities. | Displays ≥3 activities from DB. | 0.5 | Activity data available |
+| **Aaryan** | Build /search API with filters (date, location). | API returns filtered JSON via Postman. | 1.0 | Firebase + sample data |
+| **Kehan** | Write query logic for partial matches. | "Yoga" → "Morning Yoga" returns correctly. | 0.5 | /search endpoint defined |
+| **Ray** | Create Browse View UI + search bar and filters. | Typing keyword updates results on screen. | 1.0 | UI components complete |
+| **Ting-Yu** | Add loading & empty-state UI. | "No results found" renders properly. | 0.5 | Browse screen working |
+| **Matthew** | Connect Browse View to /search API. | Typing "tennis" fetches backend results. | 0.5 | /search + Browse View ready |
 
 **Milestone:** User can search and see matching activities from backend.
 
@@ -359,23 +352,14 @@ The app uses a **Node.js + Express** backend with a **Postgres** database manage
 
 **Goals:** Recommendation algorithm and connection requests functional.
 
-<table>
-<thead>
-<tr>
-<th width="12%">Member</th>
-<th width="48%">Task</th>
-<th width="40%">Concrete Milestone</th>
-</tr>
-</thead>
-<tbody>
-<tr><td><strong>Sophia</strong></td><td>Build Recommendation View UI.</td><td>Displays mock recommendation cards.</td></tr>
-<tr><td><strong>Aaryan</strong></td><td>Create <code>/recommendations</code> endpoint (shared interests).</td><td>Returns top 3 matches as JSON.</td></tr>
-<tr><td><strong>Kehan</strong></td><td>Add ElasticSearch/cosine similarity fuzzy matching.</td><td>"Run" matches "Running Club".</td></tr>
-<tr><td><strong>Ray</strong></td><td>Build Connections View (show pending/accepted).</td><td>Loads mock connection data.</td></tr>
-<tr><td><strong>Ting-Yu</strong></td><td>Add "Send Request" button + pending state UI.</td><td>Clicking updates to "Pending".</td></tr>
-<tr><td><strong>Matthew</strong></td><td>Connect to <code>/connections/send</code> and <code>/connections/accept</code>.</td><td>Sending request creates DB record.</td></tr>
-</tbody>
-</table>
+| Member | Task | Concrete Milestone | Effort | Dependencies |
+|--------|------|-------------------|--------|--------------|
+| **Sophia** | Build Recommendation View UI. | Displays mock recommendation cards. | 0.5 | User data populated |
+| **Aaryan** | Create /recommendations endpoint (shared interests). | Returns top 3 matches as JSON. | 1.0 | Firestore users/activities |
+| **Kehan** | Add ElasticSearch/cosine similarity fuzzy matching. | "Run" matches "Running Club". | 1.0 | Sample dataset loaded |
+| **Ray** | Build Connections View (show pending/accepted). | Loads mock connection data. | 0.5 | Mock connection data |
+| **Ting-Yu** | Add "Send Request" button + pending state UI. | Clicking updates to "Pending". | 0.5 | Auth + connection state |
+| **Matthew** | Connect to /connections/send and /connections/accept. | Sending request creates DB record. | 0.5 | Backend endpoints ready |
 
 **Milestone:** User can view recommendations and send/accept connections.
 
@@ -385,23 +369,14 @@ The app uses a **Node.js + Express** backend with a **Postgres** database manage
 
 **Goals:** Full activity lifecycle (create → view → detail).
 
-<table>
-<thead>
-<tr>
-<th width="12%">Member</th>
-<th width="48%">Task</th>
-<th width="40%">Concrete Milestone</th>
-</tr>
-</thead>
-<tbody>
-<tr><td><strong>Sophia</strong></td><td>Implement Create Activity View with form validation.</td><td>Submitting logs form values to console.</td></tr>
-<tr><td><strong>Aaryan</strong></td><td>Backend <code>/activities/create</code> and <code>/activities/:id</code>.</td><td>Posting adds record retrievable by ID.</td></tr>
-<tr><td><strong>Kehan</strong></td><td>Add "join activity" endpoint (user ↔ activity).</td><td>User ID added to participants array.</td></tr>
-<tr><td><strong>Ray</strong></td><td>Build Activity Detail View.</td><td>Displays title, date, and host.</td></tr>
-<tr><td><strong>Ting-Yu</strong></td><td>Build Activity List View (joined/created).</td><td>Lists correct items per user.</td></tr>
-<tr><td><strong>Matthew</strong></td><td>Integrate image upload (object storage).</td><td>Uploaded image URL saved to DB.</td></tr>
-</tbody>
-</table>
+| Member | Task | Concrete Milestone | Effort | Dependencies |
+|--------|------|-------------------|--------|--------------|
+| **Sophia** | Implement Create Activity View with form validation. | Submitting logs form values to console. | 1.0 | Form schema finalized |
+| **Aaryan** | Backend /activities/create and /activities/:id. | Posting adds record retrievable by ID. | 1.0 | Firestore ready |
+| **Kehan** | Add "join activity" endpoint (user ↔ activity). | User ID added to participants array. | 0.5 | Activities collection |
+| **Ray** | Build Activity Detail View. | Displays title, date, and host. | 0.5 | Activity data available |
+| **Ting-Yu** | Build Activity List View (joined/created). | Lists correct items per user. | 0.5 | Auth + activity joined |
+| **Matthew** | Integrate image upload (Firebase Storage). | Uploaded image URL saved to DB. | 0.5 | Firebase Storage configured |
 
 **Milestone:** User can create, view, and join activities successfully.
 
@@ -411,23 +386,14 @@ The app uses a **Node.js + Express** backend with a **Postgres** database manage
 
 **Goals:** Combine all modules and perform E2E tests.
 
-<table>
-<thead>
-<tr>
-<th width="12%">Member</th>
-<th width="48%">Task</th>
-<th width="40%">Concrete Milestone</th>
-</tr>
-</thead>
-<tbody>
-<tr><td><strong>Sophia</strong></td><td>UI regression test & fix navigation.</td><td>No crashes navigating 10 views.</td></tr>
-<tr><td><strong>Aaryan</strong></td><td>Backend integration tests (Postman).</td><td>All endpoints return 200/400 as expected.</td></tr>
-<tr><td><strong>Kehan</strong></td><td>Add server-side validation for bad inputs.</td><td>API returns 400 on missing fields.</td></tr>
-<tr><td><strong>Ray</strong></td><td>Implement toast/error alerts on frontend.</td><td>Invalid login shows "Incorrect credentials".</td></tr>
-<tr><td><strong>Ting-Yu</strong></td><td>Accessibility tests on iPhone SE + iPad.</td><td>No overlaps or cut-offs on screens.</td></tr>
-<tr><td><strong>Matthew</strong></td><td>Record full user flow test (video).</td><td>Demo runs login → browse → connect → activity smoothly.</td></tr>
-</tbody>
-</table>
+| Member | Task | Concrete Milestone | Effort | Dependencies |
+|--------|------|-------------------|--------|--------------|
+| **Sophia** | UI regression test & fix navigation. | No crashes navigating 10 views. | 0.5 | All UI screens implemented |
+| **Aaryan** | Backend integration tests (Postman). | All endpoints return 200/400 as expected. | 0.5 | All endpoints complete |
+| **Kehan** | Add server-side validation for bad inputs. | API returns 400 on missing fields. | 0.5 | Endpoint schemas defined |
+| **Ray** | Implement toast/error alerts on frontend. | Invalid login shows "Incorrect credentials". | 0.5 | Auth flow tested |
+| **Ting-Yu** | Accessibility tests on iPhone SE + iPad. | No overlaps or cut-offs on screens. | 0.5 | All views rendered |
+| **Matthew** | Record full user flow test (video). | Demo runs login → browse → connect → activity smoothly. | 0.5 | E2E functionality ready |
 
 **Milestone:** Full end-to-end workflow runs without errors.
 
@@ -437,54 +403,586 @@ The app uses a **Node.js + Express** backend with a **Postgres** database manage
 
 **Goals:** Polish, document, and present final app.
 
-<table>
-<thead>
-<tr>
-<th width="12%">Member</th>
-<th width="48%">Task</th>
-<th width="40%">Concrete Milestone</th>
-</tr>
-</thead>
-<tbody>
-<tr><td><strong>Sophia</strong></td><td>Compile release build with icon + splash.</td><td>Expo build completes without error.</td></tr>
-<tr><td><strong>Aaryan</strong></td><td>Write API docs (endpoints, params, examples).</td><td>README includes cURL examples.</td></tr>
-<tr><td><strong>Kehan</strong></td><td>Prepare system architecture slide + diagram.</td><td>Diagram included in slides.</td></tr>
-<tr><td><strong>Ray</strong></td><td>Record live app demo (video + voiceover).</td><td>2-min video added to repo.</td></tr>
-<tr><td><strong>Ting-Yu</strong></td><td>Design poster (UI highlights + use cases).</td><td>Poster PDF finalized.</td></tr>
-<tr><td><strong>Matthew</strong></td><td>QA final build & ensure clean console.</td><td>App logs "No errors found" on start.</td></tr>
-</tbody>
-</table>
+| Member | Task | Concrete Milestone | Effort | Dependencies |
+|--------|------|-------------------|--------|--------------|
+| **Sophia** | Compile release build with icon + splash. | Expo build completes without error. | 0.5 | All views tested |
+| **Aaryan** | Write API docs (endpoints, params, examples). | README includes cURL examples. | 0.5 | Backend endpoints stable |
+| **Kehan** | Prepare system architecture slide + diagram. | Diagram included in slides. | 0.5 | Architecture finalized |
+| **Ray** | Record live app demo (video + voiceover). | 2-min video added to repo. | 0.5 | App demo flows tested |
+| **Ting-Yu** | Design poster (UI highlights + use cases). | Poster PDF finalized. | 0.5 | Screenshots + flow finalized |
+| **Matthew** | QA final build & ensure clean console. | App logs "No errors found" on start. | 0.5 | Final build ready |
 
 **Milestone:** Final build + docs + demo ready for submission.
 
 ---
 
+### Team Structure
 
-### Major risks & mitigations
+Our team follows a full-stack collaborative model, where all members contribute to both frontend and backend development. Tasks are modularized, assigned individually, while larger interconnected modules are developed jointly by 2-3 members to ensure smooth integration and consistency.
 
-1. **Auth/Email Deliverability Issues**
+**Primary Focus:**
 
-   * *Mitigation:* Start UC‑1 early; support multiple ESPs; mailhog in dev; clear resend flow.
-2. **Scope Creep**
+| Member | Primary Focus | Key Responsibilities |
+|--------|---------------|---------------------|
+| Aaryan | Backend / API | Designs API endpoints, authentication, and database schema. |
+| Kehan | Backend / Search | Implements search and matching logic; supports data queries. |
+| Ray | Frontend / UI | Builds and tests UI components; manages state and integration. |
+| Ting-Yu | UI / Design | Converts Figma designs to React Native; maintains design fidelity. |
+| Sophia | Frontend / QA | Integrates views, handles navigation, and leads QA testing. |
+| Matthew | Full-Stack / Testing | Manages CI/CD, documentation, and end-to-end testing. |
 
-   * *Mitigation:* Rigid MVP; feature flags; stretch goals only after UC‑1…UC‑5 are stable.
-3. **Mobile Build/Store friction**
+---
 
-   * *Mitigation:* Use Expo for early distribution; ship a web read‑only surface as a fallback.
-4. **Data quality/search relevance**
+### Test Plan & Bugs
 
-   * *Mitigation:* Curated tag suggestions; simple scoring; monitor “no results” rate.
+#### Unit testing 
 
-### External feedback plan
+Verify the correctness of isolated modules and functions in both frontend and backend.
 
-* **End of W3:** Login/Profile/Browse UX test with 5 UW students; capture time-to-sign-in and navigation clarity.
-* **End of W5:** Activity creation & detail-view test (task-based); measure completion rate and error frequency.
-* **End of W6:** Full end-to-end flow review with project manager; evaluate stability, usability, and responsiveness.
-* **End of W7:** Recommendation/connection flow test; assess clarity, trust, and perceived matching accuracy.
-* **Channels:** Short intercept surveys + brief in-person pilot sessions (HUB/IMA); opt-in participants only.
+**Frontend**
+* UI components (buttons, forms, inputs, search bar, connection cards).
+* State management and API hook functions.
 
-### Definition of Done (per feature)
+**Backend**
+* Authentication logic (magic link verification, token validation).
+* Database models.
+* Request validation and error handling.
 
-* Meets acceptance criteria; unit/integration tests pass; accessibility check; telemetry added; updated docs; feature flag default ON in staging.
+**Tools & Frameworks:**
+* Jest (unit testing for both frontend and backend).
+* React Testing Library for component rendering and user interaction simulation.
+* Supertest for Express API route verification.
+
+**Execution:**
+* Run automatically in GitHub Actions CI on every pull request.
+* Code coverage targets: ≥ 80% statements, ≥ 70% branches.
+* Failing tests block merge until resolved.
+
+#### Integration testing
+
+Verify that individual modules work together as a complete system.
+
+**Frontend–Backend Integration:**
+* Authentication flow (signup → email verification → profile creation).
+* Search and filtering requests between client and API.
+* Connection request lifecycle (send, accept, exchange contact info).
+
+**Database Integration:**
+* Error handling on invalid or missing data.
+
+**Performance & Reliability:**
+* Validate P50 < 300 ms and P95 < 800 ms response latency for search endpoints.
+* Ensure backend can handle ≥ 100 concurrent sessions without crash.
+
+**Tools & Frameworks:**
+* Postman Collection and Newman CLI for automated API testing.
+* Docker Compose for consistent local integration environment.
+* Prisma seed scripts for generating reproducible test data.
+
+**Execution:**
+* Scheduled weekly integration test runs.
+* Each sprint milestone includes a full regression pass before release.
+* Integration test failures automatically logged as GitHub Issues.
+
+#### Usability testing
+
+Evaluate user experience, interface clarity, and overall satisfaction.
+
+**Participants:** 5–10 UW students (representative of target users).
+
+**Scenarios:**
+* Create an account and verify via UW email.
+* Search for a buddy using an activity keyword (e.g., "soccer").
+* Send and accept a connection request.
+* Create and join an activity.
+
+**Metrics Collected:**
+* Time to complete each task (goal: < 2 min onboarding).
+* Error rate and frequency of confusion.
+
+**Results Tracking:**
+* Feedback aggregated into GitHub Issues tagged `usability`.
+
+#### Bug Tracking & Reporting
+
+All bugs discovered during testing or live use will be recorded in GitHub Issues with standardized fields:
+
+* **Title:** concise summary of the issue.
+* **Labels:** `bug`, `frontend`, `backend`, `usability`, or `performance`.
+* **Steps to Reproduce:** numbered steps with expected vs. actual behavior.
+* **Severity:** critical / major / minor.
+* **Assigned To:** responsible developer or subteam.
+* **Status Workflow:** Open → In Progress → Fixed → Verified.
+
+Critical or recurring bugs will be reviewed in weekly stand-ups and must be closed before the next milestone.
+
+---
+
+### Documentation Plan
+
+Our documentation aims at three audiences: users, administrators, and developers. Documentation will be created within the GitHub repository (`/docs/` folder and Wiki) and maintained alongside the codebase.
+
+#### User Documentation
+
+**Purpose:** Help users understand how to download, navigate, and use the GoBuddy mobile app.
+
+**Format:**
+* A support website providing download instructions, navigation guidance, FAQs, and troubleshooting resources.
+  * Downloading page.
+  * User manual page
+  * FAQ/Troubleshooting page
+  * Contact for feedback page
+* In-app step-by-step tutorials to assist users throughout the app experience.
+  * Inline tooltips, "?" icons, and empty-state instructions.
+
+#### Administrator & Deployment Guide
+
+**Purpose:** Enable maintainers to deploy, configure, and monitor the app in staging or production environments.
+
+**Format:** Markdown guide (`/docs/AdminGuide.md`) linked from README.
+
+#### Developer Guide
+
+**Purpose:** Help new contributors understand the architecture, coding standards, and contribution workflow.
+
+**Format:** `/docs/DEVELOPER_GUIDE.md` + Wiki pages for deeper topics.
+
+**Content Outline:**
+
+* **System Overview**
+  * Architecture diagram (frontend ↔ backend ↔ DB ↔ auth flow)
+  * Core data models (User, Activity, Connection)
+
+* **Setup & Development**
+  * Local setup (npm install, make dev)
+  * Running backend (Node + Express) and frontend (Expo) locally
+  * Linting, formatting, and commit conventions
+
+* **Testing**
+  * Unit and integration test commands
+  * Sample Postman collection and test scripts
+
+* **Contributing Workflow**
+  * Branching, pull-request reviews, and CI checks
+  * Issue labeling and weekly milestones
+
+* **API Reference**
+  * Endpoint list with method, parameters, and sample cURL requests
+
+---
+
+## 7) Software Architecture
+
+![Architecture Diagram](images/Architecture.png)
+
+### System Overview
+
+GoBuddy uses a **client-server architecture** with clear separation between mobile frontend (React Native + Expo) and backend API (Node.js + Express + Prisma + PostgreSQL). The system follows **MVC-inspired patterns**: frontend Views call Store interfaces (Model), Stores manage data and call backend Services (Controller), which handle business logic and database access. Frontend uses **React Context + Reducers** for lightweight state management (UserStore, GroupStore, ContactStore) without Redux overhead. Backend uses **layered architecture** (Routes → Middleware → Services → Prisma/Database) where each layer has clear responsibilities and dependencies flow inward. External services include UW SSO/Google OAuth for authentication, SendGrid for email delivery, object storage (S3/R2) for images, and messaging app deep links (WhatsApp/Telegram/Discord) instead of building in-app chat. Authentication uses JWT tokens issued by backend, stored securely on frontend via expo-secure-store, and attached to all API requests. Data flow example: user types "gym" in BrowseView → GroupStore.search() → apiClient calls backend `/search?tags=gym` → authMiddleware validates JWT → activityService queries Prisma → results flow back → GroupStore caches → BrowseView re-renders GroupCardView components. Deployment: Frontend via Expo builds (QR codes for dev, TestFlight/Google Play for beta), Backend as Dockerized Node.js app on Oracle Cloud/Railway/Render, Managed PostgreSQL on same cloud provider.
+
+### Architecture Decisions
+
+#### Frontend Framework Selection
+
+**Decision:** React Native with Expo
+
+**Alternatives Considered:**
+
+1. **Native Development (Swift/Kotlin)**
+   - **Pros:** Best performance, full access to platform APIs, native UI/UX
+   - **Cons:** Separate codebases for iOS/Android, longer development time, requires platform-specific expertise, harder to maintain
+   - **Rejected because:** Limited team size and timeline require faster development; maintaining two codebases would be unsustainable for MVP
+
+2. **Flutter**
+   - **Pros:** Single codebase, good performance, growing ecosystem, hot reload
+   - **Cons:** Dart language learning curve, smaller community than React, fewer third-party libraries
+   - **Rejected because:** Team has stronger JavaScript/TypeScript experience; React ecosystem is more mature for our needs
+
+3. **React Native with Expo (CHOSEN)**
+   - **Pros:** Single codebase for iOS/Android, leverages team's existing JavaScript/React knowledge, large ecosystem, Expo simplifies deployment and testing, excellent developer experience with hot reload, easy to prototype quickly
+   - **Cons:** Some performance limitations vs native, occasional Expo limitations requiring ejection
+   - **Why chosen:** Best balance of development speed, team expertise, and platform coverage; Expo streamlines development and testing workflows critical for our timeline
+
+4. **Progressive Web App (PWA)**
+   - **Pros:** No app store approval needed, works across all platforms, easier deployment
+   - **Cons:** Limited access to device features (notifications, camera), inferior UX compared to native, requires internet connection
+   - **Rejected because:** Need native mobile experience with offline capabilities and push notifications
+
+#### State Management Selection
+
+**Decision:** React Context + Reducers (lightweight stores)
+
+**Alternatives Considered:**
+
+1. **Redux**
+   - **Pros:** Mature, predictable state, great dev tools, large community
+   - **Cons:** Boilerplate-heavy, overkill for our app size, steeper learning curve
+   - **Rejected because:** Too complex for MVP scope; Context API provides sufficient functionality
+
+2. **MobX**
+   - **Pros:** Less boilerplate than Redux, reactive programming model
+   - **Cons:** Different paradigm, smaller community, can be "magical"
+   - **Rejected because:** Team more familiar with React patterns; prefer explicit over implicit
+
+3. **React Context + Reducers (CHOSEN)**
+   - **Pros:** Built into React, minimal setup, sufficient for app complexity, easy testing with mocks, team familiar with pattern
+   - **Cons:** Less structure than Redux for very large apps
+   - **Why chosen:** Right-sized for our needs; reduces dependencies; team familiar with React hooks and Context
+
+#### Backend Database Selection
+
+**Decision:** Postgres with Prisma ORM
+
+**Alternatives Considered:**
+
+1. **Firestore (NoSQL)**
+   - **Pros:** Managed service, real-time sync, free tier, automatic scaling
+   - **Cons:** Less flexible queries, vendor lock-in, harder to test locally, credentials management in team setting
+   - **Rejected because:** Local development complexity, credential syncing issues, limited query capabilities for search features
+
+2. **MongoDB**
+   - **Pros:** Flexible schema, popular, good for rapid prototyping
+   - **Cons:** Lacks relational integrity, can lead to inconsistent data, query performance issues
+   - **Rejected because:** Need relational data (users ↔ activities ↔ connections), prefer type safety
+
+3. **Postgres with Prisma ORM (CHOSEN)**
+   - **Pros:** Relational integrity, powerful queries for search/filtering, type-safe database access, excellent local development with Docker, migration system, no external credentials needed, team can use SQL knowledge
+   - **Cons:** Requires hosting and management (vs managed service)
+   - **Why chosen:** Best fit for our relational data model, easier local development, type safety aligns with TypeScript, team has SQL experience
+
+#### Messaging Solution
+
+**Decision:** Integrate existing messaging app wrapper (e.g., WhatsApp, Telegram, Discord deep links)
+
+**Rationale:** 
+- Building a real-time messaging system from scratch is complex and time-consuming
+- Users already have preferred messaging apps installed
+- Reduces development and maintenance burden
+- After connection acceptance, provide deep links to start conversations on existing platforms
+- Focus development effort on core discovery and matching features
+
+**Implementation Approach:**
+- After users accept connection requests, display contact exchange with options to message via:
+  - WhatsApp: `https://wa.me/<phone_number>`
+  - Telegram: `https://t.me/<username>`
+  - Discord: Shared server invite or username
+- Store user's preferred contact method in profile
+- Generate deep links to open installed messaging apps
+
+### Frontend Tools, Languages & Libraries
+
+#### Core Technologies
+
+* **Language:** TypeScript 5.x
+* **Framework:** React Native 0.74+
+* **Build Tool:** Expo SDK 51+
+* **Package Manager:** npm or yarn
+
+#### UI & Styling
+
+* **UI Component Library:** React Native Paper (Material Design) or NativeBase
+* **Styling:** StyleSheet API + optional styled-components
+* **Icons:** @expo/vector-icons (Ionicons, MaterialIcons)
+* **Fonts:** expo-font for custom typography
+* **Theme:** Custom theme with light/dark mode support
+
+#### Navigation
+
+* **Navigation Library:** React Navigation 6.x
+  * @react-navigation/native
+  * @react-navigation/stack (for auth flows)
+  * @react-navigation/bottom-tabs (for main app tabs)
+  * @react-navigation/native-stack (for nested screens)
+
+#### State Management & Data Fetching
+
+* **Global State:** React Context API + useReducer hooks
+* **Local State:** useState, useEffect hooks
+* **API Client:** Axios or fetch API
+* **Data Caching:** Custom hooks with Context providers
+* **Form State:** React Hook Form for form validation and management
+
+#### Utilities & Helpers
+
+* **Date/Time:** date-fns or dayjs (lightweight date manipulation)
+* **Validation:** Zod (schema validation, shared with backend)
+* **Image Handling:** expo-image-picker, expo-image-manipulator
+* **Storage:** @react-native-async-storage/async-storage (local data persistence)
+* **Secure Storage:** expo-secure-store (for auth tokens)
+
+#### Authentication & Authorization
+
+* **OAuth/SSO:** expo-auth-session (for UW SSO integration)
+* **Google OAuth:** @react-native-google-signin/google-signin or expo-auth-session
+* **JWT Handling:** Custom hooks for token management
+
+#### Networking & APIs
+
+* **HTTP Client:** Axios
+* **API Base URL Config:** Environment variables via app.config.js
+* **Request Interceptors:** Automatic auth header injection
+* **Error Handling:** Centralized error boundary and toast notifications
+
+#### Testing
+
+* **Unit Testing:** Jest
+* **Component Testing:** React Native Testing Library (@testing-library/react-native)
+* **E2E Testing:** Detox (optional for critical flows)
+* **Mocking:** Mock Service Worker (MSW) for API mocking
+
+#### Developer Experience
+
+* **Linting:** ESLint with TypeScript support
+* **Formatting:** Prettier
+* **Type Checking:** TypeScript compiler
+* **Hot Reload:** Expo's Fast Refresh
+* **Debugging:** React Native Debugger, Flipper
+
+#### Additional Expo Modules
+
+* **expo-notifications:** Push notifications
+* **expo-location:** Location services (for activity location)
+* **expo-camera:** Profile picture capture
+* **expo-constants:** App constants and environment config
+* **expo-linking:** Deep linking support
+
+### Front End
+
+1. **Components and Functionality**
+   
+   a. **LoginView** (process user log in / sign in, and email verification)
+   
+   b. **HomeView** (A tab view that contains the major components of the app, with the following tabs)
+      
+         i. **BrowseView** (Search for students or activity groups)
+         
+         ii. **RecommendationView** (View recommended activity groups)
+         
+         iii. **GroupsView** (View saved and create new activity groups)
+         
+         iv. **ConnectionsView** (View pending and existing connections)
+         
+         v. **UserProfileView** (View and edit personal information)
+   
+   c. **Reusable Sub Views**
+      
+         i. **StudentCardView** (Used in BrowseView and ConnectionsView to display basic info of another student)
+         
+         ii. **GroupCardView** (used in BrowseView, RecommendationView, and ConnectionsView to display info of group activities)
+   
+   d. **App and UI states**
+   
+   e. **Shared Stores** (Local temporary data storage)
+      
+         i. **UserStore** (store user information and access tokens)
+         
+         ii. **GroupStore** (store group information associated with user)
+         
+         iii. **ContactStore** (store contact preferences and messaging app deep links for connected users)
+
+2. **Interfaces between components**
+   
+   a. **Props:** Views pass data into subviews StudentCardView / GroupCardView.
+   
+   b. **Shared State/Stores:** To have temporary in app data storage. Views never fetch directly; they call store interfaces. Stores are provided via React Context and can be mocked in tests.
+
+3. **Data being stored**
+   
+   a. **Auth/session:** Google ID/Access tokens, session state, token expiry.
+   
+   b. **Cached domain data (for offline/latency):** users, activities, groups, connections, contact exchange preferences (preferred messaging apps, usernames/handles).
+   
+   c. **UI state:** selected tab, filters/search terms, pagination cursors, last-sync timestamps, feature flags.
+   
+   d. **Preferences:** notification toggles, theme, location permission state.
+
+4. **Assumptions**
+   
+   a. Tokens stored in secure storage, no tokens in logs.
+   
+   b. Minimal PII stored, no sensitive data.
+
+### Back End
+
+1. **Components and Functionality**
+   
+   a. Database for storing all information
+   
+   b. Authentication, using google OAuth
+   
+   c. APIs for interacting with the database (READ and WRITES)
+
+2. **Interfaces between components**
+   
+   a. Once signed in the front end will store user tokens and pass them with the API calls
+   
+   b. The database will have a mapping between user and information along with group information.
+   
+   c. Messaging functionality will use deep links to existing messaging apps (WhatsApp, Telegram, Discord) rather than building in-app chat
+
+3. **Data being stored**
+   
+   a. Contact exchange preferences (preferred messaging app, username/handle, phone number)
+   
+   b. Basic user information, pictures, names, interests, graduation year
+   
+   c. Group information, location, time, date, users, interests
+
+4. **Schema**
+   
+   a. User: UUID, Age, Email, Interests, Friends, Contact Preferences (messaging_app, handle, phone)
+   
+   b. Groups: Group UUID, Group members, Interests, Location, Time, Date
+
+5. **Assumptions**
+   
+   a. Users are going to be truthful about the information
+   
+   b. Front end will make fields mandatory to prevent abuse
+   
+   c. Hosting will be handled on AWS or github codespaces for dev
+   
+   d. Using Prisma ORM for database management with Postgres, providing type-safe queries and easier local development
+
+---
+
+## 8) Software Design
+
+### Front End
+
+1. **Tech stack**
+   
+   a. React Native (Expo), TypeScript, React Navigation (stack + tabs)
+   
+   b. State via React Context + reducers (stores). Views never fetch directly.
+
+2. **Packages / modules**
+   
+   a. app/: navigation shells (AuthStack, MainTabs, nested stacks for Groups/Connections)
+   
+   b. components/: reusable UI (Button, Input, Card, Avatar, Badge, SearchBar, EmptyState, ErrorView)
+   
+   c. features/: view modules
+      
+         i. auth: LoginView, EmailVerificationView
+         
+         ii. home: HomeView (tab shell, badges/toasts)
+         
+         iii. browse: BrowseView (search, filters, results)
+         
+         iv. recommend: RecommendationView
+         
+         v. groups: GroupsView, ActivityDetailView, CreateActivityView
+         
+         vi. connections: ConnectionsView, SendRequestView
+         
+         vii. profile: UserProfileView
+   
+   d. stores/: Context stores (UserStore, GroupStore, ContactStore)
+   
+   e. services/: apiClient (REST), googleAuthSvc, prismaSvc, storageSvc, notificationsSvc, analyticsSvc
+   
+   f. hooks/: useAuth, useQuery, usePagination, useDebounce, useNetInfo
+   
+   g. types/: User, Activity, Connection, UUID
+   
+   h. utils/: date/format, logger, guards
+
+3. **Responsibilities**
+   
+   a. Views (features/*): render UI, read/write via stores only; local form state; handle loading/empty/error.
+   
+   b. UserStore: session state, secure token, profile read/update, preferences (theme/notifications).
+   
+   c. GroupStore: search/filter/pagination; cache users/activities; create/join/get activity; recommendations.
+   
+   d. ContactStore: manage contact exchange preferences, generate messaging app deep links (WhatsApp, Telegram, Discord), store connection contact methods.
+   
+   e. Services: isolate I/O and SDKs (Auth/Prisma/Storage/REST), attach auth headers, retries, upload images, push/local notifications, basic analytics.
+   
+   f. Navigation (app/*): route guards (signedIn/verified), deep link mapping, param validation.
+   
+   g. Components: accessible, theme-aware atoms/molecules; no business logic.
+   
+   h. Hooks: shared UI/data patterns (debounce, pagination, network status).
+
+4. **Data flow example**
+   
+   a. BrowseView → GroupStore.search(params) → apiClient/Prisma → store cache update → render GroupCardView. Optimistic updates for join/create actions; offline shows cached lists with retry.
+
+5. **Non-functional**
+   
+   a. Security: tokens in secure storage; no tokens/PII in logs.
+   
+   b. Performance: FlatList virtualization, memoized cards, image caching.
+   
+   c. Error handling: global ErrorBoundary; per-screen Skeleton/ErrorView; offline banner.
+
+6. **Testing (frontend)**
+   
+   a. Unit: reducers, hooks, components
+   
+   b. Integration: view↔store interactions, navigation guards
+   
+   c. CI: run Jest + React Testing Library on PRs; MSW for API mocks and Prisma mock client for database I/O.
+
+### Back End
+
+1. **Tech stack**
+   
+   a. Node.js with Express 4.x, TypeScript, Prisma 5.x ORM
+   
+   b. PostgreSQL 15+ database; layered architecture (Routes → Middleware → Services → Prisma/Database)
+
+2. **Packages / modules**
+   
+   a. routes/: API endpoints (auth, users, activities, search, connections)
+   
+   b. middleware/: authMiddleware (JWT validation), validationMiddleware (Zod schemas), errorHandler, rateLimiter, corsMiddleware
+   
+   c. services/: authService (SSO, magic links), userService (CRUD), activityService (search, recommendations), connectionService (requests), emailService (SendGrid), storageService (S3/R2)
+   
+   d. prisma/: schema.prisma (DB schema), migrations/, seed.ts (test data)
+   
+   e. utils/: logger (Winston/Pino), validators, formatters
+
+3. **Responsibilities**
+   
+   a. Routes: define HTTP endpoints (GET/POST/PUT/DELETE), parse params, call middleware/services, return responses
+   
+   b. Middleware: authenticate (verify JWT), validate (Zod schemas, sanitize), error handling, rate limiting, CORS
+   
+   c. Services: business logic independent of HTTP, call Prisma for DB access, integrate external APIs (UW SSO, SendGrid, storage), transform data between API/DB models, business-level validation
+   
+   d. Prisma/Database: type-safe queries with auto-generated TypeScript types, version-controlled migrations, connection pooling, query optimization
+   
+   e. Utils: structured JSON logs with request IDs, reusable validation functions, date/time formatting
+
+4. **Data flow example**
+   
+   a. Frontend `GET /search?tags=gym` with JWT → authMiddleware validates → validationMiddleware checks params → searchRoutes calls activityService.search() → Prisma queries PostgreSQL → results enriched (populate user info) → JSON response → errorHandler catches errors
+
+5. **Deployment & Infrastructure**
+   
+   a. Dockerized Node.js app with docker-compose for local dev (API + Postgres)
+   
+   b. Environment variables for secrets (DB, JWT, API keys); separate .env for dev/staging/prod
+   
+   c. Database: local Postgres in Docker (dev), managed Postgres on AWS RDS/Railway/Render (staging/prod)
+   
+   d. API server: Oracle Cloud free tier / Railway / Render; CI/CD via GitHub Actions
+   
+   e. Monitoring: structured logs to stdout, Sentry for errors (optional), `/health` endpoint for uptime
+
+---
+
+## 9) Code Guidelines
+
+**TypeScript/JavaScript (Frontend):** https://google.github.io/styleguide/tsguide.html — Google's TypeScript Style Guide covers type safety, naming conventions, module structure, and React best practices.
+
+**Python (Backend):** https://google.github.io/styleguide/pyguide.html — Google's Python Style Guide (based on PEP 8) covers formatting, naming, documentation, and Python-specific patterns.
+
+**Rationale:** Chose Google style guides because they are industry standard, comprehensive (cover formatting, naming, structure, best practices), well-supported by linters (ESLint, Prettier, Pylint, Black), and team members have prior experience.
+
+**Enforcement:** ESLint + Prettier for TypeScript/JavaScript (config: `eslint-config-google`), Pylint/Flake8 + Black for Python. All linters run in GitHub Actions CI pipeline on every PR; PRs must pass linting before merge. Pre-commit hooks via husky (frontend) and pre-commit framework (backend). PRs require 1 reviewer approval; reviewers check style adherence. Style guides linked in `CONTRIBUTING.md`; examples in developer guide; required review during onboarding.
 
 ---
