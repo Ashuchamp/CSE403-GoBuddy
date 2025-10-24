@@ -1,9 +1,10 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { User, ActivityIntent } from '../types';
+import { User, ActivityIntent, ActivityRequest } from '../types';
 import { BrowseScreen } from '../screens/BrowseScreen';
 import { RecommendationsScreen } from '../screens/RecommendationsScreen';
+import { MyActivitiesScreen } from '../screens/MyActivitiesScreen';
 import { ConnectionsScreen } from '../screens/ConnectionsScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { colors } from '../theme';
@@ -14,18 +15,35 @@ const Tab = createBottomTabNavigator();
 export type AppNavigatorProps = {
   currentUser: User;
   activityIntents: ActivityIntent[];
+  activityRequests: ActivityRequest[];
   onLogout: () => void;
   onUpdateProfile: (updatedUser: User) => void;
+  onCreateActivity: (activity: Omit<ActivityIntent, 'id' | 'userId' | 'userName' | 'createdAt'>) => void;
+  onUpdateActivity: (activityId: string, updates: Partial<ActivityIntent>) => void;
+  onDeleteActivity: (activityId: string) => void;
+  onJoinActivity: (intentId: string) => void;
+  onApproveRequest: (requestId: string) => void;
+  onDeclineRequest: (requestId: string) => void;
+  onConnectRequest?: (userId: string) => void;
 };
 
 export function AppNavigator({
   currentUser,
   activityIntents,
+  activityRequests,
   onLogout,
   onUpdateProfile,
+  onCreateActivity,
+  onUpdateActivity,
+  onDeleteActivity,
+  onJoinActivity,
+  onApproveRequest,
+  onDeclineRequest,
+  onConnectRequest,
 }: AppNavigatorProps) {
   const handleJoinActivity = (intentId: string) => {
-    Alert.alert('Success', 'Join request sent! The organizer will be notified.');
+    onJoinActivity(intentId);
+    // No popup needed as button provides visual feedback
   };
 
   return (
@@ -38,6 +56,8 @@ export function AppNavigator({
             iconName = focused ? 'search' : 'search-outline';
           } else if (route.name === 'For You') {
             iconName = focused ? 'sparkles' : 'sparkles-outline';
+          } else if (route.name === 'My Activities') {
+            iconName = focused ? 'calendar' : 'calendar-outline';
           } else if (route.name === 'Connections') {
             iconName = focused ? 'people' : 'people-outline';
           } else if (route.name === 'Profile') {
@@ -87,6 +107,7 @@ export function AppNavigator({
             currentUser={currentUser}
             activityIntents={activityIntents}
             onJoinActivity={handleJoinActivity}
+            onConnectRequest={onConnectRequest}
           />
         )}
       </Tab.Screen>
@@ -97,6 +118,24 @@ export function AppNavigator({
             currentUser={currentUser}
             activityIntents={activityIntents}
             onJoinActivity={handleJoinActivity}
+          />
+        )}
+      </Tab.Screen>
+
+      <Tab.Screen
+        name="My Activities"
+        options={{ headerTitle: 'My Activities' }}
+      >
+        {() => (
+          <MyActivitiesScreen
+            currentUser={currentUser}
+            activityIntents={activityIntents}
+            activityRequests={activityRequests}
+            onCreateActivity={onCreateActivity}
+            onUpdateActivity={onUpdateActivity}
+            onDeleteActivity={onDeleteActivity}
+            onApproveRequest={onApproveRequest}
+            onDeclineRequest={onDeclineRequest}
           />
         )}
       </Tab.Screen>

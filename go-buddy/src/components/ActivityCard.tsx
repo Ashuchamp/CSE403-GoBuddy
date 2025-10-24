@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ActivityIntent } from '../types';
 import { Card } from './Card';
@@ -10,9 +10,12 @@ import { colors, spacing, typography, borderRadius } from '../theme';
 type ActivityCardProps = {
   intent: ActivityIntent;
   onJoin?: (intentId: string) => void;
+  onPress?: (intent: ActivityIntent) => void;
+  showActions?: boolean;
 };
 
-export function ActivityCard({ intent, onJoin }: ActivityCardProps) {
+export function ActivityCard({ intent, onJoin, onPress, showActions = true }: ActivityCardProps) {
+  const [requestSent, setRequestSent] = useState(false);
   const isAlmostFull = intent.currentPeople >= intent.maxPeople * 0.8;
   const isFull = intent.currentPeople >= intent.maxPeople;
 
@@ -22,26 +25,35 @@ export function ActivityCard({ intent, onJoin }: ActivityCardProps) {
     ? colors.warning
     : colors.success;
 
-  return (
-    <Card style={styles.card}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <Text style={styles.title}>{intent.title}</Text>
-          <Text style={styles.author}>by {intent.userName}</Text>
-        </View>
-        <View style={[styles.statusBadge, { backgroundColor: `${statusColor}20` }]}>
-          <Ionicons name="people-outline" size={12} color={statusColor} />
-          <Text style={[styles.statusText, { color: statusColor }]}>
-            {intent.currentPeople}/{intent.maxPeople}
-          </Text>
-        </View>
-      </View>
+  const handleJoin = () => {
+    setRequestSent(true);
+    onJoin?.(intent.id);
+  };
 
-      {/* Description */}
-      <Text style={styles.description} numberOfLines={2}>
-        {intent.description}
-      </Text>
+  return (
+    <TouchableOpacity onPress={() => {
+      console.log('ActivityCard pressed:', intent.title);
+      onPress?.(intent);
+    }} activeOpacity={0.7}>
+      <Card style={styles.card}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerContent}>
+            <Text style={styles.title}>{intent.title}</Text>
+            <Text style={styles.author}>by {intent.userName}</Text>
+          </View>
+          <View style={[styles.statusBadge, { backgroundColor: `${statusColor}20` }]}>
+            <Ionicons name="people-outline" size={12} color={statusColor} />
+            <Text style={[styles.statusText, { color: statusColor }]}>
+              {intent.currentPeople}/{intent.maxPeople}
+            </Text>
+          </View>
+        </View>
+
+        {/* Description */}
+        <Text style={styles.description} numberOfLines={2}>
+          {intent.description}
+        </Text>
 
       {/* Info */}
       <View style={styles.infoContainer}>
@@ -78,33 +90,33 @@ export function ActivityCard({ intent, onJoin }: ActivityCardProps) {
         </View>
       </View>
 
-      {/* Tags */}
-      {intent.tags.length > 0 && (
-        <View style={styles.tagsContainer}>
-          {intent.tags.slice(0, 4).map((tag, index) => (
-            <Badge key={index} variant="secondary" style={styles.tag}>
-              {tag}
-            </Badge>
-          ))}
-          {intent.tags.length > 4 && (
-            <Badge variant="secondary" style={styles.tag}>
-              +{intent.tags.length - 4}
-            </Badge>
-          )}
-        </View>
-      )}
-
       {/* Action Button */}
-      <Button
-        onPress={() => onJoin?.(intent.id)}
-        disabled={isFull}
-        variant={isFull ? 'outline' : 'default'}
-        fullWidth
-        style={styles.joinButton}
-      >
-        {isFull ? 'Full' : 'Join Activity'}
-      </Button>
-    </Card>
+      {showActions && (
+        <Button
+          onPress={handleJoin}
+          disabled={isFull || requestSent}
+          variant={isFull ? 'outline' : 'default'}
+          fullWidth
+          style={{
+            ...styles.joinButton,
+            ...(requestSent && styles.joinButtonSent)
+          }}
+        >
+          <View style={styles.buttonContent}>
+            <Ionicons
+              name="checkmark-circle-outline"
+              size={16}
+              color="#fff"
+              style={styles.buttonIcon}
+            />
+            <Text style={styles.buttonText}>
+              {isFull ? 'Full' : requestSent ? 'Request Sent' : 'Join Activity'}
+            </Text>
+          </View>
+        </Button>
+      )}
+      </Card>
+    </TouchableOpacity>
   );
 }
 
@@ -176,18 +188,24 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     marginLeft: spacing.sm,
   },
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: spacing.md,
-    gap: spacing.xs,
-  },
-  tag: {
-    marginRight: spacing.xs,
-    marginBottom: spacing.xs,
-  },
   joinButton: {
     marginTop: spacing.sm,
+  },
+  joinButtonSent: {
+    backgroundColor: colors.success,
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonIcon: {
+    marginRight: spacing.xs,
+  },
+  buttonText: {
+    color: '#fff',
+    ...typography.body,
+    fontWeight: '600',
   },
 });
 

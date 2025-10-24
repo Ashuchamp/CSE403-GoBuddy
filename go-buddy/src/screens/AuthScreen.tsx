@@ -126,7 +126,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
                 variant="outline"
                 fullWidth
               >
-                Simulate Login (Demo)
+                Login
               </Button>
             </View>
           </Card>

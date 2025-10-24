@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { User, ActivityIntent } from '../types';
 import { ActivityCard } from '../components/ActivityCard';
+import { ActivityDetailModal } from '../components/ActivityDetailModal';
 import { colors, spacing, typography } from '../theme';
 
 type RecommendationsScreenProps = {
@@ -16,18 +17,19 @@ export function RecommendationsScreen({
   activityIntents,
   onJoinActivity,
 }: RecommendationsScreenProps) {
-  // Simple recommendation: activities matching user's tags
+  const [selectedActivity, setSelectedActivity] = useState<ActivityIntent | null>(null);
+  // Simple recommendation: show all activities except user's own
   const recommendations = activityIntents.filter((intent) => {
     if (intent.userId === currentUser.id) return false;
-    return intent.tags.some((tag) =>
-      currentUser.activityTags.some((userTag) =>
-        tag.toLowerCase().includes(userTag.toLowerCase())
-      )
-    );
+    return intent.status !== 'completed' && intent.status !== 'cancelled';
   });
 
   const renderActivityCard = ({ item }: { item: ActivityIntent }) => (
-    <ActivityCard intent={item} onJoin={onJoinActivity} />
+    <ActivityCard 
+      intent={item} 
+      onJoin={onJoinActivity}
+      onPress={setSelectedActivity}
+    />
   );
 
   return (
@@ -54,6 +56,14 @@ export function RecommendationsScreen({
             </Text>
           </View>
         }
+      />
+
+      {/* Activity Detail Modal */}
+      <ActivityDetailModal
+        activity={selectedActivity}
+        visible={selectedActivity !== null}
+        onClose={() => setSelectedActivity(null)}
+        currentUserId={currentUser.id}
       />
     </View>
   );

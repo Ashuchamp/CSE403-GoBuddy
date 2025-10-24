@@ -47,7 +47,7 @@ export function Button({
   const textStyles = [
     styles.text,
     styles[`${variant}_text`],
-    styles[`${size}_text`],
+    styles[`size_${size}_text`],
     textStyle,
   ];
 
@@ -131,11 +131,12 @@ const styles = StyleSheet.create({
   destructive_text: {
     color: '#FFFFFF',
   },
-  sm_text: {
+  size_default_text: {},
+  size_sm_text: {
     ...typography.bodySmall,
     fontWeight: '600',
   },
-  lg_text: {
+  size_lg_text: {
     fontSize: 18,
     fontWeight: '600',
   },

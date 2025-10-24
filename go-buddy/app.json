@@ -8,6 +8,7 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "primaryColor": "#007AFF",
+    "entryPoint": "./index.js",
     "description": "Find activity buddies on campus. Connect with students for sports, study sessions, and social activities.",
     "splash": {
       "image": "./assets/splash-icon.png",

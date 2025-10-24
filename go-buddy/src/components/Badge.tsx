@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { colors, spacing, typography, borderRadius } from '../theme';
 
-type BadgeVariant = 'default' | 'secondary' | 'outline';
+type BadgeVariant = 'default' | 'primary' | 'secondary' | 'outline' | 'success' | 'destructive';
 
 type BadgeProps = {
   children: React.ReactNode;
@@ -36,6 +36,9 @@ const styles = StyleSheet.create({
   default: {
     backgroundColor: colors.primary,
   },
+  primary: {
+    backgroundColor: colors.primary,
+  },
   secondary: {
     backgroundColor: colors.badgeBackground,
   },
@@ -44,6 +47,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
+  success: {
+    backgroundColor: colors.success,
+  },
+  destructive: {
+    backgroundColor: colors.error,
+  },
   text: {
     ...typography.caption,
     fontWeight: '500',
@@ -51,11 +60,20 @@ const styles = StyleSheet.create({
   default_text: {
     color: '#FFFFFF',
   },
+  primary_text: {
+    color: '#FFFFFF',
+  },
   secondary_text: {
     color: colors.badgeText,
   },
   outline_text: {
     color: colors.text,
+  },
+  success_text: {
+    color: '#FFFFFF',
+  },
+  destructive_text: {
+    color: '#FFFFFF',
   },
 });
 

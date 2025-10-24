@@ -12,6 +12,8 @@ import { User, ActivityIntent } from '../types';
 import { mockUsers } from '../data/mockUsers';
 import { UserCard } from '../components/UserCard';
 import { ActivityCard } from '../components/ActivityCard';
+import { ActivityDetailModal } from '../components/ActivityDetailModal';
+import { UserProfileModal } from '../components/UserProfileModal';
 import { colors, spacing, typography } from '../theme';
 
 type BrowseScreenProps = {
@@ -19,6 +21,7 @@ type BrowseScreenProps = {
   activityIntents: ActivityIntent[];
   onUserPress?: (user: User) => void;
   onJoinActivity?: (intentId: string) => void;
+  onConnectRequest?: (userId: string) => void;
 };
 
 type BrowseCategory = 'students' | 'activities';
@@ -28,9 +31,12 @@ export function BrowseScreen({
   activityIntents,
   onUserPress,
   onJoinActivity,
+  onConnectRequest,
 }: BrowseScreenProps) {
   const [browseCategory, setBrowseCategory] =
     useState<BrowseCategory>('students');
+  const [selectedActivity, setSelectedActivity] = useState<ActivityIntent | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   // Filter users
   const filteredUsers = useMemo(() => {
@@ -48,12 +54,19 @@ export function BrowseScreen({
     <UserCard
       user={item}
       currentUser={currentUser}
-      onPress={() => onUserPress?.(item)}
+      onPress={() => setSelectedUser(item)}
     />
   );
 
   const renderActivityCard = ({ item }: { item: ActivityIntent }) => (
-    <ActivityCard intent={item} onJoin={onJoinActivity} />
+    <ActivityCard 
+      intent={item} 
+      onJoin={onJoinActivity}
+      onPress={(activity) => {
+        console.log('BrowseScreen: Activity pressed:', activity.title);
+        setSelectedActivity(activity);
+      }}
+    />
   );
 
   return (
@@ -159,6 +172,25 @@ export function BrowseScreen({
           }
         />
       )}
+
+      {/* Activity Detail Modal */}
+      <ActivityDetailModal
+        activity={selectedActivity}
+        visible={selectedActivity !== null}
+        onClose={() => {
+          console.log('BrowseScreen: Closing modal');
+          setSelectedActivity(null);
+        }}
+        currentUserId={currentUser.id}
+      />
+
+      {/* User Profile Modal */}
+      <UserProfileModal
+        user={selectedUser}
+        visible={selectedUser !== null}
+        onClose={() => setSelectedUser(null)}
+        currentUserId={currentUser.id}
+      />
     </View>
   );
 }

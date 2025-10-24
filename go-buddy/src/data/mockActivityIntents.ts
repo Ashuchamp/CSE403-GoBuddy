@@ -10,7 +10,6 @@ export const mockActivityIntents: ActivityIntent[] = [
     maxPeople: 4,
     currentPeople: 2,
     scheduledTimes: ['Wed 6-8pm', 'Fri 5-7pm'],
-    tags: ['Study', 'Computer Science', 'CSE 143'],
     createdAt: '2024-10-05',
     campusLocation: 'Odegaard Library'
   },
@@ -23,7 +22,6 @@ export const mockActivityIntents: ActivityIntent[] = [
     maxPeople: 10,
     currentPeople: 6,
     scheduledTimes: ['Tue 7-9pm', 'Thu 7-9pm', 'Sun 2-4pm'],
-    tags: ['Sports', 'Basketball', 'IMA'],
     createdAt: '2024-10-04',
     campusLocation: 'IMA'
   },
@@ -36,7 +34,6 @@ export const mockActivityIntents: ActivityIntent[] = [
     maxPeople: 6,
     currentPeople: 3,
     scheduledTimes: ['Sat 10am-12pm'],
-    tags: ['Creative', 'Photography', 'Campus Tour'],
     createdAt: '2024-10-06',
     campusLocation: 'Quad'
   },
@@ -49,7 +46,6 @@ export const mockActivityIntents: ActivityIntent[] = [
     maxPeople: 5,
     currentPeople: 2,
     scheduledTimes: ['Mon 3-5pm', 'Wed 1-3pm'],
-    tags: ['Study', 'Chemistry', 'Lab'],
     createdAt: '2024-10-05',
     campusLocation: 'Bagley Hall'
   },
@@ -62,7 +58,6 @@ export const mockActivityIntents: ActivityIntent[] = [
     maxPeople: 12,
     currentPeople: 8,
     scheduledTimes: ['Sat 1-3pm'],
-    tags: ['Sports', 'Ultimate Frisbee', 'Beginner Friendly'],
     createdAt: '2024-10-03',
     campusLocation: 'Intramural Activities Building'
   },
@@ -75,7 +70,6 @@ export const mockActivityIntents: ActivityIntent[] = [
     maxPeople: 8,
     currentPeople: 4,
     scheduledTimes: ['Sun 6-8pm'],
-    tags: ['Music', 'Guitar', 'Creative'],
     createdAt: '2024-10-07',
     campusLocation: 'HUB'
   }
