@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -6,91 +6,46 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
-  Image,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { Button } from '../components/Button';
-import { Card } from '../components/Card';
-import { User } from '../types';
-import { colors, spacing, typography } from '../theme';
-import { useGoogleAuth } from '../services/googleAuth';
+import {Ionicons} from '@expo/vector-icons';
+import {Button} from '../components/Button';
+import {Card} from '../components/Card';
+import {User} from '../types';
+import {colors, spacing, typography} from '../theme';
+// import {useGoogleAuth} from '../services/googleAuth'; // Disabled for demo mode
 
 type AuthScreenProps = {
   onAuthenticated: (user: User) => void;
 };
 
-export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
+export function AuthScreen({onAuthenticated}: AuthScreenProps) {
   const [loading, setLoading] = useState(false);
-  const { request, response, signIn, getUserInfo } = useGoogleAuth();
+  // const {response, getUserInfo} = useGoogleAuth(); // Disabled for demo mode
 
-  useEffect(() => {
-    console.log('📱 Auth Response:', response?.type);
-    if (response?.type === 'success') {
-      console.log('✅ Authentication successful!');
-      const { authentication } = response;
-      if (authentication?.accessToken) {
-        console.log('🔑 Access token received');
-        handleAuthSuccess(authentication.accessToken);
-      }
-    } else if (response?.type === 'error') {
-      console.error('❌ Authentication error:', response.error);
-      setLoading(false);
-      Alert.alert('Authentication Error', 'Failed to sign in with Google. Please try again.');
-    } else if (response?.type === 'dismiss' || response?.type === 'cancel') {
-      console.log('ℹ️ Authentication cancelled by user');
-      setLoading(false);
-    }
-  }, [response]);
-
-  const handleAuthSuccess = async (accessToken: string) => {
-    try {
-      const googleUserInfo = await getUserInfo(accessToken);
-      
-      // Validate UW email domain
-      if (!googleUserInfo.email.endsWith('@uw.edu')) {
-        Alert.alert('Invalid Email', 'Please use a valid UW email address (@uw.edu)');
-        setLoading(false);
-        return;
-      }
-
-      // Create user object from Google data
-      const user: User = {
-        id: googleUserInfo.id,
-        email: googleUserInfo.email,
-        name: googleUserInfo.name,
-        bio: '',
-        skills: [],
-        preferredTimes: [],
-        activityTags: [],
-        phone: '',
-        instagram: '',
-        campusLocation: '',
-      };
-
-      onAuthenticated(user);
-    } catch (error) {
-      console.error('Error processing authentication:', error);
-      Alert.alert('Authentication Error', 'Failed to complete sign in. Please try again.');
-      setLoading(false);
-    }
-  };
+  // useEffect removed - not needed for demo mode
 
   const handleGoogleSignIn = async () => {
-    if (!request) {
-      Alert.alert('Error', 'Google Sign-In is not configured properly. Please check your environment variables.');
-      return;
-    }
-
-    console.log('🚀 Starting Google Sign-In...');
+    // For demo purposes, create a mock user instead of using Google Auth
     setLoading(true);
-    try {
-      await signIn();
-    } catch (error) {
-      console.error('❌ Google sign-in error:', error);
-      Alert.alert('Authentication Error', 'Failed to sign in. Please try again.');
+
+    // Simulate network delay
+    setTimeout(() => {
+      const mockUser: User = {
+        id: 'demo-user-1',
+        name: 'Demo User',
+        email: 'demo@uw.edu',
+        bio: 'Student at University of Washington',
+        activityTags: ['Study Groups', 'Social Events'],
+        preferredTimes: ['Evenings', 'Weekends'],
+        campusLocation: 'Seattle Campus',
+        skills: ['Collaboration', 'Leadership'],
+        phone: '',
+        instagram: '',
+      };
+
+      onAuthenticated(mockUser);
       setLoading(false);
-    }
+    }, 1000);
   };
 
   return (
@@ -98,10 +53,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Text style={styles.logo}>GoBuddy</Text>
           <Text style={styles.subtitle}>Find your activity partners at UW</Text>
@@ -112,10 +64,8 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
             <Ionicons name="logo-google" size={48} color={colors.primary} />
           </View>
 
-          <Text style={styles.cardTitle}>Sign in with Google</Text>
-          <Text style={styles.cardSubtitle}>
-            Use your UW Google account to continue
-          </Text>
+          <Text style={styles.cardTitle}>Demo Login</Text>
+          <Text style={styles.cardSubtitle}>Click to sign in as a demo user</Text>
 
           <Button
             onPress={handleGoogleSignIn}
@@ -126,14 +76,12 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
             <View style={styles.googleButtonContent}>
               <Ionicons name="logo-google" size={20} color="#fff" style={styles.googleIcon} />
               <Text style={styles.googleButtonText}>
-                {loading ? 'Signing in...' : 'Sign in with Google'}
+                {loading ? 'Signing in...' : 'Demo Login'}
               </Text>
             </View>
           </Button>
 
-          <Text style={styles.notice}>
-            Only @uw.edu email addresses are allowed
-          </Text>
+          <Text style={styles.notice}>Demo mode - no real authentication required</Text>
         </Card>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -205,4 +153,3 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
   },
 });
-

@@ -8,7 +8,7 @@ import {Button} from '../components/Button';
 import {Card} from '../components/Card';
 import {Badge} from '../components/Badge';
 import {UserProfileModal} from '../components/UserProfileModal';
-import {colors, spacing, typography, borderRadius} from '../theme';
+import {colors, spacing, typography} from '../theme';
 
 type ActivityDetailScreenProps = {
   activity: ActivityIntent;
@@ -255,11 +255,11 @@ export function ActivityDetailScreen({
             </View>
 
             {pendingRequests.map((request) => {
-              const userData = mockUsers.find(user => user.id === request.userId);
-              
+              const userData = mockUsers.find((user) => user.id === request.userId);
+
               return (
                 <View key={request.id} style={styles.requestCard}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.requestHeader}
                     onPress={() => setSelectedUser(userData || null)}
                     activeOpacity={0.7}
@@ -345,9 +345,9 @@ export function ActivityDetailScreen({
 
           {approvedRequests.map((request) => {
             // Get user data for contact information
-            const userData = mockUsers.find(user => user.id === request.userId);
+            const userData = mockUsers.find((user) => user.id === request.userId);
             const hasContactInfo = userData && (userData.phone || userData.instagram);
-            
+
             return (
               <View key={request.id} style={styles.participantCard}>
                 <View style={styles.participantInfo}>
@@ -364,13 +364,21 @@ export function ActivityDetailScreen({
                         <View style={styles.contactWrapper}>
                           {userData?.phone && (
                             <View style={styles.contactItem}>
-                              <Ionicons name="call-outline" size={14} color={colors.textSecondary} />
+                              <Ionicons
+                                name="call-outline"
+                                size={14}
+                                color={colors.textSecondary}
+                              />
                               <Text style={styles.contactText}>{userData.phone}</Text>
                             </View>
                           )}
                           {userData?.instagram && (
                             <View style={styles.contactItem}>
-                              <Ionicons name="logo-instagram" size={14} color={colors.textSecondary} />
+                              <Ionicons
+                                name="logo-instagram"
+                                size={14}
+                                color={colors.textSecondary}
+                              />
                               <Text style={styles.contactText}>{userData.instagram}</Text>
                             </View>
                           )}

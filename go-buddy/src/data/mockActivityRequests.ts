@@ -27,7 +27,8 @@ export const mockActivityRequests: ActivityRequest[] = [
     activityId: 'demo-activity-1',
     userId: '4',
     userName: 'Emily Park',
-    userBio: "Psychology major interested in research and coffee chats. Looking for study buddies for stats!",
+    userBio:
+      'Psychology major interested in research and coffee chats. Looking for study buddies for stats!',
     userSkills: ['SPSS', 'Research Methods', 'Data Analysis'],
     status: 'approved',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago

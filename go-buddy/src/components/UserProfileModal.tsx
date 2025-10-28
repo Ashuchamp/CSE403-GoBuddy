@@ -48,15 +48,13 @@ export function UserProfileModal({
             {/* Title and Bio */}
             <View style={styles.titleSection}>
               <Text style={styles.title}>{user.name}</Text>
-              {showContactInfo && (
-                <Text style={styles.author}>{user.email}</Text>
-              )}
+              {showContactInfo && <Text style={styles.author}>{user.email}</Text>}
             </View>
 
             {/* Status Badge - Show user type */}
-            <View style={[styles.statusBadge, { backgroundColor: `${colors.primary}20` }]}>
+            <View style={[styles.statusBadge, {backgroundColor: `${colors.primary}20`}]}>
               <Ionicons name="person-outline" size={16} color={colors.primary} />
-              <Text style={[styles.statusText, { color: colors.primary }]}>
+              <Text style={[styles.statusText, {color: colors.primary}]}>
                 {isOwnProfile ? 'Your Profile' : 'Student Profile'}
               </Text>
             </View>
@@ -64,9 +62,7 @@ export function UserProfileModal({
             {/* Description */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>About</Text>
-              <Text style={styles.description}>
-                {user.bio || 'No bio provided'}
-              </Text>
+              <Text style={styles.description}>{user.bio || 'No bio provided'}</Text>
             </View>
 
             {/* Activity Interests */}
