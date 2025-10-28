@@ -4,24 +4,26 @@ import {Ionicons} from '@expo/vector-icons';
 import {User} from '../types';
 import {Card} from './Card';
 import {Badge} from './Badge';
-import {colors, spacing, typography} from '../theme';
+import {colors, spacing, typography, borderRadius} from '../theme';
 
 type UserProfileModalProps = {
   user: User | null;
   visible: boolean;
   onClose: () => void;
   currentUserId?: string;
+  showContactInfo?: boolean;
 };
 
 export function UserProfileModal({
   user,
   visible,
   onClose,
-  currentUserId: _currentUserId,
+  currentUserId,
+  showContactInfo = false,
 }: UserProfileModalProps) {
   if (!user) return null;
 
-  // const isOwnProfile = currentUserId === user.id; // Unused for now
+  const isOwnProfile = currentUserId === user.id;
 
   return (
     <Modal
@@ -43,13 +45,31 @@ export function UserProfileModal({
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
           {/* Profile Card */}
           <Card style={styles.profileCard}>
-            {/* Name and Bio */}
-            <View style={styles.nameSection}>
-              <Text style={styles.name}>{user.name}</Text>
-              <Text style={styles.bio}>{user.bio}</Text>
+            {/* Title and Bio */}
+            <View style={styles.titleSection}>
+              <Text style={styles.title}>{user.name}</Text>
+              {showContactInfo && (
+                <Text style={styles.author}>{user.email}</Text>
+              )}
             </View>
 
-            {/* Activity Tags */}
+            {/* Status Badge - Show user type */}
+            <View style={[styles.statusBadge, { backgroundColor: `${colors.primary}20` }]}>
+              <Ionicons name="person-outline" size={16} color={colors.primary} />
+              <Text style={[styles.statusText, { color: colors.primary }]}>
+                {isOwnProfile ? 'Your Profile' : 'Student Profile'}
+              </Text>
+            </View>
+
+            {/* Description */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>About</Text>
+              <Text style={styles.description}>
+                {user.bio || 'No bio provided'}
+              </Text>
+            </View>
+
+            {/* Activity Interests */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Activity Interests</Text>
               <View style={styles.tagsContainer}>
@@ -99,24 +119,41 @@ export function UserProfileModal({
               </View>
             )}
 
-            {/* Contact Info */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Contact Information</Text>
-              <View style={styles.contactContainer}>
-                <View style={styles.contactItem}>
-                  <Ionicons name="mail-outline" size={16} color={colors.textSecondary} />
-                  <Text style={styles.contactText}>{user.email}</Text>
+            {/* Contact Information - Only show if showContactInfo is true or it's own profile */}
+            {(showContactInfo || isOwnProfile) && (user.phone || user.instagram) && (
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Contact Information</Text>
+                <View style={styles.contactContainer}>
+                  {user.phone && (
+                    <View style={styles.contactItem}>
+                      <Ionicons name="call-outline" size={16} color={colors.textSecondary} />
+                      <Text style={styles.contactText}>{user.phone}</Text>
+                    </View>
+                  )}
+                  {user.instagram && (
+                    <View style={styles.contactItem}>
+                      <Ionicons name="logo-instagram" size={16} color={colors.textSecondary} />
+                      <Text style={styles.contactText}>{user.instagram}</Text>
+                    </View>
+                  )}
                 </View>
-                {user.phone && (
-                  <View style={styles.contactItem}>
-                    <Ionicons name="call-outline" size={16} color={colors.textSecondary} />
-                    <Text style={styles.contactText}>{user.phone}</Text>
-                  </View>
-                )}
-                {user.instagram && (
-                  <View style={styles.contactItem}>
-                    <Ionicons name="logo-instagram" size={16} color={colors.textSecondary} />
-                    <Text style={styles.contactText}>@{user.instagram}</Text>
+              </View>
+            )}
+
+            {/* Profile Info */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Profile Info</Text>
+              <View style={styles.infoGrid}>
+                <View style={styles.infoItem}>
+                  <Ionicons name="school-outline" size={16} color={colors.textSecondary} />
+                  <Text style={styles.infoLabel}>Student</Text>
+                  <Text style={styles.infoValue}>UW Student</Text>
+                </View>
+                {showContactInfo && (
+                  <View style={styles.infoItem}>
+                    <Ionicons name="mail-outline" size={16} color={colors.textSecondary} />
+                    <Text style={styles.infoLabel}>Email</Text>
+                    <Text style={styles.infoValue}>{user.email}</Text>
                   </View>
                 )}
               </View>
@@ -160,18 +197,36 @@ const styles = StyleSheet.create({
   profileCard: {
     marginBottom: spacing.lg,
   },
-  nameSection: {
-    marginBottom: spacing.lg,
+  titleSection: {
+    marginBottom: spacing.md,
   },
-  name: {
+  title: {
     ...typography.h2,
     color: colors.text,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
-  bio: {
+  author: {
+    ...typography.body,
+    color: colors.textSecondary,
+  },
+  description: {
     ...typography.body,
     color: colors.text,
     lineHeight: 22,
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.md,
+  },
+  statusText: {
+    ...typography.bodySmall,
+    fontWeight: '600',
+    marginLeft: spacing.xs,
   },
   section: {
     marginBottom: spacing.lg,
@@ -231,5 +286,23 @@ const styles = StyleSheet.create({
   contactText: {
     ...typography.body,
     color: colors.text,
+  },
+  infoGrid: {
+    gap: spacing.md,
+  },
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  infoLabel: {
+    ...typography.bodySmall,
+    color: colors.textSecondary,
+    flex: 1,
+  },
+  infoValue: {
+    ...typography.bodySmall,
+    color: colors.text,
+    fontWeight: '600',
   },
 });

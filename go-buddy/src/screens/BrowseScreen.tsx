@@ -41,7 +41,12 @@ export function BrowseScreen({
   }, [currentUser.id, activityIntents]);
 
   const renderUserCard = ({item}: {item: User}) => (
-    <UserCard user={item} currentUser={currentUser} onPress={() => setSelectedUser(item)} />
+    <UserCard
+      user={item}
+      currentUser={currentUser}
+      onPress={() => setSelectedUser(item)}
+      showContactInfo={false}
+    />
   );
 
   const renderActivityCard = ({item}: {item: ActivityIntent}) => (
@@ -169,6 +174,7 @@ export function BrowseScreen({
         visible={selectedUser !== null}
         onClose={() => setSelectedUser(null)}
         currentUserId={currentUser.id}
+        showContactInfo={false} // Contact info hidden in Browse
       />
     </View>
   );

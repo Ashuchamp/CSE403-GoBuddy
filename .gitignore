@@ -79,3 +79,13 @@ temp/
 # Editor directories
 .vscode/
 .idea/
+
+# Dependencies
+node_modules/
+
+# Environment variables - Do not commit
+.env
+.env.local
+.env.production
+*.env
+!.env.example

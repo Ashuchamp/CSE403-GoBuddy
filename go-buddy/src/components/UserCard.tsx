@@ -12,6 +12,7 @@ type UserCardProps = {
   currentUser: User;
   onPress?: () => void;
   onConnectRequest?: () => void;
+  showContactInfo?: boolean;
 };
 
 export function UserCard({
@@ -19,6 +20,7 @@ export function UserCard({
   currentUser: _currentUser,
   onPress,
   onConnectRequest,
+  showContactInfo = false,
 }: UserCardProps) {
   const [requestSent, setRequestSent] = useState(false);
 
@@ -74,6 +76,27 @@ export function UserCard({
             </View>
           )}
         </View>
+
+        {/* Contact Information - Only show if showContactInfo is true */}
+        {showContactInfo && (user.phone || user.instagram) && (
+          <View style={styles.contactContainer}>
+            <Text style={styles.contactLabel}>Contact Information</Text>
+            <View style={styles.contactWrapper}>
+              {user.phone && (
+                <View style={styles.contactItem}>
+                  <Ionicons name="call-outline" size={16} color={colors.textSecondary} />
+                  <Text style={styles.contactText}>{user.phone}</Text>
+                </View>
+              )}
+              {user.instagram && (
+                <View style={styles.contactItem}>
+                  <Ionicons name="logo-instagram" size={16} color={colors.textSecondary} />
+                  <Text style={styles.contactText}>{user.instagram}</Text>
+                </View>
+              )}
+            </View>
+          </View>
+        )}
 
         {/* Skills */}
         {user.skills.length > 0 && (
@@ -164,6 +187,29 @@ const styles = StyleSheet.create({
   },
   skill: {
     marginRight: spacing.xs,
+  },
+  contactContainer: {
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    marginBottom: spacing.md,
+  },
+  contactLabel: {
+    ...typography.caption,
+    color: colors.textMuted,
+    marginBottom: spacing.sm,
+  },
+  contactWrapper: {
+    gap: spacing.xs,
+  },
+  contactItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  contactText: {
+    ...typography.bodySmall,
+    color: colors.text,
   },
   connectButton: {
     marginTop: spacing.sm,

@@ -27,7 +27,8 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>com.anonymous.go-buddy</string>
+          <string>com.googleusercontent.apps.353229046135-53diq1mhgnlimc4rsqnmqgnmfmgngn9</string>
+          <string>com.yourcompany.gobuddy</string>
         </array>
       </dict>
     </array>
@@ -44,6 +45,12 @@
       <key>NSAllowsLocalNetworking</key>
       <true/>
     </dict>
+    <key>NSCameraUsageDescription</key>
+    <string>This app uses the camera to upload profile pictures and activity photos.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>This app uses your location to show nearby activities and buddies.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>This app accesses your photo library to select profile pictures and activity photos.</string>
     <key>RCTNewArchEnabled</key>
     <true/>
     <key>UILaunchStoryboardName</key>
