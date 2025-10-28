@@ -36,19 +36,10 @@ export function UserProfileModal({
     <Modal
       visible={visible}
       animationType="slide"
-      transparent={true}
+      presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <TouchableOpacity 
-        style={styles.overlay}
-        activeOpacity={1}
-        onPress={onClose}
-      >
-        <TouchableOpacity 
-          style={styles.container}
-          activeOpacity={1}
-          onPress={(e) => e.stopPropagation()}
-        >
+      <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
@@ -59,19 +50,29 @@ export function UserProfileModal({
         </View>
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {/* Profile Card - Exact match to Activity Details */}
+          {/* Profile Card */}
           <Card style={styles.profileCard}>
             {/* Title and Bio */}
             <View style={styles.titleSection}>
               <Text style={styles.title}>{user.name}</Text>
-              <Text style={styles.bio}>{user.bio}</Text>
+              {showContactInfo && (
+                <Text style={styles.author}>{user.email}</Text>
+              )}
             </View>
 
             {/* Status Badge - Show user type */}
-            <View style={styles.statusBadge}>
+            <View style={[styles.statusBadge, { backgroundColor: `${colors.primary}20` }]}>
               <Ionicons name="person-outline" size={16} color={colors.primary} />
-              <Text style={styles.statusText}>
+              <Text style={[styles.statusText, { color: colors.primary }]}>
                 {isOwnProfile ? 'Your Profile' : 'Student Profile'}
+              </Text>
+            </View>
+
+            {/* Description */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>About</Text>
+              <Text style={styles.description}>
+                {user.bio || 'No bio provided'}
               </Text>
             </View>
 
@@ -155,36 +156,27 @@ export function UserProfileModal({
                   <Text style={styles.infoLabel}>Student</Text>
                   <Text style={styles.infoValue}>UW Student</Text>
                 </View>
-                <View style={styles.infoItem}>
-                  <Ionicons name="mail-outline" size={16} color={colors.textSecondary} />
-                  <Text style={styles.infoLabel}>Email</Text>
-                  <Text style={styles.infoValue}>{user.email}</Text>
-                </View>
+                {showContactInfo && (
+                  <View style={styles.infoItem}>
+                    <Ionicons name="mail-outline" size={16} color={colors.textSecondary} />
+                    <Text style={styles.infoLabel}>Email</Text>
+                    <Text style={styles.infoValue}>{user.email}</Text>
+                  </View>
+                )}
               </View>
             </View>
           </Card>
 
         </ScrollView>
-        </TouchableOpacity>
-      </TouchableOpacity>
+      </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    width: '90%',
-    height: '80%',
-    borderRadius: borderRadius.lg,
-    overflow: 'hidden',
   },
   header: {
     flexDirection: 'row',
@@ -221,9 +213,13 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginBottom: spacing.xs,
   },
-  bio: {
+  author: {
     ...typography.body,
     color: colors.textSecondary,
+  },
+  description: {
+    ...typography.body,
+    color: colors.text,
     lineHeight: 22,
   },
   statusBadge: {
@@ -233,13 +229,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
     borderRadius: borderRadius.md,
-    backgroundColor: `${colors.primary}20`,
     marginBottom: spacing.md,
   },
   statusText: {
     ...typography.bodySmall,
     fontWeight: '600',
-    color: colors.primary,
     marginLeft: spacing.xs,
   },
   section: {
