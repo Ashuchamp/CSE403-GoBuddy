@@ -30,7 +30,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./go-buddy
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Run TypeScript type check
         working-directory: ./go-buddy
@@ -104,7 +104,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./go-buddy
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Verify project structure
         working-directory: ./go-buddy
