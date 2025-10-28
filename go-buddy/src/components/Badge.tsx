@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
-import { colors, spacing, typography, borderRadius } from '../theme';
+import {View, Text, StyleSheet, ViewStyle, TextStyle} from 'react-native';
+import {colors, spacing, typography, borderRadius} from '../theme';
 
 type BadgeVariant = 'default' | 'primary' | 'secondary' | 'outline' | 'success' | 'destructive';
 
@@ -11,17 +11,10 @@ type BadgeProps = {
   textStyle?: TextStyle;
 };
 
-export function Badge({
-  children,
-  variant = 'default',
-  style,
-  textStyle,
-}: BadgeProps) {
+export function Badge({children, variant = 'default', style, textStyle}: BadgeProps) {
   return (
     <View style={[styles.badge, styles[variant], style]}>
-      <Text style={[styles.text, styles[`${variant}_text`], textStyle]}>
-        {children}
-      </Text>
+      <Text style={[styles.text, styles[`${variant}_text`], textStyle]}>{children}</Text>
     </View>
   );
 }
@@ -76,4 +69,3 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
 });
-

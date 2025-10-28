@@ -1,16 +1,8 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Modal,
-  ScrollView,
-  TextInput,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { Button } from './Button';
-import { colors, spacing, typography, borderRadius } from '../theme';
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, TextInput} from 'react-native';
+import {Ionicons} from '@expo/vector-icons';
+import {Button} from './Button';
+import {colors, spacing, typography, borderRadius} from '../theme';
 
 type DateTimePickerProps = {
   selectedTimes: string[];
@@ -18,21 +10,31 @@ type DateTimePickerProps = {
 };
 
 const MONTH_NAMES = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
 ];
 
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-export function DateTimePicker({ selectedTimes, onTimesChange }: DateTimePickerProps) {
+export function DateTimePicker({selectedTimes, onTimesChange}: DateTimePickerProps) {
   const [modalVisible, setModalVisible] = useState(false);
-  
+
   // Calendar state
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  
+
   // Time state
   const [hour, setHour] = useState('');
   const [minute, setMinute] = useState('');
@@ -109,16 +111,15 @@ export function DateTimePicker({ selectedTimes, onTimesChange }: DateTimePickerP
     const monthName = MONTH_NAMES[date.getMonth()];
     const day = date.getDate();
     const year = date.getFullYear();
-    
+
     let hourNum = parseInt(hour);
     if (isPM && hourNum !== 12) hourNum += 12;
     if (!isPM && hourNum === 12) hourNum = 0;
-    
-    const hourStr = hourNum.toString().padStart(2, '0');
+
     const minStr = minute.padStart(2, '0');
     const ampm = isPM ? 'PM' : 'AM';
     const displayHour = parseInt(hour) === 0 ? '12' : hour;
-    
+
     return `${monthName} ${day}, ${year} at ${displayHour}:${minStr} ${ampm}`;
   };
 
@@ -135,7 +136,7 @@ export function DateTimePicker({ selectedTimes, onTimesChange }: DateTimePickerP
     }
 
     const formattedDateTime = formatDateTime(selectedDate, hour, minute, isPM);
-    
+
     if (!selectedTimes.includes(formattedDateTime)) {
       onTimesChange([...selectedTimes, formattedDateTime]);
     }
@@ -161,10 +162,7 @@ export function DateTimePicker({ selectedTimes, onTimesChange }: DateTimePickerP
         {selectedTimes.map((time, index) => (
           <View key={index} style={styles.timeChip}>
             <Text style={styles.timeChipText}>{time}</Text>
-            <TouchableOpacity
-              onPress={() => handleRemoveTime(time)}
-              style={styles.removeButton}
-            >
+            <TouchableOpacity onPress={() => handleRemoveTime(time)} style={styles.removeButton}>
               <Ionicons name="close-circle" size={18} color={colors.error} />
             </TouchableOpacity>
           </View>
@@ -172,10 +170,7 @@ export function DateTimePicker({ selectedTimes, onTimesChange }: DateTimePickerP
       </View>
 
       {/* Add Time Button */}
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => setModalVisible(true)}
-      >
+      <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
         <Ionicons name="add-circle-outline" size={20} color={colors.primary} />
         <Text style={styles.addButtonText}>
           {selectedTimes.length === 0 ? 'Add Scheduled Time' : 'Add Another Time'}
@@ -283,39 +278,19 @@ export function DateTimePicker({ selectedTimes, onTimesChange }: DateTimePickerP
                     keyboardType="number-pad"
                     maxLength={2}
                   />
-                  
+
                   <View style={styles.ampmToggle}>
                     <TouchableOpacity
-                      style={[
-                        styles.ampmButton,
-                        !isPM && styles.ampmButtonActive,
-                      ]}
+                      style={[styles.ampmButton, !isPM && styles.ampmButtonActive]}
                       onPress={() => setIsPM(false)}
                     >
-                      <Text
-                        style={[
-                          styles.ampmText,
-                          !isPM && styles.ampmTextActive,
-                        ]}
-                      >
-                        AM
-                      </Text>
+                      <Text style={[styles.ampmText, !isPM && styles.ampmTextActive]}>AM</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={[
-                        styles.ampmButton,
-                        isPM && styles.ampmButtonActive,
-                      ]}
+                      style={[styles.ampmButton, isPM && styles.ampmButtonActive]}
                       onPress={() => setIsPM(true)}
                     >
-                      <Text
-                        style={[
-                          styles.ampmText,
-                          isPM && styles.ampmTextActive,
-                        ]}
-                      >
-                        PM
-                      </Text>
+                      <Text style={[styles.ampmText, isPM && styles.ampmTextActive]}>PM</Text>
                     </TouchableOpacity>
                   </View>
                 </View>

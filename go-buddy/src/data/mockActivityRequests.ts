@@ -1,4 +1,4 @@
-import { ActivityRequest } from '../types';
+import {ActivityRequest} from '../types';
 
 export const mockActivityRequests: ActivityRequest[] = [
   // Requests for activities created by the demo user (user ID '1')
@@ -58,7 +58,8 @@ export const mockActivityRequests: ActivityRequest[] = [
     activityId: 'intent-1', // From mockActivityIntents
     userId: '1',
     userName: 'Demo User',
-    userBio: "Hey! I'm a junior studying Computer Science. Looking for gym buddies and study partners!",
+    userBio:
+      "Hey! I'm a junior studying Computer Science. Looking for gym buddies and study partners!",
     userSkills: ['Python', 'React', 'Data Structures'],
     status: 'pending',
     createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(), // 1 hour ago
@@ -68,7 +69,8 @@ export const mockActivityRequests: ActivityRequest[] = [
     activityId: 'intent-2',
     userId: '1',
     userName: 'Demo User',
-    userBio: "Hey! I'm a junior studying Computer Science. Looking for gym buddies and study partners!",
+    userBio:
+      "Hey! I'm a junior studying Computer Science. Looking for gym buddies and study partners!",
     userSkills: ['Python', 'React', 'Data Structures'],
     status: 'approved',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
@@ -78,10 +80,10 @@ export const mockActivityRequests: ActivityRequest[] = [
     activityId: 'intent-3',
     userId: '1',
     userName: 'Demo User',
-    userBio: "Hey! I'm a junior studying Computer Science. Looking for gym buddies and study partners!",
+    userBio:
+      "Hey! I'm a junior studying Computer Science. Looking for gym buddies and study partners!",
     userSkills: ['Python', 'React', 'Data Structures'],
     status: 'declined',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(), // 2 days ago
   },
 ];
-

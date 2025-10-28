@@ -1,14 +1,14 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons } from '@expo/vector-icons';
-import { User, ActivityIntent, ActivityRequest } from '../types';
-import { BrowseScreen } from '../screens/BrowseScreen';
-import { RecommendationsScreen } from '../screens/RecommendationsScreen';
-import { MyActivitiesScreen } from '../screens/MyActivitiesScreen';
-import { ConnectionsScreen } from '../screens/ConnectionsScreen';
-import { ProfileScreen } from '../screens/ProfileScreen';
-import { colors } from '../theme';
-import { View, TouchableOpacity, Alert } from 'react-native';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {Ionicons} from '@expo/vector-icons';
+import {User, ActivityIntent, ActivityRequest} from '../types';
+import {BrowseScreen} from '../screens/BrowseScreen';
+import {RecommendationsScreen} from '../screens/RecommendationsScreen';
+import {MyActivitiesScreen} from '../screens/MyActivitiesScreen';
+import {ConnectionsScreen} from '../screens/ConnectionsScreen';
+import {ProfileScreen} from '../screens/ProfileScreen';
+import {colors} from '../theme';
+import {TouchableOpacity} from 'react-native';
 
 const Tab = createBottomTabNavigator();
 
@@ -18,7 +18,9 @@ export type AppNavigatorProps = {
   activityRequests: ActivityRequest[];
   onLogout: () => void;
   onUpdateProfile: (updatedUser: User) => void;
-  onCreateActivity: (activity: Omit<ActivityIntent, 'id' | 'userId' | 'userName' | 'createdAt'>) => void;
+  onCreateActivity: (
+    activity: Omit<ActivityIntent, 'id' | 'userId' | 'userName' | 'createdAt'>,
+  ) => void;
   onUpdateActivity: (activityId: string, updates: Partial<ActivityIntent>) => void;
   onDeleteActivity: (activityId: string) => void;
   onJoinActivity: (intentId: string) => void;
@@ -48,8 +50,8 @@ export function AppNavigator({
 
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
+      screenOptions={({route}) => ({
+        tabBarIcon: ({focused, color, size}) => {
           let iconName: keyof typeof Ionicons.glyphMap = 'home-outline';
 
           if (route.name === 'Browse') {
@@ -84,24 +86,14 @@ export function AppNavigator({
         headerRight:
           route.name === 'Browse'
             ? () => (
-                <TouchableOpacity
-                  onPress={onLogout}
-                  style={{ marginRight: 16 }}
-                >
-                  <Ionicons
-                    name="log-out-outline"
-                    size={24}
-                    color={colors.textSecondary}
-                  />
+                <TouchableOpacity onPress={onLogout} style={{marginRight: 16}}>
+                  <Ionicons name="log-out-outline" size={24} color={colors.textSecondary} />
                 </TouchableOpacity>
               )
             : undefined,
       })}
     >
-      <Tab.Screen
-        name="Browse"
-        options={{ headerTitle: 'GoBuddy' }}
-      >
+      <Tab.Screen name="Browse" options={{headerTitle: 'GoBuddy'}}>
         {() => (
           <BrowseScreen
             currentUser={currentUser}
@@ -122,10 +114,7 @@ export function AppNavigator({
         )}
       </Tab.Screen>
 
-      <Tab.Screen
-        name="My Activities"
-        options={{ headerTitle: 'My Activities' }}
-      >
+      <Tab.Screen name="My Activities" options={{headerTitle: 'My Activities'}}>
         {() => (
           <MyActivitiesScreen
             currentUser={currentUser}

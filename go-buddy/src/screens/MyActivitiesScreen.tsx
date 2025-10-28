@@ -1,31 +1,32 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
   Alert,
   FlatList,
   Modal,
+  ScrollView,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { User, ActivityIntent, ActivityRequest } from '../types';
-import { Input } from '../components/Input';
-import { Button } from '../components/Button';
-import { Card } from '../components/Card';
-import { Badge } from '../components/Badge';
-import { ActivityCard } from '../components/ActivityCard';
-import { ActivityDetailScreen } from './ActivityDetailScreen';
-import { ActivityDetailModal } from '../components/ActivityDetailModal';
-import { DateTimePicker } from '../components/DateTimePicker';
-import { colors, spacing, typography, borderRadius } from '../theme';
+import {Ionicons} from '@expo/vector-icons';
+import {User, ActivityIntent, ActivityRequest} from '../types';
+import {Input} from '../components/Input';
+import {Button} from '../components/Button';
+import {Card} from '../components/Card';
+import {Badge} from '../components/Badge';
+import {ActivityDetailScreen} from './ActivityDetailScreen';
+import {ActivityDetailModal} from '../components/ActivityDetailModal';
+import {DateTimePicker} from '../components/DateTimePicker';
+import {colors, spacing, typography, borderRadius} from '../theme';
 
 type MyActivitiesScreenProps = {
   currentUser: User;
   activityIntents: ActivityIntent[];
   activityRequests: ActivityRequest[];
-  onCreateActivity: (activity: Omit<ActivityIntent, 'id' | 'userId' | 'userName' | 'createdAt'>) => void;
+  onCreateActivity: (
+    activity: Omit<ActivityIntent, 'id' | 'userId' | 'userName' | 'createdAt'>,
+  ) => void;
   onUpdateActivity: (activityId: string, updates: Partial<ActivityIntent>) => void;
   onDeleteActivity: (activityId: string) => void;
   onApproveRequest: (requestId: string) => void;
@@ -48,9 +49,10 @@ export function MyActivitiesScreen({
   const [viewMode, setViewMode] = useState<ViewMode>('organizing');
   const [participatingFilter, setParticipatingFilter] = useState<ParticipatingFilter>('pending');
   const [selectedActivity, setSelectedActivity] = useState<ActivityIntent | null>(null);
-  const [selectedParticipatingActivity, setSelectedParticipatingActivity] = useState<ActivityIntent | null>(null);
+  const [selectedParticipatingActivity, setSelectedParticipatingActivity] =
+    useState<ActivityIntent | null>(null);
   const [showCompleted, setShowCompleted] = useState(false);
-  
+
   // Form state for creating activities
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -59,26 +61,27 @@ export function MyActivitiesScreen({
   const [location, setLocation] = useState('');
 
   // Get activities I'm organizing
-  const myActivities = activityIntents.filter(
-    (intent) => intent.userId === currentUser.id
-  );
+  const myActivities = activityIntents.filter((intent) => intent.userId === currentUser.id);
   const activeMyActivities = myActivities.filter(
-    (intent) => intent.status !== 'completed' && intent.status !== 'cancelled'
+    (intent) => intent.status !== 'completed' && intent.status !== 'cancelled',
   );
   const inactiveMyActivities = myActivities.filter(
-    (intent) => intent.status === 'completed' || intent.status === 'cancelled'
+    (intent) => intent.status === 'completed' || intent.status === 'cancelled',
   );
 
   // Get activities I'm participating in (requested or approved)
   const myParticipatingRequests = activityRequests.filter(
-    (request) => request.userId === currentUser.id
+    (request) => request.userId === currentUser.id,
   );
   const pendingParticipating = myParticipatingRequests.filter((r) => r.status === 'pending');
   const approvedParticipating = myParticipatingRequests.filter((r) => r.status === 'approved');
   const declinedParticipating = myParticipatingRequests.filter((r) => r.status === 'declined');
 
   // Get the activities for participating view
-  const getParticipatingActivities = () => {
+  const getParticipatingActivities = (): Array<{
+    request: ActivityRequest;
+    activity: ActivityIntent;
+  }> => {
     let requests: ActivityRequest[] = [];
     if (participatingFilter === 'pending') requests = pendingParticipating;
     else if (participatingFilter === 'approved') requests = approvedParticipating;
@@ -89,7 +92,10 @@ export function MyActivitiesScreen({
         request,
         activity: activityIntents.find((a) => a.id === request.activityId),
       }))
-      .filter((item) => item.activity !== undefined);
+      .filter(
+        (item): item is {request: ActivityRequest; activity: ActivityIntent} =>
+          item.activity !== undefined,
+      );
   };
 
   const handleCreateActivity = () => {
@@ -114,31 +120,28 @@ export function MyActivitiesScreen({
     };
 
     onCreateActivity(newActivity);
-    
+
     Alert.alert('Success', 'Activity created successfully!');
-    
+
     // Reset form
     setTitle('');
     setDescription('');
     setMaxPeople('4');
     setScheduledTimes([]);
     setLocation('');
-    
+
     // Switch to organizing tab
     setViewMode('organizing');
   };
 
-  const renderOrganizingActivityCard = ({ item }: { item: ActivityIntent }) => {
+  const renderOrganizingActivityCard = ({item}: {item: ActivityIntent}) => {
     const requestsForActivity = activityRequests.filter(
-      (r) => r.activityId === item.id && r.status === 'pending'
+      (r) => r.activityId === item.id && r.status === 'pending',
     );
     const hasNewRequests = requestsForActivity.length > 0;
 
     return (
-      <TouchableOpacity
-        onPress={() => setSelectedActivity(item)}
-        activeOpacity={0.7}
-      >
+      <TouchableOpacity onPress={() => setSelectedActivity(item)} activeOpacity={0.7}>
         <Card style={styles.activityCard}>
           <View style={styles.activityHeader}>
             <View style={styles.activityInfo}>
@@ -186,62 +189,62 @@ export function MyActivitiesScreen({
   const renderParticipatingActivity = ({
     item,
   }: {
-    item: { request: ActivityRequest; activity: ActivityIntent };
+    item: {request: ActivityRequest; activity: ActivityIntent};
   }) => {
-    const { request, activity } = item;
-    const statusColor =
-      request.status === 'approved'
-        ? colors.success
-        : request.status === 'declined'
-        ? colors.error
-        : colors.warning;
+    const {request, activity} = item;
+    // const statusColor =
+    //   request.status === 'approved' ?
+    //     colors.success :
+    //     request.status === 'declined' ?
+    //       colors.error :
+    //       colors.warning;
 
     return (
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={() => setSelectedParticipatingActivity(activity)}
         activeOpacity={0.7}
       >
         <Card style={styles.participatingCard}>
-        <View style={styles.participatingHeader}>
-          <Text style={styles.activityTitle}>{activity.title}</Text>
-          <Badge
-            variant={
-              request.status === 'approved'
-                ? 'success'
-                : request.status === 'declined'
-                ? 'destructive'
-                : 'secondary'
-            }
-          >
-            {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-          </Badge>
-        </View>
-
-        <Text style={styles.organizerText}>by {activity.userName}</Text>
-        <Text style={styles.activityDescription} numberOfLines={2}>
-          {activity.description}
-        </Text>
-
-        <View style={styles.activityMeta}>
-          <View style={styles.metaItem}>
-            <Ionicons name="people-outline" size={16} color={colors.textSecondary} />
-            <Text style={styles.metaText}>
-              {activity.currentPeople}/{activity.maxPeople}
-            </Text>
+          <View style={styles.participatingHeader}>
+            <Text style={styles.activityTitle}>{activity.title}</Text>
+            <Badge
+              variant={
+                request.status === 'approved'
+                  ? 'success'
+                  : request.status === 'declined'
+                    ? 'destructive'
+                    : 'secondary'
+              }
+            >
+              {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+            </Badge>
           </View>
-          {activity.scheduledTimes[0] && (
+
+          <Text style={styles.organizerText}>by {activity.userName}</Text>
+          <Text style={styles.activityDescription} numberOfLines={2}>
+            {activity.description}
+          </Text>
+
+          <View style={styles.activityMeta}>
             <View style={styles.metaItem}>
-              <Ionicons name="time-outline" size={16} color={colors.textSecondary} />
-              <Text style={styles.metaText}>{activity.scheduledTimes[0]}</Text>
+              <Ionicons name="people-outline" size={16} color={colors.textSecondary} />
+              <Text style={styles.metaText}>
+                {activity.currentPeople}/{activity.maxPeople}
+              </Text>
             </View>
-          )}
-          {activity.campusLocation && (
-            <View style={styles.metaItem}>
-              <Ionicons name="location-outline" size={16} color={colors.textSecondary} />
-              <Text style={styles.metaText}>{activity.campusLocation}</Text>
-            </View>
-          )}
-        </View>
+            {activity.scheduledTimes[0] && (
+              <View style={styles.metaItem}>
+                <Ionicons name="time-outline" size={16} color={colors.textSecondary} />
+                <Text style={styles.metaText}>{activity.scheduledTimes[0]}</Text>
+              </View>
+            )}
+            {activity.campusLocation && (
+              <View style={styles.metaItem}>
+                <Ionicons name="location-outline" size={16} color={colors.textSecondary} />
+                <Text style={styles.metaText}>{activity.campusLocation}</Text>
+              </View>
+            )}
+          </View>
         </Card>
       </TouchableOpacity>
     );
@@ -252,10 +255,7 @@ export function MyActivitiesScreen({
       {/* View Mode Toggle */}
       <View style={styles.modeToggle}>
         <TouchableOpacity
-          style={[
-            styles.modeButton,
-            viewMode === 'create' && styles.modeButtonActive,
-          ]}
+          style={[styles.modeButton, viewMode === 'create' && styles.modeButtonActive]}
           onPress={() => setViewMode('create')}
         >
           <Ionicons
@@ -263,21 +263,13 @@ export function MyActivitiesScreen({
             size={20}
             color={viewMode === 'create' ? '#fff' : colors.textSecondary}
           />
-          <Text
-            style={[
-              styles.modeText,
-              viewMode === 'create' && styles.modeTextActive,
-            ]}
-          >
+          <Text style={[styles.modeText, viewMode === 'create' && styles.modeTextActive]}>
             Create New
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[
-            styles.modeButton,
-            viewMode === 'organizing' && styles.modeButtonActive,
-          ]}
+          style={[styles.modeButton, viewMode === 'organizing' && styles.modeButtonActive]}
           onPress={() => setViewMode('organizing')}
         >
           <Ionicons
@@ -285,32 +277,28 @@ export function MyActivitiesScreen({
             size={20}
             color={viewMode === 'organizing' ? '#fff' : colors.textSecondary}
           />
-          <Text
-            style={[
-              styles.modeText,
-              viewMode === 'organizing' && styles.modeTextActive,
-            ]}
-          >
+          <Text style={[styles.modeText, viewMode === 'organizing' && styles.modeTextActive]}>
             Organizing
           </Text>
-          <View style={[
-            styles.modeCountBadge,
-            viewMode === 'organizing' && styles.modeCountBadgeActive
-          ]}>
-            <Text style={[
-              styles.modeCountText,
-              viewMode === 'organizing' && styles.modeCountTextActive
-            ]}>
+          <View
+            style={[
+              styles.modeCountBadge,
+              viewMode === 'organizing' && styles.modeCountBadgeActive,
+            ]}
+          >
+            <Text
+              style={[
+                styles.modeCountText,
+                viewMode === 'organizing' && styles.modeCountTextActive,
+              ]}
+            >
               {activeMyActivities.length > 99 ? '99+' : activeMyActivities.length}
             </Text>
           </View>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[
-            styles.modeButton,
-            viewMode === 'participating' && styles.modeButtonActive,
-          ]}
+          style={[styles.modeButton, viewMode === 'participating' && styles.modeButtonActive]}
           onPress={() => setViewMode('participating')}
         >
           <Ionicons
@@ -318,22 +306,21 @@ export function MyActivitiesScreen({
             size={20}
             color={viewMode === 'participating' ? '#fff' : colors.textSecondary}
           />
-          <Text
-            style={[
-              styles.modeText,
-              viewMode === 'participating' && styles.modeTextActive,
-            ]}
-          >
+          <Text style={[styles.modeText, viewMode === 'participating' && styles.modeTextActive]}>
             Participating
           </Text>
-          <View style={[
-            styles.modeCountBadge,
-            viewMode === 'participating' && styles.modeCountBadgeActive
-          ]}>
-            <Text style={[
-              styles.modeCountText,
-              viewMode === 'participating' && styles.modeCountTextActive
-            ]}>
+          <View
+            style={[
+              styles.modeCountBadge,
+              viewMode === 'participating' && styles.modeCountBadgeActive,
+            ]}
+          >
+            <Text
+              style={[
+                styles.modeCountText,
+                viewMode === 'participating' && styles.modeCountTextActive,
+              ]}
+            >
               {myParticipatingRequests.length > 99 ? '99+' : myParticipatingRequests.length}
             </Text>
           </View>
@@ -342,10 +329,7 @@ export function MyActivitiesScreen({
 
       {/* Content */}
       {viewMode === 'create' ? (
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
           <Card style={styles.formCard}>
             <View style={styles.formHeader}>
               <Ionicons name="create-outline" size={32} color={colors.primary} />
@@ -388,10 +372,7 @@ export function MyActivitiesScreen({
 
             <View style={styles.formSection}>
               <Text style={styles.label}>Scheduled Time(s) (Optional)</Text>
-              <DateTimePicker
-                selectedTimes={scheduledTimes}
-                onTimesChange={setScheduledTimes}
-              />
+              <DateTimePicker selectedTimes={scheduledTimes} onTimesChange={setScheduledTimes} />
               <Text style={styles.helperText}>
                 Pick specific dates and times from the calendar (optional)
               </Text>
@@ -429,21 +410,12 @@ export function MyActivitiesScreen({
                   color={!showCompleted ? '#FFFFFF' : colors.textSecondary}
                 />
                 <Text
-                  style={[
-                    styles.filterToggleText,
-                    !showCompleted && styles.filterToggleTextActive,
-                  ]}
+                  style={[styles.filterToggleText, !showCompleted && styles.filterToggleTextActive]}
                 >
                   Active
                 </Text>
-                <View style={[
-                  styles.countBadge,
-                  !showCompleted && styles.countBadgeActive
-                ]}>
-                  <Text style={[
-                    styles.countText,
-                    !showCompleted && styles.countTextActive
-                  ]}>
+                <View style={[styles.countBadge, !showCompleted && styles.countBadgeActive]}>
+                  <Text style={[styles.countText, !showCompleted && styles.countTextActive]}>
                     {activeMyActivities.length}
                   </Text>
                 </View>
@@ -461,21 +433,12 @@ export function MyActivitiesScreen({
                   color={showCompleted ? '#FFFFFF' : colors.textSecondary}
                 />
                 <Text
-                  style={[
-                    styles.filterToggleText,
-                    showCompleted && styles.filterToggleTextActive,
-                  ]}
+                  style={[styles.filterToggleText, showCompleted && styles.filterToggleTextActive]}
                 >
                   Completed
                 </Text>
-                <View style={[
-                  styles.countBadge,
-                  showCompleted && styles.countBadgeActive
-                ]}>
-                  <Text style={[
-                    styles.countText,
-                    showCompleted && styles.countTextActive
-                  ]}>
+                <View style={[styles.countBadge, showCompleted && styles.countBadgeActive]}>
+                  <Text style={[styles.countText, showCompleted && styles.countTextActive]}>
                     {inactiveMyActivities.length}
                   </Text>
                 </View>
@@ -490,19 +453,14 @@ export function MyActivitiesScreen({
             contentContainerStyle={styles.listContent}
             ListEmptyComponent={
               <View style={styles.emptyState}>
-                <Ionicons
-                  name="calendar-outline"
-                  size={64}
-                  color={colors.textMuted}
-                />
+                <Ionicons name="calendar-outline" size={64} color={colors.textMuted} />
                 <Text style={styles.emptyText}>
                   {showCompleted ? 'No completed activities' : 'No activities yet'}
                 </Text>
                 <Text style={styles.emptySubtext}>
-                  {showCompleted 
+                  {showCompleted
                     ? 'Completed activities will appear here'
-                    : 'Create a new activity to get started'
-                  }
+                    : 'Create a new activity to get started'}
                 </Text>
               </View>
             }
@@ -533,14 +491,18 @@ export function MyActivitiesScreen({
                 >
                   Pending
                 </Text>
-                <View style={[
-                  styles.countBadge,
-                  participatingFilter === 'pending' && styles.countBadgeActive
-                ]}>
-                  <Text style={[
-                    styles.countText,
-                    participatingFilter === 'pending' && styles.countTextActive
-                  ]}>
+                <View
+                  style={[
+                    styles.countBadge,
+                    participatingFilter === 'pending' && styles.countBadgeActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.countText,
+                      participatingFilter === 'pending' && styles.countTextActive,
+                    ]}
+                  >
                     {pendingParticipating.length}
                   </Text>
                 </View>
@@ -565,14 +527,18 @@ export function MyActivitiesScreen({
                 >
                   Approved
                 </Text>
-                <View style={[
-                  styles.countBadge,
-                  participatingFilter === 'approved' && styles.countBadgeActive
-                ]}>
-                  <Text style={[
-                    styles.countText,
-                    participatingFilter === 'approved' && styles.countTextActive
-                  ]}>
+                <View
+                  style={[
+                    styles.countBadge,
+                    participatingFilter === 'approved' && styles.countBadgeActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.countText,
+                      participatingFilter === 'approved' && styles.countTextActive,
+                    ]}
+                  >
                     {approvedParticipating.length}
                   </Text>
                 </View>
@@ -597,14 +563,18 @@ export function MyActivitiesScreen({
                 >
                   Declined
                 </Text>
-                <View style={[
-                  styles.countBadge,
-                  participatingFilter === 'declined' && styles.countBadgeActive
-                ]}>
-                  <Text style={[
-                    styles.countText,
-                    participatingFilter === 'declined' && styles.countTextActive
-                  ]}>
+                <View
+                  style={[
+                    styles.countBadge,
+                    participatingFilter === 'declined' && styles.countBadgeActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.countText,
+                      participatingFilter === 'declined' && styles.countTextActive,
+                    ]}
+                  >
                     {declinedParticipating.length}
                   </Text>
                 </View>
@@ -619,20 +589,14 @@ export function MyActivitiesScreen({
             contentContainerStyle={styles.listContent}
             ListEmptyComponent={
               <View style={styles.emptyState}>
-                <Ionicons
-                  name="people-outline"
-                  size={64}
-                  color={colors.textMuted}
-                />
-                <Text style={styles.emptyText}>
-                  No {participatingFilter} activities
-                </Text>
+                <Ionicons name="people-outline" size={64} color={colors.textMuted} />
+                <Text style={styles.emptyText}>No {participatingFilter} activities</Text>
                 <Text style={styles.emptySubtext}>
                   {participatingFilter === 'pending'
                     ? 'Your join requests will appear here'
                     : participatingFilter === 'approved'
-                    ? 'Approved activities will appear here'
-                    : 'Declined requests will appear here'}
+                      ? 'Approved activities will appear here'
+                      : 'Declined requests will appear here'}
                 </Text>
               </View>
             }
@@ -647,33 +611,30 @@ export function MyActivitiesScreen({
         presentationStyle="pageSheet"
         onRequestClose={() => setSelectedActivity(null)}
       >
-        {selectedActivity && (() => {
-          // Always get the latest version of the activity from the state
-          const currentActivity = activityIntents.find(
-            (a) => a.id === selectedActivity.id
-          );
-          
-          // If activity was deleted, close the modal
-          if (!currentActivity) {
-            setSelectedActivity(null);
-            return null;
-          }
-          
-          return (
-            <ActivityDetailScreen
-              activity={currentActivity}
-              requests={activityRequests.filter(
-                (r) => r.activityId === currentActivity.id
-              )}
-              currentUser={currentUser}
-              onClose={() => setSelectedActivity(null)}
-              onUpdateActivity={onUpdateActivity}
-              onDeleteActivity={onDeleteActivity}
-              onApproveRequest={onApproveRequest}
-              onDeclineRequest={onDeclineRequest}
-            />
-          );
-        })()}
+        {selectedActivity &&
+          (() => {
+            // Always get the latest version of the activity from the state
+            const currentActivity = activityIntents.find((a) => a.id === selectedActivity.id);
+
+            // If activity was deleted, close the modal
+            if (!currentActivity) {
+              setSelectedActivity(null);
+              return null;
+            }
+
+            return (
+              <ActivityDetailScreen
+                activity={currentActivity}
+                requests={activityRequests.filter((r) => r.activityId === currentActivity.id)}
+                currentUser={currentUser}
+                onClose={() => setSelectedActivity(null)}
+                onUpdateActivity={onUpdateActivity}
+                onDeleteActivity={onDeleteActivity}
+                onApproveRequest={onApproveRequest}
+                onDeclineRequest={onDeclineRequest}
+              />
+            );
+          })()}
       </Modal>
 
       {/* Participating Activity Detail Modal */}
@@ -821,7 +782,7 @@ const styles = StyleSheet.create({
   filterToggleButtonActive: {
     backgroundColor: colors.primary,
     shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
@@ -948,4 +909,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-

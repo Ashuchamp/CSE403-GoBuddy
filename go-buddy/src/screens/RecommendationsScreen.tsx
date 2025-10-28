@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { User, ActivityIntent } from '../types';
-import { ActivityCard } from '../components/ActivityCard';
-import { ActivityDetailModal } from '../components/ActivityDetailModal';
-import { colors, spacing, typography } from '../theme';
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, FlatList} from 'react-native';
+import {Ionicons} from '@expo/vector-icons';
+import {User, ActivityIntent} from '../types';
+import {ActivityCard} from '../components/ActivityCard';
+import {ActivityDetailModal} from '../components/ActivityDetailModal';
+import {colors, spacing, typography} from '../theme';
 
 type RecommendationsScreenProps = {
   currentUser: User;
@@ -24,21 +24,15 @@ export function RecommendationsScreen({
     return intent.status !== 'completed' && intent.status !== 'cancelled';
   });
 
-  const renderActivityCard = ({ item }: { item: ActivityIntent }) => (
-    <ActivityCard 
-      intent={item} 
-      onJoin={onJoinActivity}
-      onPress={setSelectedActivity}
-    />
+  const renderActivityCard = ({item}: {item: ActivityIntent}) => (
+    <ActivityCard intent={item} onJoin={onJoinActivity} onPress={setSelectedActivity} />
   );
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>For You</Text>
-        <Text style={styles.subtitle}>
-          Activities matched to your interests
-        </Text>
+        <Text style={styles.subtitle}>Activities matched to your interests</Text>
       </View>
 
       <FlatList
@@ -110,4 +104,3 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
   },
 });
-

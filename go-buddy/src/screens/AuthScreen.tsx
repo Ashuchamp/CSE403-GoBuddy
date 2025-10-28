@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -8,18 +8,18 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { Button } from '../components/Button';
-import { Input } from '../components/Input';
-import { Card } from '../components/Card';
-import { User } from '../types';
-import { colors, spacing, typography } from '../theme';
+import {Ionicons} from '@expo/vector-icons';
+import {Button} from '../components/Button';
+import {Input} from '../components/Input';
+import {Card} from '../components/Card';
+import {User} from '../types';
+import {colors, spacing, typography} from '../theme';
 
 type AuthScreenProps = {
   onAuthenticated: (user: User) => void;
 };
 
-export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
+export function AuthScreen({onAuthenticated}: AuthScreenProps) {
   const [email, setEmail] = useState('');
   const [linkSent, setLinkSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -61,10 +61,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Text style={styles.logo}>GoBuddy</Text>
           <Text style={styles.subtitle}>Find your activity partners at UW</Text>
@@ -77,9 +74,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
             </View>
 
             <Text style={styles.cardTitle}>Sign in with your UW email</Text>
-            <Text style={styles.cardSubtitle}>
-              We'll send you a magic link to sign in
-            </Text>
+            <Text style={styles.cardSubtitle}>We&apos;ll send you a magic link to sign in</Text>
 
             <Input
               placeholder="yourname@uw.edu"
@@ -91,17 +86,11 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
               containerStyle={styles.inputContainer}
             />
 
-            <Button
-              onPress={handleSendMagicLink}
-              loading={loading}
-              fullWidth
-            >
+            <Button onPress={handleSendMagicLink} loading={loading} fullWidth>
               Send Magic Link
             </Button>
 
-            <Text style={styles.notice}>
-              Only @uw.edu email addresses are allowed
-            </Text>
+            <Text style={styles.notice}>Only @uw.edu email addresses are allowed</Text>
           </Card>
         ) : (
           <Card style={styles.card}>
@@ -111,8 +100,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
 
             <Text style={styles.cardTitle}>Check your email!</Text>
             <Text style={styles.cardSubtitle}>
-              We've sent a magic link to{' '}
-              <Text style={styles.emailText}>{email}</Text>
+              We&apos;ve sent a magic link to <Text style={styles.emailText}>{email}</Text>
             </Text>
             <Text style={styles.instruction}>
               Click the link in the email to complete your sign in.
@@ -121,11 +109,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
             {/* Demo button - remove in production */}
             <View style={styles.demoSection}>
               <Text style={styles.demoLabel}>Demo Mode</Text>
-              <Button
-                onPress={handleSimulateLogin}
-                variant="outline"
-                fullWidth
-              >
+              <Button onPress={handleSimulateLogin} variant="outline" fullWidth>
                 Login
               </Button>
             </View>
@@ -209,4 +193,3 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
 });
-

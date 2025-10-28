@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { User } from '../types';
-import { Card } from './Card';
-import { Badge } from './Badge';
-import { Button } from './Button';
-import { colors, spacing, typography, borderRadius } from '../theme';
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity, ViewStyle} from 'react-native';
+import {Ionicons} from '@expo/vector-icons';
+import {User} from '../types';
+import {Card} from './Card';
+import {Badge} from './Badge';
+import {Button} from './Button';
+import {colors, spacing, typography} from '../theme';
 
 type UserCardProps = {
   user: User;
@@ -14,13 +14,25 @@ type UserCardProps = {
   onConnectRequest?: () => void;
 };
 
-export function UserCard({ user, currentUser, onPress, onConnectRequest }: UserCardProps) {
+export function UserCard({
+  user,
+  currentUser: _currentUser,
+  onPress,
+  onConnectRequest,
+}: UserCardProps) {
   const [requestSent, setRequestSent] = useState(false);
 
   const handleConnect = () => {
     setRequestSent(true);
     onConnectRequest?.();
   };
+
+  const buttonStyle: ViewStyle = requestSent
+    ? {
+        ...styles.connectButton,
+        backgroundColor: colors.success,
+      }
+    : styles.connectButton;
 
   return (
     <Card style={styles.card}>
@@ -79,22 +91,9 @@ export function UserCard({ user, currentUser, onPress, onConnectRequest }: UserC
       </TouchableOpacity>
 
       {/* Action Button */}
-      <Button
-        onPress={handleConnect}
-        disabled={requestSent}
-        style={[
-          styles.connectButton,
-          requestSent && { backgroundColor: colors.success },
-        ]}
-        fullWidth
-      >
+      <Button onPress={handleConnect} disabled={requestSent} style={buttonStyle} fullWidth>
         <View style={styles.buttonContent}>
-          <Ionicons
-            name="person-add-outline"
-            size={16}
-            color="#fff"
-            style={styles.buttonIcon}
-          />
+          <Ionicons name="person-add-outline" size={16} color="#fff" style={styles.buttonIcon} />
           <Text style={styles.buttonText}>
             {requestSent ? 'Request Sent' : 'Request to Connect'}
           </Text>
@@ -183,4 +182,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

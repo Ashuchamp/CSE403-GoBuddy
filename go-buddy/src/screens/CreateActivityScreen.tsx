@@ -1,25 +1,19 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-  FlatList,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { User, ActivityIntent } from '../types';
-import { Input } from '../components/Input';
-import { Button } from '../components/Button';
-import { Card } from '../components/Card';
-import { ActivityCard } from '../components/ActivityCard';
-import { colors, spacing, typography } from '../theme';
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, FlatList} from 'react-native';
+import {Ionicons} from '@expo/vector-icons';
+import {User, ActivityIntent} from '../types';
+import {Input} from '../components/Input';
+import {Button} from '../components/Button';
+import {Card} from '../components/Card';
+import {ActivityCard} from '../components/ActivityCard';
+import {colors, spacing, typography} from '../theme';
 
 type CreateActivityScreenProps = {
   currentUser: User;
   activityIntents: ActivityIntent[];
-  onCreateActivity: (activity: Omit<ActivityIntent, 'id' | 'userId' | 'userName' | 'createdAt'>) => void;
+  onCreateActivity: (
+    activity: Omit<ActivityIntent, 'id' | 'userId' | 'userName' | 'createdAt'>,
+  ) => void;
 };
 
 type ViewMode = 'create' | 'active' | 'inactive';
@@ -30,7 +24,7 @@ export function CreateActivityScreen({
   onCreateActivity,
 }: CreateActivityScreenProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('create');
-  
+
   // Form state
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -40,16 +34,14 @@ export function CreateActivityScreen({
   const [tags, setTags] = useState('');
 
   // Get user's activities
-  const userActivities = activityIntents.filter(
-    (intent) => intent.userId === currentUser.id
-  );
+  const userActivities = activityIntents.filter((intent) => intent.userId === currentUser.id);
 
   // Split into active and inactive (using currentPeople as a simple indicator)
   const activeActivities = userActivities.filter(
-    (intent) => intent.currentPeople < intent.maxPeople
+    (intent) => intent.currentPeople < intent.maxPeople,
   );
   const inactiveActivities = userActivities.filter(
-    (intent) => intent.currentPeople >= intent.maxPeople
+    (intent) => intent.currentPeople >= intent.maxPeople,
   );
 
   const handleCreateActivity = () => {
@@ -77,17 +69,20 @@ export function CreateActivityScreen({
       maxPeople: parseInt(maxPeople),
       currentPeople: 1,
       scheduledTimes: scheduledTime.split(',').map((t) => t.trim()),
-      tags: tags.split(',').map((t) => t.trim()).filter((t) => t),
+      tags: tags
+        .split(',')
+        .map((t) => t.trim())
+        .filter((t) => t),
       campusLocation: location.trim() || undefined,
     };
 
     onCreateActivity(newActivity);
-    
+
     Alert.alert('Success', 'Activity created successfully!');
-    
+
     // Switch to Active tab to show the newly created activity
     setViewMode('active');
-    
+
     // Reset form
     setTitle('');
     setDescription('');
@@ -97,7 +92,7 @@ export function CreateActivityScreen({
     setTags('');
   };
 
-  const renderActivityCard = ({ item }: { item: ActivityIntent }) => (
+  const renderActivityCard = ({item}: {item: ActivityIntent}) => (
     <ActivityCard intent={item} showActions={false} />
   );
 
@@ -106,10 +101,7 @@ export function CreateActivityScreen({
       {/* View Mode Toggle */}
       <View style={styles.modeToggle}>
         <TouchableOpacity
-          style={[
-            styles.modeButton,
-            viewMode === 'create' && styles.modeButtonActive,
-          ]}
+          style={[styles.modeButton, viewMode === 'create' && styles.modeButtonActive]}
           onPress={() => setViewMode('create')}
         >
           <Ionicons
@@ -117,21 +109,13 @@ export function CreateActivityScreen({
             size={20}
             color={viewMode === 'create' ? '#fff' : colors.textSecondary}
           />
-          <Text
-            style={[
-              styles.modeText,
-              viewMode === 'create' && styles.modeTextActive,
-            ]}
-          >
+          <Text style={[styles.modeText, viewMode === 'create' && styles.modeTextActive]}>
             Create
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[
-            styles.modeButton,
-            viewMode === 'active' && styles.modeButtonActive,
-          ]}
+          style={[styles.modeButton, viewMode === 'active' && styles.modeButtonActive]}
           onPress={() => setViewMode('active')}
         >
           <Ionicons
@@ -139,21 +123,13 @@ export function CreateActivityScreen({
             size={20}
             color={viewMode === 'active' ? '#fff' : colors.textSecondary}
           />
-          <Text
-            style={[
-              styles.modeText,
-              viewMode === 'active' && styles.modeTextActive,
-            ]}
-          >
+          <Text style={[styles.modeText, viewMode === 'active' && styles.modeTextActive]}>
             Active ({activeActivities.length})
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[
-            styles.modeButton,
-            viewMode === 'inactive' && styles.modeButtonActive,
-          ]}
+          style={[styles.modeButton, viewMode === 'inactive' && styles.modeButtonActive]}
           onPress={() => setViewMode('inactive')}
         >
           <Ionicons
@@ -161,12 +137,7 @@ export function CreateActivityScreen({
             size={20}
             color={viewMode === 'inactive' ? '#fff' : colors.textSecondary}
           />
-          <Text
-            style={[
-              styles.modeText,
-              viewMode === 'inactive' && styles.modeTextActive,
-            ]}
-          >
+          <Text style={[styles.modeText, viewMode === 'inactive' && styles.modeTextActive]}>
             Inactive ({inactiveActivities.length})
           </Text>
         </TouchableOpacity>
@@ -174,10 +145,7 @@ export function CreateActivityScreen({
 
       {/* Content */}
       {viewMode === 'create' ? (
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
           <Card style={styles.formCard}>
             <View style={styles.formHeader}>
               <Ionicons name="create-outline" size={32} color={colors.primary} />
@@ -225,9 +193,7 @@ export function CreateActivityScreen({
                 value={scheduledTime}
                 onChangeText={setScheduledTime}
               />
-              <Text style={styles.helperText}>
-                Separate multiple times with commas
-              </Text>
+              <Text style={styles.helperText}>Separate multiple times with commas</Text>
             </View>
 
             <View style={styles.formSection}>
@@ -246,9 +212,7 @@ export function CreateActivityScreen({
                 value={tags}
                 onChangeText={setTags}
               />
-              <Text style={styles.helperText}>
-                Separate tags with commas
-              </Text>
+              <Text style={styles.helperText}>Separate tags with commas</Text>
             </View>
 
             <Button onPress={handleCreateActivity} fullWidth>
@@ -269,15 +233,9 @@ export function CreateActivityScreen({
           }
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Ionicons
-                name="calendar-outline"
-                size={64}
-                color={colors.textMuted}
-              />
+              <Ionicons name="calendar-outline" size={64} color={colors.textMuted} />
               <Text style={styles.emptyText}>No active activities</Text>
-              <Text style={styles.emptySubtext}>
-                Create a new activity to get started
-              </Text>
+              <Text style={styles.emptySubtext}>Create a new activity to get started</Text>
             </View>
           }
         />
@@ -294,15 +252,9 @@ export function CreateActivityScreen({
           }
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Ionicons
-                name="checkmark-circle-outline"
-                size={64}
-                color={colors.textMuted}
-              />
+              <Ionicons name="checkmark-circle-outline" size={64} color={colors.textMuted} />
               <Text style={styles.emptyText}>No completed activities</Text>
-              <Text style={styles.emptySubtext}>
-                Completed activities will appear here
-              </Text>
+              <Text style={styles.emptySubtext}>Completed activities will appear here</Text>
             </View>
           }
         />
@@ -410,4 +362,3 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
 });
-

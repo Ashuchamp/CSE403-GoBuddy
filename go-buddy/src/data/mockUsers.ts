@@ -1,4 +1,4 @@
-import { User } from '../types';
+import {User} from '../types';
 
 export const mockUsers: User[] = [
   {
@@ -126,4 +126,3 @@ export const mockUsers: User[] = [
     campusLocation: 'South Campus',
   },
 ];
-

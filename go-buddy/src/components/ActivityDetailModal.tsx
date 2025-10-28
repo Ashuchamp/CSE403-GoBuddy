@@ -1,17 +1,10 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Modal,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { ActivityIntent } from '../types';
-import { Card } from './Card';
-import { Badge } from './Badge';
-import { colors, spacing, typography, borderRadius } from '../theme';
+import {View, Text, StyleSheet, Modal, ScrollView, TouchableOpacity} from 'react-native';
+import {Ionicons} from '@expo/vector-icons';
+import {ActivityIntent} from '../types';
+import {Card} from './Card';
+import {Badge} from './Badge';
+import {colors, spacing, typography, borderRadius} from '../theme';
 
 type ActivityDetailModalProps = {
   activity: ActivityIntent | null;
@@ -24,21 +17,15 @@ export function ActivityDetailModal({
   activity,
   visible,
   onClose,
-  currentUserId,
+  currentUserId: _currentUserId,
 }: ActivityDetailModalProps) {
-  console.log('ActivityDetailModal: visible=', visible, 'activity=', activity?.title);
   if (!activity) return null;
 
   const isAlmostFull = activity.currentPeople >= activity.maxPeople * 0.8;
   const isFull = activity.currentPeople >= activity.maxPeople;
-  const isOwnActivity = currentUserId === activity.userId;
+  // const isOwnActivity = currentUserId === activity.userId; // Unused for now
 
-  const statusColor = isFull
-    ? colors.error
-    : isAlmostFull
-    ? colors.warning
-    : colors.success;
-
+  const statusColor = isFull ? colors.error : isAlmostFull ? colors.warning : colors.success;
 
   return (
     <Modal
@@ -67,9 +54,9 @@ export function ActivityDetailModal({
             </View>
 
             {/* Status Badge */}
-            <View style={[styles.statusBadge, { backgroundColor: `${statusColor}20` }]}>
+            <View style={[styles.statusBadge, {backgroundColor: `${statusColor}20`}]}>
               <Ionicons name="people-outline" size={16} color={statusColor} />
-              <Text style={[styles.statusText, { color: statusColor }]}>
+              <Text style={[styles.statusText, {color: statusColor}]}>
                 {activity.currentPeople}/{activity.maxPeople} people
               </Text>
             </View>
@@ -127,7 +114,6 @@ export function ActivityDetailModal({
               </View>
             </View>
           </Card>
-
         </ScrollView>
       </View>
     </Modal>

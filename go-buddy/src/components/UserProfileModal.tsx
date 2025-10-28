@@ -1,17 +1,10 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Modal,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { User } from '../types';
-import { Card } from './Card';
-import { Badge } from './Badge';
-import { colors, spacing, typography, borderRadius } from '../theme';
+import {View, Text, StyleSheet, Modal, ScrollView, TouchableOpacity} from 'react-native';
+import {Ionicons} from '@expo/vector-icons';
+import {User} from '../types';
+import {Card} from './Card';
+import {Badge} from './Badge';
+import {colors, spacing, typography} from '../theme';
 
 type UserProfileModalProps = {
   user: User | null;
@@ -24,11 +17,11 @@ export function UserProfileModal({
   user,
   visible,
   onClose,
-  currentUserId,
+  currentUserId: _currentUserId,
 }: UserProfileModalProps) {
   if (!user) return null;
 
-  const isOwnProfile = currentUserId === user.id;
+  // const isOwnProfile = currentUserId === user.id; // Unused for now
 
   return (
     <Modal
@@ -129,7 +122,6 @@ export function UserProfileModal({
               </View>
             </View>
           </Card>
-
         </ScrollView>
       </View>
     </Modal>

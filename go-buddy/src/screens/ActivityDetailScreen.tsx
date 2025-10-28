@@ -1,19 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { ActivityIntent, ActivityRequest, User } from '../types';
-import { Input } from '../components/Input';
-import { Button } from '../components/Button';
-import { Card } from '../components/Card';
-import { Badge } from '../components/Badge';
-import { colors, spacing, typography, borderRadius } from '../theme';
+import React, {useState, useEffect} from 'react';
+import {View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert} from 'react-native';
+import {Ionicons} from '@expo/vector-icons';
+import {ActivityIntent, ActivityRequest, User} from '../types';
+import {Input} from '../components/Input';
+import {Button} from '../components/Button';
+import {Card} from '../components/Card';
+import {Badge} from '../components/Badge';
+import {colors, spacing, typography} from '../theme';
 
 type ActivityDetailScreenProps = {
   activity: ActivityIntent;
@@ -40,7 +33,9 @@ export function ActivityDetailScreen({
   const [editedTitle, setEditedTitle] = useState(activity.title);
   const [editedDescription, setEditedDescription] = useState(activity.description);
   const [editedMaxPeople, setEditedMaxPeople] = useState(activity.maxPeople.toString());
-  const [editedScheduledTime, setEditedScheduledTime] = useState(activity.scheduledTimes.join(', '));
+  const [editedScheduledTime, setEditedScheduledTime] = useState(
+    activity.scheduledTimes.join(', '),
+  );
   const [editedLocation, setEditedLocation] = useState(activity.campusLocation || '');
 
   // Update edit fields when activity changes
@@ -65,7 +60,7 @@ export function ActivityDetailScreen({
     if (maxPeople < approvedRequests.length + 1) {
       Alert.alert(
         'Error',
-        `Maximum people cannot be less than current participants (${approvedRequests.length + 1})`
+        `Maximum people cannot be less than current participants (${approvedRequests.length + 1})`,
       );
       return;
     }
@@ -87,16 +82,16 @@ export function ActivityDetailScreen({
       'Mark as Complete',
       'Are you sure you want to mark this activity as complete? It will move to inactive.',
       [
-        { text: 'Cancel', style: 'cancel' },
+        {text: 'Cancel', style: 'cancel'},
         {
           text: 'Complete',
           onPress: () => {
-            onUpdateActivity(activity.id, { status: 'completed' });
+            onUpdateActivity(activity.id, {status: 'completed'});
             Alert.alert('Success', 'Activity marked as complete!');
             onClose();
           },
         },
-      ]
+      ],
     );
   };
 
@@ -105,7 +100,7 @@ export function ActivityDetailScreen({
       'Delete Activity',
       'Are you sure you want to delete this activity? This action cannot be undone.',
       [
-        { text: 'Cancel', style: 'cancel' },
+        {text: 'Cancel', style: 'cancel'},
         {
           text: 'Delete',
           style: 'destructive',
@@ -115,7 +110,7 @@ export function ActivityDetailScreen({
             onClose();
           },
         },
-      ]
+      ],
     );
   };
 
@@ -127,18 +122,14 @@ export function ActivityDetailScreen({
   };
 
   const handleDecline = (request: ActivityRequest) => {
-    Alert.alert(
-      'Decline Request',
-      `Decline request from ${request.userName}?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Decline',
-          style: 'destructive',
-          onPress: () => onDeclineRequest(request.id),
-        },
-      ]
-    );
+    Alert.alert('Decline Request', `Decline request from ${request.userName}?`, [
+      {text: 'Cancel', style: 'cancel'},
+      {
+        text: 'Decline',
+        style: 'destructive',
+        onPress: () => onDeclineRequest(request.id),
+      },
+    ]);
   };
 
   const spotsRemaining = activity.maxPeople - (approvedRequests.length + 1);
@@ -195,10 +186,7 @@ export function ActivityDetailScreen({
 
               <View style={styles.formSection}>
                 <Text style={styles.label}>Scheduled Times *</Text>
-                <Input
-                  value={editedScheduledTime}
-                  onChangeText={setEditedScheduledTime}
-                />
+                <Input value={editedScheduledTime} onChangeText={setEditedScheduledTime} />
               </View>
 
               <View style={styles.formSection}>
@@ -359,7 +347,7 @@ export function ActivityDetailScreen({
             style={styles.actionButton}
           >
             <Ionicons name="trash-outline" size={20} color="#fff" />
-            <Text style={[styles.actionButtonText, { color: '#fff' }]}>Delete Activity</Text>
+            <Text style={[styles.actionButtonText, {color: '#fff'}]}>Delete Activity</Text>
           </Button>
         </Card>
       </ScrollView>
@@ -535,4 +523,3 @@ const styles = StyleSheet.create({
     marginLeft: spacing.xs,
   },
 });
-
