@@ -55,6 +55,7 @@ export function BrowseScreen({
       user={item}
       currentUser={currentUser}
       onPress={() => setSelectedUser(item)}
+      showContactInfo={false} // Contact info hidden in Browse
     />
   );
 
@@ -190,6 +191,7 @@ export function BrowseScreen({
         visible={selectedUser !== null}
         onClose={() => setSelectedUser(null)}
         currentUserId={currentUser.id}
+        showContactInfo={false} // Contact info hidden in Browse
       />
     </View>
   );

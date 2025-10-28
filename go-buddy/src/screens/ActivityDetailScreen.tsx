@@ -9,10 +9,12 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ActivityIntent, ActivityRequest, User } from '../types';
+import { mockUsers } from '../data/mockUsers';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { Badge } from '../components/Badge';
+import { UserProfileModal } from '../components/UserProfileModal';
 import { colors, spacing, typography, borderRadius } from '../theme';
 
 type ActivityDetailScreenProps = {
@@ -42,6 +44,7 @@ export function ActivityDetailScreen({
   const [editedMaxPeople, setEditedMaxPeople] = useState(activity.maxPeople.toString());
   const [editedScheduledTime, setEditedScheduledTime] = useState(activity.scheduledTimes.join(', '));
   const [editedLocation, setEditedLocation] = useState(activity.campusLocation || '');
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   // Update edit fields when activity changes
   useEffect(() => {
@@ -263,44 +266,53 @@ export function ActivityDetailScreen({
               <Badge variant="primary">{pendingRequests.length}</Badge>
             </View>
 
-            {pendingRequests.map((request) => (
-              <View key={request.id} style={styles.requestCard}>
-                <View style={styles.requestHeader}>
-                  <View style={styles.requestInfo}>
-                    <Text style={styles.requestName}>{request.userName}</Text>
-                    <Text style={styles.requestBio} numberOfLines={2}>
-                      {request.userBio}
-                    </Text>
-                    {request.userSkills.length > 0 && (
-                      <View style={styles.skillsContainer}>
-                        {request.userSkills.slice(0, 3).map((skill, index) => (
-                          <Badge key={index} variant="secondary" style={styles.skillBadge}>
-                            {skill}
-                          </Badge>
-                        ))}
-                      </View>
-                    )}
+            {pendingRequests.map((request) => {
+              const userData = mockUsers.find(user => user.id === request.userId);
+              
+              return (
+                <View key={request.id} style={styles.requestCard}>
+                  <TouchableOpacity 
+                    style={styles.requestHeader}
+                    onPress={() => setSelectedUser(userData || null)}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.requestInfo}>
+                      <Text style={styles.requestName}>{request.userName}</Text>
+                      <Text style={styles.requestBio} numberOfLines={2}>
+                        {request.userBio}
+                      </Text>
+                      {request.userSkills.length > 0 && (
+                        <View style={styles.skillsContainer}>
+                          {request.userSkills.slice(0, 3).map((skill, index) => (
+                            <Badge key={index} variant="secondary" style={styles.skillBadge}>
+                              {skill}
+                            </Badge>
+                          ))}
+                        </View>
+                      )}
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+                  </TouchableOpacity>
+                  <View style={styles.requestActions}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onPress={() => handleDecline(request)}
+                      style={styles.requestButton}
+                    >
+                      Decline
+                    </Button>
+                    <Button
+                      size="sm"
+                      onPress={() => handleApprove(request)}
+                      style={styles.requestButton}
+                    >
+                      Approve
+                    </Button>
                   </View>
                 </View>
-                <View style={styles.requestActions}>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onPress={() => handleDecline(request)}
-                    style={styles.requestButton}
-                  >
-                    Decline
-                  </Button>
-                  <Button
-                    size="sm"
-                    onPress={() => handleApprove(request)}
-                    style={styles.requestButton}
-                  >
-                    Approve
-                  </Button>
-                </View>
-              </View>
-            ))}
+              );
+            })}
           </Card>
         )}
 
@@ -319,23 +331,69 @@ export function ActivityDetailScreen({
                 <Badge variant="primary" style={styles.organizerBadge}>
                   Organizer
                 </Badge>
+                {/* Show organizer's contact information */}
+                {(currentUser.phone || currentUser.instagram) && (
+                  <View style={styles.contactContainer}>
+                    <Text style={styles.contactLabel}>Your Contact Information</Text>
+                    <View style={styles.contactWrapper}>
+                      {currentUser.phone && (
+                        <View style={styles.contactItem}>
+                          <Ionicons name="call-outline" size={14} color={colors.textSecondary} />
+                          <Text style={styles.contactText}>{currentUser.phone}</Text>
+                        </View>
+                      )}
+                      {currentUser.instagram && (
+                        <View style={styles.contactItem}>
+                          <Ionicons name="logo-instagram" size={14} color={colors.textSecondary} />
+                          <Text style={styles.contactText}>{currentUser.instagram}</Text>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                )}
               </View>
             </View>
           </View>
 
-          {approvedRequests.map((request) => (
-            <View key={request.id} style={styles.participantCard}>
-              <View style={styles.participantInfo}>
-                <Ionicons name="person-circle" size={40} color={colors.textSecondary} />
-                <View style={styles.participantDetails}>
-                  <Text style={styles.participantName}>{request.userName}</Text>
-                  <Text style={styles.participantBio} numberOfLines={1}>
-                    {request.userBio}
-                  </Text>
+          {approvedRequests.map((request) => {
+            // Get user data for contact information
+            const userData = mockUsers.find(user => user.id === request.userId);
+            const hasContactInfo = userData && (userData.phone || userData.instagram);
+            
+            return (
+              <View key={request.id} style={styles.participantCard}>
+                <View style={styles.participantInfo}>
+                  <Ionicons name="person-circle" size={40} color={colors.textSecondary} />
+                  <View style={styles.participantDetails}>
+                    <Text style={styles.participantName}>{request.userName}</Text>
+                    <Text style={styles.participantBio} numberOfLines={1}>
+                      {request.userBio}
+                    </Text>
+                    {/* Contact Information - Only show for approved participants */}
+                    {hasContactInfo && (
+                      <View style={styles.contactContainer}>
+                        <Text style={styles.contactLabel}>Contact Information</Text>
+                        <View style={styles.contactWrapper}>
+                          {userData?.phone && (
+                            <View style={styles.contactItem}>
+                              <Ionicons name="call-outline" size={14} color={colors.textSecondary} />
+                              <Text style={styles.contactText}>{userData.phone}</Text>
+                            </View>
+                          )}
+                          {userData?.instagram && (
+                            <View style={styles.contactItem}>
+                              <Ionicons name="logo-instagram" size={14} color={colors.textSecondary} />
+                              <Text style={styles.contactText}>{userData.instagram}</Text>
+                            </View>
+                          )}
+                        </View>
+                      </View>
+                    )}
+                  </View>
                 </View>
               </View>
-            </View>
-          ))}
+            );
+          })}
         </Card>
 
         {/* Actions */}
@@ -363,6 +421,15 @@ export function ActivityDetailScreen({
           </Button>
         </Card>
       </ScrollView>
+
+      {/* User Profile Modal */}
+      <UserProfileModal
+        user={selectedUser}
+        visible={selectedUser !== null}
+        onClose={() => setSelectedUser(null)}
+        currentUserId={currentUser.id}
+        showContactInfo={false} // Contact info hidden for pending requests
+      />
     </View>
   );
 }
@@ -470,6 +537,9 @@ const styles = StyleSheet.create({
   },
   requestHeader: {
     marginBottom: spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   requestInfo: {
     flex: 1,
@@ -533,6 +603,29 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     marginLeft: spacing.xs,
+  },
+  contactContainer: {
+    marginTop: spacing.sm,
+    paddingTop: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  contactLabel: {
+    ...typography.caption,
+    color: colors.textMuted,
+    marginBottom: spacing.xs,
+  },
+  contactWrapper: {
+    gap: spacing.xs,
+  },
+  contactItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  contactText: {
+    ...typography.bodySmall,
+    color: colors.text,
   },
 });
 

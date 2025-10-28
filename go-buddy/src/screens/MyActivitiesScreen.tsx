@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { User, ActivityIntent, ActivityRequest } from '../types';
+import { mockUsers } from '../data/mockUsers';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
@@ -132,6 +133,9 @@ export function MyActivitiesScreen({
     const requestsForActivity = activityRequests.filter(
       (r) => r.activityId === item.id && r.status === 'pending'
     );
+    const approvedRequests = activityRequests.filter(
+      (r) => r.activityId === item.id && r.status === 'approved'
+    );
     const hasNewRequests = requestsForActivity.length > 0;
 
     return (
@@ -169,6 +173,46 @@ export function MyActivitiesScreen({
             )}
           </View>
 
+          {/* Show approved participants */}
+          {approvedRequests.length > 0 && (
+            <View style={styles.participantsSection}>
+              <Text style={styles.participantsTitle}>Team Members</Text>
+              <View style={styles.participantsList}>
+                {approvedRequests.map((request) => {
+                  const userData = mockUsers.find(user => user.id === request.userId);
+                  const hasContactInfo = userData && (userData.phone || userData.instagram);
+                  
+                  return (
+                    <View key={request.id} style={styles.participantItem}>
+                      <View style={styles.participantInfo}>
+                        <Ionicons name="person-circle" size={24} color={colors.primary} />
+                        <View style={styles.participantDetails}>
+                          <Text style={styles.participantName}>{request.userName}</Text>
+                          {hasContactInfo && (
+                            <View style={styles.participantContact}>
+                              {userData?.phone && (
+                                <View style={styles.contactItem}>
+                                  <Ionicons name="call-outline" size={12} color={colors.textSecondary} />
+                                  <Text style={styles.contactText}>{userData.phone}</Text>
+                                </View>
+                              )}
+                              {userData?.instagram && (
+                                <View style={styles.contactItem}>
+                                  <Ionicons name="logo-instagram" size={12} color={colors.textSecondary} />
+                                  <Text style={styles.contactText}>{userData.instagram}</Text>
+                                </View>
+                              )}
+                            </View>
+                          )}
+                        </View>
+                      </View>
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+          )}
+
           <View style={styles.quickActions}>
             <TouchableOpacity
               style={styles.quickActionButton}
@@ -195,6 +239,11 @@ export function MyActivitiesScreen({
         : request.status === 'declined'
         ? colors.error
         : colors.warning;
+
+    // Get all approved participants for this activity
+    const allApprovedRequests = activityRequests.filter(
+      (r) => r.activityId === activity.id && r.status === 'approved'
+    );
 
     return (
       <TouchableOpacity 
@@ -242,6 +291,57 @@ export function MyActivitiesScreen({
             </View>
           )}
         </View>
+
+        {/* Show team members if approved */}
+        {request.status === 'approved' && allApprovedRequests.length > 0 && (
+          <View style={styles.participantsSection}>
+            <Text style={styles.participantsTitle}>Team Members</Text>
+            <View style={styles.participantsList}>
+              {/* Show organizer */}
+              <View style={styles.participantItem}>
+                <View style={styles.participantInfo}>
+                  <Ionicons name="person-circle" size={20} color={colors.primary} />
+                  <View style={styles.participantDetails}>
+                    <Text style={styles.participantName}>{activity.userName} (Organizer)</Text>
+                  </View>
+                </View>
+              </View>
+              
+              {/* Show other participants */}
+              {allApprovedRequests.map((approvedRequest) => {
+                const userData = mockUsers.find(user => user.id === approvedRequest.userId);
+                const hasContactInfo = userData && (userData.phone || userData.instagram);
+                
+                return (
+                  <View key={approvedRequest.id} style={styles.participantItem}>
+                    <View style={styles.participantInfo}>
+                      <Ionicons name="person-circle" size={20} color={colors.textSecondary} />
+                      <View style={styles.participantDetails}>
+                        <Text style={styles.participantName}>{approvedRequest.userName}</Text>
+                        {hasContactInfo && (
+                          <View style={styles.participantContact}>
+                            {userData?.phone && (
+                              <View style={styles.contactItem}>
+                                <Ionicons name="call-outline" size={10} color={colors.textSecondary} />
+                                <Text style={styles.contactText}>{userData.phone}</Text>
+                              </View>
+                            )}
+                            {userData?.instagram && (
+                              <View style={styles.contactItem}>
+                                <Ionicons name="logo-instagram" size={10} color={colors.textSecondary} />
+                                <Text style={styles.contactText}>{userData.instagram}</Text>
+                              </View>
+                            )}
+                          </View>
+                        )}
+                      </View>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        )}
         </Card>
       </TouchableOpacity>
     );
@@ -946,6 +1046,52 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: spacing.xs,
     textAlign: 'center',
+  },
+  participantsSection: {
+    marginTop: spacing.md,
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  participantsTitle: {
+    ...typography.body,
+    color: colors.text,
+    fontWeight: '600',
+    marginBottom: spacing.sm,
+  },
+  participantsList: {
+    gap: spacing.sm,
+  },
+  participantItem: {
+    backgroundColor: colors.background,
+    borderRadius: borderRadius.sm,
+    padding: spacing.sm,
+  },
+  participantInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  participantDetails: {
+    marginLeft: spacing.sm,
+    flex: 1,
+  },
+  participantName: {
+    ...typography.bodySmall,
+    color: colors.text,
+    fontWeight: '600',
+    marginBottom: spacing.xs,
+  },
+  participantContact: {
+    gap: spacing.xs,
+  },
+  contactItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  contactText: {
+    ...typography.caption,
+    color: colors.textSecondary,
   },
 });
 
