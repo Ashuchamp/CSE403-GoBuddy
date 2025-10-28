@@ -10,6 +10,7 @@
     "primaryColor": "#007AFF",
     "entryPoint": "./index.js",
     "description": "Find activity buddies on campus. Connect with students for sports, study sessions, and social activities.",
+    "scheme": "com.googleusercontent.apps.353229046135-c1cq6bijclsnk1tdsjf520od87idhgma",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -37,6 +38,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-web-browser"
+    ]
   }
 }
