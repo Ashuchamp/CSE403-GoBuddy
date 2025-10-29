@@ -1,7 +1,7 @@
 import React from 'react';
-import { render } from '@testing-library/react-native';
-import { RecommendationsScreen } from '../../screens/RecommendationsScreen';
-import { User, ActivityIntent } from '../../types';
+import {render} from '@testing-library/react-native';
+import {RecommendationsScreen} from '../../screens/RecommendationsScreen';
+import {User, ActivityIntent} from '../../types';
 
 const mockCurrentUser: User = {
   id: '1',
@@ -30,7 +30,7 @@ const mockActivityIntents: ActivityIntent[] = [
   },
   {
     id: 'activity-2',
-    userId: '1', // same as currentUser, should be filtered out
+    userId: '1',
     userName: 'Test User',
     title: 'Study Group',
     description: 'Math study session',
@@ -45,7 +45,7 @@ const mockActivityIntents: ActivityIntent[] = [
 
 describe('RecommendationsScreen', () => {
   it('renders the header and subtitle', () => {
-    const { getByText } = render(
+    const {getByText} = render(
       <RecommendationsScreen
         currentUser={mockCurrentUser}
         activityIntents={mockActivityIntents}
@@ -57,7 +57,7 @@ describe('RecommendationsScreen', () => {
   });
 
   it("filters out user's own activities", () => {
-    const { queryByText } = render(
+    const {queryByText} = render(
       <RecommendationsScreen
         currentUser={mockCurrentUser}
         activityIntents={mockActivityIntents}
@@ -69,7 +69,7 @@ describe('RecommendationsScreen', () => {
   });
 
   it('renders empty state when there are no recommendations', () => {
-    const { getByText } = render(
+    const {getByText} = render(
       <RecommendationsScreen
         currentUser={mockCurrentUser}
         activityIntents={[]}
