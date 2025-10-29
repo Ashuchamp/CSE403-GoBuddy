@@ -104,8 +104,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     ...typography.body,
-    color: colors.textSecondary,
-    textAlign: 'center',
+    color: colors.textSecondary
   },
   card: {
     padding: spacing.lg,
