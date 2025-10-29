@@ -25,7 +25,7 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
     setTimeout(() => {
       const mockUser: User = {
         id: 'demo-user-1',
-        name: 'Demo User',
+        name: 'UW Demo User',
         email: 'demo@uw.edu',
         bio: 'Student at University of Washington',
         activityTags: ['Study Groups', 'Social Events'],
