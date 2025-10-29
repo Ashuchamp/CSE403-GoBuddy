@@ -522,52 +522,15 @@ Critical or recurring bugs will be reviewed in weekly stand-ups and must be clos
 
 Our documentation aims at three audiences: users, administrators, and developers. Documentation will be created within the GitHub repository (`/docs/` folder and Wiki) and maintained alongside the codebase.
 
-#### User Documentation
+#### [User Documentation](docs/user-manual.md)
 
-**Purpose:** Help users understand how to download, navigate, and use the GoBuddy mobile app.
-
-**Format:**
-* A support website providing download instructions, navigation guidance, FAQs, and troubleshooting resources.
-  * Downloading page.
-  * User manual page
-  * FAQ/Troubleshooting page
-  * Contact for feedback page
-* In-app step-by-step tutorials to assist users throughout the app experience.
-  * Inline tooltips, "?" icons, and empty-state instructions.
+#### [Developer Guide](docs/developer-guide.md)
 
 #### Administrator & Deployment Guide
 
 **Purpose:** Enable maintainers to deploy, configure, and monitor the app in staging or production environments.
 
 **Format:** Markdown guide (`/docs/AdminGuide.md`) linked from README.
-
-#### Developer Guide
-
-**Purpose:** Help new contributors understand the architecture, coding standards, and contribution workflow.
-
-**Format:** `/docs/DEVELOPER_GUIDE.md` + Wiki pages for deeper topics.
-
-**Content Outline:**
-
-* **System Overview**
-  * Architecture diagram (frontend ↔ backend ↔ DB ↔ auth flow)
-  * Core data models (User, Activity, Connection)
-
-* **Setup & Development**
-  * Local setup (npm install, make dev)
-  * Running backend (Node + Express) and frontend (Expo) locally
-  * Linting, formatting, and commit conventions
-
-* **Testing**
-  * Unit and integration test commands
-  * Sample Postman collection and test scripts
-
-* **Contributing Workflow**
-  * Branching, pull-request reviews, and CI checks
-  * Issue labeling and weekly milestones
-
-* **API Reference**
-  * Endpoint list with method, parameters, and sample cURL requests
 
 ---
 
@@ -975,14 +938,6 @@ GoBuddy uses a **client-server architecture** with clear separation between mobi
 
 ---
 
-## 9) Code Guidelines
-
-**TypeScript/JavaScript (Frontend):** https://google.github.io/styleguide/tsguide.html — Google's TypeScript Style Guide covers type safety, naming conventions, module structure, and React best practices.
-
-**Python (Backend):** https://google.github.io/styleguide/pyguide.html — Google's Python Style Guide (based on PEP 8) covers formatting, naming, documentation, and Python-specific patterns.
-
-**Rationale:** Chose Google style guides because they are industry standard, comprehensive (cover formatting, naming, structure, best practices), well-supported by linters (ESLint, Prettier, Pylint, Black), and team members have prior experience.
-
-**Enforcement:** ESLint + Prettier for TypeScript/JavaScript (config: `eslint-config-google`), Pylint/Flake8 + Black for Python. All linters run in GitHub Actions CI pipeline on every PR; PRs must pass linting before merge. Pre-commit hooks via husky (frontend) and pre-commit framework (backend). PRs require 1 reviewer approval; reviewers check style adherence. Style guides linked in `CONTRIBUTING.md`; examples in developer guide; required review during onboarding.
+## 9) [Code Guidelines](docs/coding-guidelines.md)
 
 ---
