@@ -25,7 +25,7 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
     setTimeout(() => {
       const mockUser: User = {
         id: 'demo-user-1',
-        name: 'UW Demo User',
+        name: 'Demo User',
         email: 'demo@uw.edu',
         bio: 'Student at University of Washington',
         activityTags: ['Study Groups', 'Social Events'],
@@ -49,10 +49,8 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Text style={styles.logo}>GoBuddy</Text>
-          <Text style={styles.subtitle}>
-            Find your activity partners at UW{'\n'}
-            <Text style={styles.subtitleEmphasis}>UW students only — sign in with your UW NetID</Text>
-          </Text>
+          <Text style={styles.subtitle}>Find your activity partners at UW</Text>
+          <Text style={styles.subtitleEmphasis}>UW students only — sign in with your UW NetID</Text>
         </View>
 
         <Card style={styles.card}>
@@ -80,9 +78,7 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
             </View>
           </Button>
 
-          <Text style={styles.notice}>
-            Demo mode — no real authentication. In production, a valid <Text style={styles.inlineMono}>@uw.edu</Text> email is required.
-          </Text>
+          <Text style={styles.notice}>Demo mode - no real authentication required</Text>
         </Card>
       </ScrollView>
     </KeyboardAvoidingView>
