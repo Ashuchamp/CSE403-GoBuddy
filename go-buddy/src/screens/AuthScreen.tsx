@@ -50,30 +50,26 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
         <View style={styles.header}>
           <Text style={styles.logo}>GoBuddy</Text>
           <Text style={styles.subtitle}>Find your activity partners at UW</Text>
-          <Text style={styles.subtitleEmphasis}>UW students only — sign in with your UW NetID</Text>
         </View>
 
         <Card style={styles.card}>
           <View style={styles.iconContainer}>
-            <Ionicons name="logo-google" size={52} color={colors.primary} />
+            <Ionicons name="logo-google" size={48} color={colors.primary} />
           </View>
 
-          <Text style={styles.cardTitle}>Sign in with Google (UW)</Text>
-          <Text style={styles.cardSubtitle}>
-            Use your <Text style={styles.inlineMono}>@uw.edu</Text> account. In demo mode, we’ll sign you in as a mock UW user.
-          </Text>
+          <Text style={styles.cardTitle}>Demo Login</Text>
+          <Text style={styles.cardSubtitle}>Click to sign in as a demo user</Text>
 
           <Button
             onPress={handleGoogleSignIn}
             loading={loading}
             fullWidth
             style={styles.googleButton}
-            accessibilityLabel="Continue with UW Google (demo mode)"
           >
             <View style={styles.googleButtonContent}>
-              <Ionicons name="logo-google" size={22} color="#fff" style={styles.googleIcon} />
+              <Ionicons name="logo-google" size={20} color="#fff" style={styles.googleIcon} />
               <Text style={styles.googleButtonText}>
-                {loading ? 'Signing in…' : 'Continue with UW Google (Demo)'}
+                {loading ? 'Signing in...' : 'Demo Login'}
               </Text>
             </View>
           </Button>
@@ -107,16 +103,6 @@ const styles = StyleSheet.create({
   subtitle: {
     ...typography.body,
     color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  subtitleEmphasis: {
-    ...typography.body,
-    color: colors.text,
-    fontWeight: '600',
-  },
-  inlineMono: {
-    fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace', default: 'monospace' }),
   },
   card: {
     padding: spacing.lg,
@@ -150,8 +136,8 @@ const styles = StyleSheet.create({
   },
   googleButtonText: {
     color: '#fff',
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '600',
   },
   notice: {
     ...typography.bodySmall,
