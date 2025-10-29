@@ -25,7 +25,7 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
     setTimeout(() => {
       const mockUser: User = {
         id: 'demo-user-1',
-        name: 'Demo User',
+        name: 'UW Demo User',
         email: 'demo@uw.edu',
         bio: 'Student at University of Washington',
         activityTags: ['Study Groups', 'Social Events'],
@@ -74,7 +74,9 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
             </View>
           </Button>
 
-          <Text style={styles.notice}>Demo mode - no real authentication required</Text>
+          <Text style={styles.notice}>
+            Demo mode — no real authentication. In production, a valid @uw.edu email is required.
+          </Text>
         </Card>
       </ScrollView>
     </KeyboardAvoidingView>
