@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { User } from '../types';
-import { Modal } from './Modal';
-import { Input } from './Input';
-import { Button } from './Button';
-import { Badge } from './Badge';
-import { colors, spacing, typography } from '../theme';
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {Ionicons} from '@expo/vector-icons';
+import {User} from '../types';
+import {Modal} from './Modal';
+import {Input} from './Input';
+import {Button} from './Button';
+import {Badge} from './Badge';
+import {colors, spacing, typography} from '../theme';
 
 type EditProfileModalProps = {
   visible: boolean;
@@ -15,12 +15,7 @@ type EditProfileModalProps = {
   onSave: (updatedUser: User) => void;
 };
 
-export function EditProfileModal({
-  visible,
-  onClose,
-  user,
-  onSave,
-}: EditProfileModalProps) {
+export function EditProfileModal({visible, onClose, user, onSave}: EditProfileModalProps) {
   const [formData, setFormData] = useState({
     name: user.name,
     email: user.email,
@@ -33,7 +28,7 @@ export function EditProfileModal({
   const [activityTags, setActivityTags] = useState<string[]>(user.activityTags);
   const [skills, setSkills] = useState<string[]>(user.skills);
   const [preferredTimes, setPreferredTimes] = useState<string[]>(user.preferredTimes);
-  
+
   const [newTag, setNewTag] = useState('');
   const [newSkill, setNewSkill] = useState('');
   const [newTime, setNewTime] = useState('');
@@ -97,13 +92,13 @@ export function EditProfileModal({
           <Input
             label="Name"
             value={formData.name}
-            onChangeText={(text) => setFormData({ ...formData, name: text })}
+            onChangeText={(text) => setFormData({...formData, name: text})}
             placeholder="Enter your name"
           />
           <Input
             label="Email"
             value={formData.email}
-            onChangeText={(text) => setFormData({ ...formData, email: text })}
+            onChangeText={(text) => setFormData({...formData, email: text})}
             placeholder="Enter your email"
             keyboardType="email-address"
             autoCapitalize="none"
@@ -111,11 +106,11 @@ export function EditProfileModal({
           <Input
             label="Bio"
             value={formData.bio}
-            onChangeText={(text) => setFormData({ ...formData, bio: text })}
+            onChangeText={(text) => setFormData({...formData, bio: text})}
             placeholder="Tell us about yourself"
             multiline
             numberOfLines={3}
-            style={{ height: 80, textAlignVertical: 'top', paddingTop: spacing.sm }}
+            style={{height: 80, textAlignVertical: 'top', paddingTop: spacing.sm}}
           />
         </View>
 
@@ -208,21 +203,21 @@ export function EditProfileModal({
           <Input
             label="Phone"
             value={formData.phone}
-            onChangeText={(text) => setFormData({ ...formData, phone: text })}
+            onChangeText={(text) => setFormData({...formData, phone: text})}
             placeholder="Enter your phone number"
             keyboardType="phone-pad"
           />
           <Input
             label="Instagram"
             value={formData.instagram}
-            onChangeText={(text) => setFormData({ ...formData, instagram: text })}
+            onChangeText={(text) => setFormData({...formData, instagram: text})}
             placeholder="@your_instagram_handle"
             autoCapitalize="none"
           />
           <Input
             label="Campus Location"
             value={formData.campusLocation}
-            onChangeText={(text) => setFormData({ ...formData, campusLocation: text })}
+            onChangeText={(text) => setFormData({...formData, campusLocation: text})}
             placeholder="e.g., North Campus Dorms"
           />
         </View>
@@ -304,4 +299,3 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
   },
 });
-

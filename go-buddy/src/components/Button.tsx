@@ -7,7 +7,7 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
-import { colors, spacing, typography, borderRadius } from '../theme';
+import {colors, spacing, typography, borderRadius} from '../theme';
 
 type ButtonVariant = 'default' | 'outline' | 'ghost' | 'destructive';
 type ButtonSize = 'default' | 'sm' | 'lg';
@@ -59,10 +59,7 @@ export function Button({
       activeOpacity={0.7}
     >
       {loading ? (
-        <ActivityIndicator
-          color={variant === 'default' ? '#fff' : colors.primary}
-          size="small"
-        />
+        <ActivityIndicator color={variant === 'default' ? '#fff' : colors.primary} size="small" />
       ) : typeof children === 'string' ? (
         <Text style={textStyles}>{children}</Text>
       ) : (
@@ -141,4 +138,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

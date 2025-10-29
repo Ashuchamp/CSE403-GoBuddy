@@ -1,17 +1,10 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { User } from '../types';
-import { Card } from '../components/Card';
-import { Button } from '../components/Button';
-import { colors, spacing, typography } from '../theme';
+import {View, Text, StyleSheet, FlatList, Alert} from 'react-native';
+import {Ionicons} from '@expo/vector-icons';
+import {User} from '../types';
+import {Card} from '../components/Card';
+import {Button} from '../components/Button';
+import {colors, spacing, typography} from '../theme';
 
 type ConnectionRequest = {
   id: string;
@@ -41,34 +34,29 @@ const mockConnectionRequests: ConnectionRequest[] = [
       instagram: '@mikechen_dev',
       campusLocation: 'North Campus',
     },
-    message:
-      "Hey! I saw you're also interested in CSE 373 study groups. Want to team up?",
+    message: "Hey! I saw you're also interested in CSE 373 study groups. Want to team up?",
     timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
     status: 'pending',
   },
 ];
 
-export function ConnectionsScreen({ currentUser }: ConnectionsScreenProps) {
+export function ConnectionsScreen({currentUser: _currentUser}: ConnectionsScreenProps) {
   const [requests, setRequests] = React.useState(mockConnectionRequests);
 
   const handleAccept = (requestId: string) => {
     setRequests(
-      requests.map((req) =>
-        req.id === requestId ? { ...req, status: 'accepted' as const } : req
-      )
+      requests.map((req) => (req.id === requestId ? {...req, status: 'accepted' as const} : req)),
     );
     Alert.alert('Success', 'Connection request accepted!');
   };
 
   const handleDecline = (requestId: string) => {
     setRequests(
-      requests.map((req) =>
-        req.id === requestId ? { ...req, status: 'declined' as const } : req
-      )
+      requests.map((req) => (req.id === requestId ? {...req, status: 'declined' as const} : req)),
     );
   };
 
-  const renderRequest = ({ item }: { item: ConnectionRequest }) => {
+  const renderRequest = ({item}: {item: ConnectionRequest}) => {
     if (item.status !== 'pending') return null;
 
     return (
@@ -79,19 +67,14 @@ export function ConnectionsScreen({ currentUser }: ConnectionsScreenProps) {
           </View>
           <View style={styles.requestInfo}>
             <Text style={styles.requestName}>{item.from.name}</Text>
-            <Text style={styles.requestTime}>
-              {formatTimestamp(item.timestamp)}
-            </Text>
+            <Text style={styles.requestTime}>{formatTimestamp(item.timestamp)}</Text>
           </View>
         </View>
 
         {item.message && <Text style={styles.message}>{item.message}</Text>}
 
         <View style={styles.actionsRow}>
-          <Button
-            onPress={() => handleAccept(item.id)}
-            style={styles.acceptButton}
-          >
+          <Button onPress={() => handleAccept(item.id)} style={styles.acceptButton}>
             Accept
           </Button>
           <Button
@@ -122,15 +105,9 @@ export function ConnectionsScreen({ currentUser }: ConnectionsScreenProps) {
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Ionicons
-              name="people-outline"
-              size={64}
-              color={colors.textMuted}
-            />
+            <Ionicons name="people-outline" size={64} color={colors.textMuted} />
             <Text style={styles.emptyText}>No pending requests</Text>
-            <Text style={styles.emptySubtext}>
-              New connection requests will appear here
-            </Text>
+            <Text style={styles.emptySubtext}>New connection requests will appear here</Text>
           </View>
         }
       />
@@ -142,7 +119,7 @@ function formatTimestamp(date: Date): string {
   const now = new Date();
   const diff = now.getTime() - date.getTime();
   const hours = Math.floor(diff / (1000 * 60 * 60));
-  
+
   if (hours < 1) {
     const minutes = Math.floor(diff / (1000 * 60));
     return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
@@ -243,4 +220,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-

@@ -1,20 +1,13 @@
-import React, { useState, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  FlatList,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { User, ActivityIntent } from '../types';
-import { mockUsers } from '../data/mockUsers';
-import { UserCard } from '../components/UserCard';
-import { ActivityCard } from '../components/ActivityCard';
-import { ActivityDetailModal } from '../components/ActivityDetailModal';
-import { UserProfileModal } from '../components/UserProfileModal';
-import { colors, spacing, typography } from '../theme';
+import React, {useState, useMemo} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity, FlatList} from 'react-native';
+import {Ionicons} from '@expo/vector-icons';
+import {User, ActivityIntent} from '../types';
+import {mockUsers} from '../data/mockUsers';
+import {UserCard} from '../components/UserCard';
+import {ActivityCard} from '../components/ActivityCard';
+import {ActivityDetailModal} from '../components/ActivityDetailModal';
+import {UserProfileModal} from '../components/UserProfileModal';
+import {colors, spacing, typography} from '../theme';
 
 type BrowseScreenProps = {
   currentUser: User;
@@ -29,12 +22,11 @@ type BrowseCategory = 'students' | 'activities';
 export function BrowseScreen({
   currentUser,
   activityIntents,
-  onUserPress,
+  onUserPress: _onUserPress,
   onJoinActivity,
-  onConnectRequest,
+  onConnectRequest: _onConnectRequest,
 }: BrowseScreenProps) {
-  const [browseCategory, setBrowseCategory] =
-    useState<BrowseCategory>('students');
+  const [browseCategory, setBrowseCategory] = useState<BrowseCategory>('students');
   const [selectedActivity, setSelectedActivity] = useState<ActivityIntent | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
@@ -45,26 +37,23 @@ export function BrowseScreen({
 
   // Filter activities
   const filteredIntents = useMemo(() => {
-    return activityIntents.filter(
-      (intent) => intent.userId !== currentUser.id
-    );
+    return activityIntents.filter((intent) => intent.userId !== currentUser.id);
   }, [currentUser.id, activityIntents]);
 
-  const renderUserCard = ({ item }: { item: User }) => (
+  const renderUserCard = ({item}: {item: User}) => (
     <UserCard
       user={item}
       currentUser={currentUser}
       onPress={() => setSelectedUser(item)}
-      showContactInfo={false} // Contact info hidden in Browse
+      showContactInfo={false}
     />
   );
 
-  const renderActivityCard = ({ item }: { item: ActivityIntent }) => (
-    <ActivityCard 
-      intent={item} 
+  const renderActivityCard = ({item}: {item: ActivityIntent}) => (
+    <ActivityCard
+      intent={item}
       onJoin={onJoinActivity}
       onPress={(activity) => {
-        console.log('BrowseScreen: Activity pressed:', activity.title);
         setSelectedActivity(activity);
       }}
     />
@@ -94,9 +83,7 @@ export function BrowseScreen({
           <Ionicons
             name="people-outline"
             size={20}
-            color={
-              browseCategory === 'students' ? '#fff' : colors.textSecondary
-            }
+            color={browseCategory === 'students' ? '#fff' : colors.textSecondary}
           />
           <Text
             style={[
@@ -118,9 +105,7 @@ export function BrowseScreen({
           <Ionicons
             name="calendar-outline"
             size={20}
-            color={
-              browseCategory === 'activities' ? '#fff' : colors.textSecondary
-            }
+            color={browseCategory === 'activities' ? '#fff' : colors.textSecondary}
           />
           <Text
             style={[
@@ -143,8 +128,7 @@ export function BrowseScreen({
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={
             <Text style={styles.resultsCount}>
-              {filteredUsers.length}{' '}
-              {filteredUsers.length === 1 ? 'student' : 'students'} found
+              {filteredUsers.length} {filteredUsers.length === 1 ? 'student' : 'students'} found
             </Text>
           }
           ListEmptyComponent={
@@ -162,8 +146,8 @@ export function BrowseScreen({
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={
             <Text style={styles.resultsCount}>
-              {filteredIntents.length}{' '}
-              {filteredIntents.length === 1 ? 'activity' : 'activities'} found
+              {filteredIntents.length} {filteredIntents.length === 1 ? 'activity' : 'activities'}{' '}
+              found
             </Text>
           }
           ListEmptyComponent={
@@ -179,7 +163,6 @@ export function BrowseScreen({
         activity={selectedActivity}
         visible={selectedActivity !== null}
         onClose={() => {
-          console.log('BrowseScreen: Closing modal');
           setSelectedActivity(null);
         }}
         currentUserId={currentUser.id}
@@ -262,4 +245,3 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
 });
-

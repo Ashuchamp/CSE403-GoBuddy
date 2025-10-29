@@ -1,21 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { ActivityIntent, ActivityRequest, User } from '../types';
-import { mockUsers } from '../data/mockUsers';
-import { Input } from '../components/Input';
-import { Button } from '../components/Button';
-import { Card } from '../components/Card';
-import { Badge } from '../components/Badge';
-import { UserProfileModal } from '../components/UserProfileModal';
-import { colors, spacing, typography, borderRadius } from '../theme';
+import React, {useState, useEffect} from 'react';
+import {View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert} from 'react-native';
+import {Ionicons} from '@expo/vector-icons';
+import {ActivityIntent, ActivityRequest, User} from '../types';
+import {mockUsers} from '../data/mockUsers';
+import {Input} from '../components/Input';
+import {Button} from '../components/Button';
+import {Card} from '../components/Card';
+import {Badge} from '../components/Badge';
+import {UserProfileModal} from '../components/UserProfileModal';
+import {colors, spacing, typography} from '../theme';
 
 type ActivityDetailScreenProps = {
   activity: ActivityIntent;
@@ -42,7 +35,9 @@ export function ActivityDetailScreen({
   const [editedTitle, setEditedTitle] = useState(activity.title);
   const [editedDescription, setEditedDescription] = useState(activity.description);
   const [editedMaxPeople, setEditedMaxPeople] = useState(activity.maxPeople.toString());
-  const [editedScheduledTime, setEditedScheduledTime] = useState(activity.scheduledTimes.join(', '));
+  const [editedScheduledTime, setEditedScheduledTime] = useState(
+    activity.scheduledTimes.join(', '),
+  );
   const [editedLocation, setEditedLocation] = useState(activity.campusLocation || '');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
@@ -68,7 +63,7 @@ export function ActivityDetailScreen({
     if (maxPeople < approvedRequests.length + 1) {
       Alert.alert(
         'Error',
-        `Maximum people cannot be less than current participants (${approvedRequests.length + 1})`
+        `Maximum people cannot be less than current participants (${approvedRequests.length + 1})`,
       );
       return;
     }
@@ -90,16 +85,16 @@ export function ActivityDetailScreen({
       'Mark as Complete',
       'Are you sure you want to mark this activity as complete? It will move to inactive.',
       [
-        { text: 'Cancel', style: 'cancel' },
+        {text: 'Cancel', style: 'cancel'},
         {
           text: 'Complete',
           onPress: () => {
-            onUpdateActivity(activity.id, { status: 'completed' });
+            onUpdateActivity(activity.id, {status: 'completed'});
             Alert.alert('Success', 'Activity marked as complete!');
             onClose();
           },
         },
-      ]
+      ],
     );
   };
 
@@ -108,7 +103,7 @@ export function ActivityDetailScreen({
       'Delete Activity',
       'Are you sure you want to delete this activity? This action cannot be undone.',
       [
-        { text: 'Cancel', style: 'cancel' },
+        {text: 'Cancel', style: 'cancel'},
         {
           text: 'Delete',
           style: 'destructive',
@@ -118,7 +113,7 @@ export function ActivityDetailScreen({
             onClose();
           },
         },
-      ]
+      ],
     );
   };
 
@@ -130,18 +125,14 @@ export function ActivityDetailScreen({
   };
 
   const handleDecline = (request: ActivityRequest) => {
-    Alert.alert(
-      'Decline Request',
-      `Decline request from ${request.userName}?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Decline',
-          style: 'destructive',
-          onPress: () => onDeclineRequest(request.id),
-        },
-      ]
-    );
+    Alert.alert('Decline Request', `Decline request from ${request.userName}?`, [
+      {text: 'Cancel', style: 'cancel'},
+      {
+        text: 'Decline',
+        style: 'destructive',
+        onPress: () => onDeclineRequest(request.id),
+      },
+    ]);
   };
 
   const spotsRemaining = activity.maxPeople - (approvedRequests.length + 1);
@@ -198,10 +189,7 @@ export function ActivityDetailScreen({
 
               <View style={styles.formSection}>
                 <Text style={styles.label}>Scheduled Times *</Text>
-                <Input
-                  value={editedScheduledTime}
-                  onChangeText={setEditedScheduledTime}
-                />
+                <Input value={editedScheduledTime} onChangeText={setEditedScheduledTime} />
               </View>
 
               <View style={styles.formSection}>
@@ -267,11 +255,11 @@ export function ActivityDetailScreen({
             </View>
 
             {pendingRequests.map((request) => {
-              const userData = mockUsers.find(user => user.id === request.userId);
-              
+              const userData = mockUsers.find((user) => user.id === request.userId);
+
               return (
                 <View key={request.id} style={styles.requestCard}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.requestHeader}
                     onPress={() => setSelectedUser(userData || null)}
                     activeOpacity={0.7}
@@ -357,9 +345,9 @@ export function ActivityDetailScreen({
 
           {approvedRequests.map((request) => {
             // Get user data for contact information
-            const userData = mockUsers.find(user => user.id === request.userId);
+            const userData = mockUsers.find((user) => user.id === request.userId);
             const hasContactInfo = userData && (userData.phone || userData.instagram);
-            
+
             return (
               <View key={request.id} style={styles.participantCard}>
                 <View style={styles.participantInfo}>
@@ -376,13 +364,21 @@ export function ActivityDetailScreen({
                         <View style={styles.contactWrapper}>
                           {userData?.phone && (
                             <View style={styles.contactItem}>
-                              <Ionicons name="call-outline" size={14} color={colors.textSecondary} />
+                              <Ionicons
+                                name="call-outline"
+                                size={14}
+                                color={colors.textSecondary}
+                              />
                               <Text style={styles.contactText}>{userData.phone}</Text>
                             </View>
                           )}
                           {userData?.instagram && (
                             <View style={styles.contactItem}>
-                              <Ionicons name="logo-instagram" size={14} color={colors.textSecondary} />
+                              <Ionicons
+                                name="logo-instagram"
+                                size={14}
+                                color={colors.textSecondary}
+                              />
                               <Text style={styles.contactText}>{userData.instagram}</Text>
                             </View>
                           )}
@@ -417,7 +413,7 @@ export function ActivityDetailScreen({
             style={styles.actionButton}
           >
             <Ionicons name="trash-outline" size={20} color="#fff" />
-            <Text style={[styles.actionButtonText, { color: '#fff' }]}>Delete Activity</Text>
+            <Text style={[styles.actionButtonText, {color: '#fff'}]}>Delete Activity</Text>
           </Button>
         </Card>
       </ScrollView>
@@ -628,4 +624,3 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
 });
-

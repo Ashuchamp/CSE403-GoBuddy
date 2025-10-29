@@ -8,8 +8,8 @@ import {
   ScrollView,
   ViewStyle,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, typography, borderRadius } from '../theme';
+import {Ionicons} from '@expo/vector-icons';
+import {colors, spacing, typography, borderRadius} from '../theme';
 
 type ModalProps = {
   visible: boolean;
@@ -19,14 +19,9 @@ type ModalProps = {
   style?: ViewStyle;
 };
 
-export function Modal({ visible, onClose, title, children, style }: ModalProps) {
+export function Modal({visible, onClose, title, children, style}: ModalProps) {
   return (
-    <RNModal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
-    >
+    <RNModal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={[styles.modal, style]}>
           {/* Header */}
@@ -40,10 +35,7 @@ export function Modal({ visible, onClose, title, children, style }: ModalProps) 
           )}
 
           {/* Content */}
-          <ScrollView 
-            style={styles.content}
-            showsVerticalScrollIndicator={false}
-          >
+          <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
             {children}
           </ScrollView>
         </View>
@@ -84,4 +76,3 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
 });
-

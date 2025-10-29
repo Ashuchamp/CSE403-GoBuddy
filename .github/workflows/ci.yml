@@ -1,0 +1,136 @@
+name: CI Pipeline
+
+on:
+  pull_request:
+    branches: [main, dev, develop]
+  push:
+    branches: [main, dev, develop]
+
+jobs:
+  lint-and-test:
+    name: Lint, Test, and Coverage
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: go-buddy/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./go-buddy
+        run: |
+          echo "Node.js version: $(node --version)"
+          echo "npm version: $(npm --version)"
+          npm ci --legacy-peer-deps
+
+      - name: Run TypeScript type check
+        working-directory: ./go-buddy
+        run: npm run type-check
+
+      - name: Run ESLint
+        working-directory: ./go-buddy
+        run: npm run lint
+
+      - name: Run Prettier check
+        working-directory: ./go-buddy
+        run: npm run format:check
+
+      - name: Run tests
+        working-directory: ./go-buddy
+        run: npm run test:ci
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./go-buddy/coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+          working-directory: ./go-buddy
+
+      - name: Generate coverage summary
+        if: always()
+        working-directory: ./go-buddy
+        run: |
+          if [ -f coverage/coverage-summary.json ]; then
+            echo "## Test Coverage Summary" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Metric | Percentage |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-----------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Statements | $(cat coverage/coverage-summary.json | jq -r '.total.statements.pct')% |" >> $GITHUB_STEP_SUMMARY
+            echo "| Branches | $(cat coverage/coverage-summary.json | jq -r '.total.branches.pct')% |" >> $GITHUB_STEP_SUMMARY
+            echo "| Functions | $(cat coverage/coverage-summary.json | jq -r '.total.functions.pct')% |" >> $GITHUB_STEP_SUMMARY
+            echo "| Lines | $(cat coverage/coverage-summary.json | jq -r '.total.lines.pct')% |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      # Coverage reporting disabled due to permission issues
+      # - name: Comment coverage on PR
+      #   if: github.event_name == 'pull_request'
+      #   uses: romeovs/lcov-reporter-action@v0.4.0
+      #   with:
+      #     lcov-file: ./go-buddy/coverage/lcov.info
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     delete-old-comments: true
+
+      - name: Check coverage thresholds
+        working-directory: ./go-buddy
+        run: |
+          echo "Checking if coverage meets minimum thresholds..."
+          npm run test:coverage
+
+  build:
+    name: Build Check
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          cache-dependency-path: go-buddy/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./go-buddy
+        run: npm ci --legacy-peer-deps
+
+      - name: Verify project structure
+        working-directory: ./go-buddy
+        run: |
+          echo "Verifying project structure..."
+          test -f package.json || exit 1
+          test -d src || exit 1
+          test -f tsconfig.json || exit 1
+          echo "✓ Project structure verified"
+
+  status-check:
+    name: All Checks Passed
+    runs-on: ubuntu-latest
+    needs: [lint-and-test, build]
+    if: always()
+
+    steps:
+      - name: Check job status
+        run: |
+          if [ "${{ needs.lint-and-test.result }}" != "success" ] || [ "${{ needs.build.result }}" != "success" ]; then
+            echo "❌ One or more checks failed"
+            exit 1
+          fi
+          echo "✅ All checks passed successfully"
+

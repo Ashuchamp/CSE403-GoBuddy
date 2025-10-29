@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { User } from '../types';
-import { Card } from '../components/Card';
-import { Badge } from '../components/Badge';
-import { Button } from '../components/Button';
-import { EditProfileModal } from '../components/EditProfileModal';
-import { colors, spacing, typography } from '../theme';
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, ScrollView} from 'react-native';
+import {Ionicons} from '@expo/vector-icons';
+import {User} from '../types';
+import {Card} from '../components/Card';
+import {Badge} from '../components/Badge';
+import {Button} from '../components/Button';
+import {EditProfileModal} from '../components/EditProfileModal';
+import {colors, spacing, typography} from '../theme';
 
 type ProfileScreenProps = {
   user: User;
@@ -14,11 +14,7 @@ type ProfileScreenProps = {
   onUpdateProfile?: (updatedUser: User) => void;
 };
 
-export function ProfileScreen({
-  user,
-  isCurrentUser = false,
-  onUpdateProfile,
-}: ProfileScreenProps) {
+export function ProfileScreen({user, isCurrentUser = false, onUpdateProfile}: ProfileScreenProps) {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -99,11 +95,7 @@ export function ProfileScreen({
           <Card style={styles.section}>
             <Text style={styles.sectionTitle}>Campus Location</Text>
             <View style={styles.locationRow}>
-              <Ionicons
-                name="location-outline"
-                size={16}
-                color={colors.textSecondary}
-              />
+              <Ionicons name="location-outline" size={16} color={colors.textSecondary} />
               <Text style={styles.locationText}>{user.campusLocation}</Text>
             </View>
           </Card>
@@ -249,4 +241,3 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
 });
-

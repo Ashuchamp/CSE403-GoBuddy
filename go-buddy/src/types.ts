@@ -50,4 +50,3 @@ export type FilterState = {
   timeWindow: string;
   location: string;
 };
-

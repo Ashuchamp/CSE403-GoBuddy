@@ -1,22 +1,22 @@
 export const colors = {
-  primary: '#9333EA',      // purple-600
-  primaryDark: '#7E22CE',  // purple-700
+  primary: '#9333EA', // purple-600
+  primaryDark: '#7E22CE', // purple-700
   primaryLight: '#A855F7', // purple-500
-  
-  background: '#F9FAFB',   // gray-50
+
+  background: '#F9FAFB', // gray-50
   card: '#FFFFFF',
-  
-  text: '#111827',         // gray-900
+
+  text: '#111827', // gray-900
   textSecondary: '#6B7280', // gray-600
-  textMuted: '#9CA3AF',    // gray-400
-  
-  border: '#E5E7EB',       // gray-200
-  borderLight: '#F3F4F6',  // gray-100
-  
-  success: '#10B981',      // green-600
-  error: '#EF4444',        // red-600
-  warning: '#F59E0B',      // yellow-600
-  
+  textMuted: '#9CA3AF', // gray-400
+
+  border: '#E5E7EB', // gray-200
+  borderLight: '#F3F4F6', // gray-100
+
+  success: '#10B981', // green-600
+  error: '#EF4444', // red-600
+  warning: '#F59E0B', // yellow-600
+
   badgeBackground: '#F3F4F6',
   badgeText: '#374151',
 };
@@ -66,4 +66,3 @@ export const borderRadius = {
   lg: 12,
   xl: 16,
 };
-
