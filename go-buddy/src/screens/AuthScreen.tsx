@@ -25,7 +25,7 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
     setTimeout(() => {
       const mockUser: User = {
         id: 'demo-user-1',
-        name: 'Demo User',
+        name: 'UW Demo User',
         email: 'demo@uw.edu',
         bio: 'Student at University of Washington',
         activityTags: ['Study Groups', 'Social Events'],
@@ -49,32 +49,40 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Text style={styles.logo}>GoBuddy</Text>
-          <Text style={styles.subtitle}>Find your activity partners at UW</Text>
+          <Text style={styles.subtitle}>
+            Find your activity partners at UW{'\n'}
+            <Text style={styles.subtitleEmphasis}>UW students only — sign in with your UW NetID</Text>
+          </Text>
         </View>
 
         <Card style={styles.card}>
           <View style={styles.iconContainer}>
-            <Ionicons name="logo-google" size={48} color={colors.primary} />
+            <Ionicons name="logo-google" size={52} color={colors.primary} />
           </View>
 
-          <Text style={styles.cardTitle}>Demo Login</Text>
-          <Text style={styles.cardSubtitle}>Click to sign in as a demo user</Text>
+          <Text style={styles.cardTitle}>Sign in with Google (UW)</Text>
+          <Text style={styles.cardSubtitle}>
+            Use your <Text style={styles.inlineMono}>@uw.edu</Text> account. In demo mode, we’ll sign you in as a mock UW user.
+          </Text>
 
           <Button
             onPress={handleGoogleSignIn}
             loading={loading}
             fullWidth
             style={styles.googleButton}
+            accessibilityLabel="Continue with UW Google (demo mode)"
           >
             <View style={styles.googleButtonContent}>
-              <Ionicons name="logo-google" size={20} color="#fff" style={styles.googleIcon} />
+              <Ionicons name="logo-google" size={22} color="#fff" style={styles.googleIcon} />
               <Text style={styles.googleButtonText}>
-                {loading ? 'Signing in...' : 'Demo Login'}
+                {loading ? 'Signing in…' : 'Continue with UW Google (Demo)'}
               </Text>
             </View>
           </Button>
 
-          <Text style={styles.notice}>Demo mode - no real authentication required</Text>
+          <Text style={styles.notice}>
+            Demo mode — no real authentication. In production, a valid <Text style={styles.inlineMono}>@uw.edu</Text> email is required.
+          </Text>
         </Card>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -103,6 +111,16 @@ const styles = StyleSheet.create({
   subtitle: {
     ...typography.body,
     color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  subtitleEmphasis: {
+    ...typography.body,
+    color: colors.text,
+    fontWeight: '600',
+  },
+  inlineMono: {
+    fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace', default: 'monospace' }),
   },
   card: {
     padding: spacing.lg,
@@ -136,8 +154,8 @@ const styles = StyleSheet.create({
   },
   googleButtonText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: '700',
   },
   notice: {
     ...typography.bodySmall,
@@ -146,3 +164,4 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
   },
 });
+
