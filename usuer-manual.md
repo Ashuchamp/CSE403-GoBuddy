@@ -109,7 +109,7 @@ Please report bugs using our GitHub issue tracker. We’ve provided a standardiz
 > GitHub will auto-fill these fields when you select a template. Please fill them out as completely as possible to help us fix the issue quickly.
 ---
 ## ⚠ Known Bugs
-All known issues are documented in our [GitHub issue tracker]([https://github.com/gobuddy-app/gobuddy/issues?q=label%3Abug](https://github.com/Ashuchamp/CSE403-GoBuddy/issues?q=label%3Abug)).  
+All known issues are documented in our [GitHub issue tracker](https://github.com/Ashuchamp/CSE403-GoBuddy/issues?q=label%3Abug).  
 We regularly update and triage bugs to ensure smooth testing and usage.
 
 Thank you for using GoBuddy!
