@@ -30,7 +30,7 @@ const mockActivityIntents: ActivityIntent[] = [
   },
   {
     id: 'activity-2',
-    userId: '1',
+    userId: '1', // same as currentUser, should be filtered out
     userName: 'Test User',
     title: 'Study Group',
     description: 'Math study session',
@@ -44,36 +44,27 @@ const mockActivityIntents: ActivityIntent[] = [
 ];
 
 describe('RecommendationsScreen', () => {
-  it('renders the header and subtitle', () => {
+  it('should render the header and subtitle', () => {
     const {getByText} = render(
-      <RecommendationsScreen
-        currentUser={mockCurrentUser}
-        activityIntents={mockActivityIntents}
-      />,
+      <RecommendationsScreen currentUser={mockCurrentUser} activityIntents={mockActivityIntents} />,
     );
 
     expect(getByText('For You')).toBeTruthy();
     expect(getByText('Activities matched to your interests')).toBeTruthy();
   });
 
-  it("filters out user's own activities", () => {
+  it("should filter out user's own activities", () => {
     const {queryByText} = render(
-      <RecommendationsScreen
-        currentUser={mockCurrentUser}
-        activityIntents={mockActivityIntents}
-      />,
+      <RecommendationsScreen currentUser={mockCurrentUser} activityIntents={mockActivityIntents} />,
     );
 
     expect(queryByText('Evening Run')).toBeTruthy();
     expect(queryByText('Study Group')).toBeNull();
   });
 
-  it('renders empty state when there are no recommendations', () => {
+  it('should render empty state when there are no recommendations', () => {
     const {getByText} = render(
-      <RecommendationsScreen
-        currentUser={mockCurrentUser}
-        activityIntents={[]}
-      />,
+      <RecommendationsScreen currentUser={mockCurrentUser} activityIntents={[]} />,
     );
 
     expect(getByText('No recommendations yet')).toBeTruthy();
