@@ -5,7 +5,7 @@ import {Button} from '../components/Button';
 import {Card} from '../components/Card';
 import {User} from '../types';
 import {colors, spacing, typography} from '../theme';
-// import {useGoogleAuth} from '../services/googleAuth}; // Disabled for demo mode
+// import {useGoogleAuth} from '../services/googleAuth'}; // Disabled for demo mode
 
 type AuthScreenProps = {
   onAuthenticated: (user: User) => void;
