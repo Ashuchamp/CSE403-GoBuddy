@@ -12,6 +12,6 @@
     "lint": "eslint \"**/*.{js,ts,jsx,tsx}\" --max-warnings=0"
   },
   "dependencies": {
-    "expo": "^54.0.20"
+    "expo": "^54.0.21"
   }
 }
