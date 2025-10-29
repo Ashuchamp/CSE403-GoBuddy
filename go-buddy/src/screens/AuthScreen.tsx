@@ -1,12 +1,5 @@
 import React, {useState} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from 'react-native';
+import {View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {Button} from '../components/Button';
 import {Card} from '../components/Card';
