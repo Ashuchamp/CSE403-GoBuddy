@@ -94,9 +94,8 @@ Navigate to `http://localhost:19006` in your browser.
 
 Please report bugs using our GitHub issue tracker. We’ve provided a standardized bug report template to help guide you.
 
-- 🐞 [Click here to create a new bug report](https://github.com/gobuddy-app/gobuddy/issues/new?template=bug_report.md)
-- 💡 [Click here to request a new feature](https://github.com/gobuddy-app/gobuddy/issues/new?template=feature_request.md)
-
+- 🐞 [Create a new bug report](https://github.com/Ashuchamp/CSE403-GoBuddy/issues/new?assignees=&labels=bug&template=bug_report.md&title=Bug%3A+)
+- 💡 [Suggest a new feature](https://github.com/Ashuchamp/CSE403-GoBuddy/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=Feature+Request%3A+)
 ### What to Include
 
 - **Describe the bug**: What exactly is going wrong?
