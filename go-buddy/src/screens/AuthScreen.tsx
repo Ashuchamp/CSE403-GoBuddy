@@ -75,7 +75,7 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
           </Button>
 
           <Text style={styles.notice}>
-            Demo mode — no real authentication. In production, a valid <Text style={styles.inlineMono}>@uw.edu</Text> email is required.
+            Demo mode — no real authentication. In production, a valid @uw.edu email is required.
           </Text>
         </Card>
       </ScrollView>
