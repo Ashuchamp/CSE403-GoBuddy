@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [20.x, 22.x]
 
     steps:
       - name: Checkout code
@@ -30,7 +30,10 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./go-buddy
-        run: npm ci --legacy-peer-deps
+        run: |
+          echo "Node.js version: $(node --version)"
+          echo "npm version: $(npm --version)"
+          npm ci --legacy-peer-deps
 
       - name: Run TypeScript type check
         working-directory: ./go-buddy
