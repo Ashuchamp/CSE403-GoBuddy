@@ -74,7 +74,9 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
             </View>
           </Button>
 
-          <Text style={styles.notice}>Demo mode - no real authentication required</Text>
+          <Text style={styles.notice}>
+            Demo mode — no real authentication. In production, a valid <Text style={styles.inlineMono}>@uw.edu</Text> email is required.
+          </Text>
         </Card>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -103,6 +105,8 @@ const styles = StyleSheet.create({
   subtitle: {
     ...typography.body,
     color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 20,
   },
   card: {
     padding: spacing.lg,
