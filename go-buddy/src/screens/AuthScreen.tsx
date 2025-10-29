@@ -106,7 +106,6 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textSecondary,
     textAlign: 'center',
-    lineHeight: 20,
   },
   card: {
     padding: spacing.lg,
