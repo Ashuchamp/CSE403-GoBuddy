@@ -75,13 +75,14 @@ jobs:
             echo "| Lines | $(cat coverage/coverage-summary.json | jq -r '.total.lines.pct')% |" >> $GITHUB_STEP_SUMMARY
           fi
 
-      - name: Comment coverage on PR
-        if: github.event_name == 'pull_request'
-        uses: romeovs/lcov-reporter-action@v0.4.0
-        with:
-          lcov-file: ./go-buddy/coverage/lcov.info
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          delete-old-comments: true
+      # Coverage reporting disabled due to permission issues
+      # - name: Comment coverage on PR
+      #   if: github.event_name == 'pull_request'
+      #   uses: romeovs/lcov-reporter-action@v0.4.0
+      #   with:
+      #     lcov-file: ./go-buddy/coverage/lcov.info
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     delete-old-comments: true
 
       - name: Check coverage thresholds
         working-directory: ./go-buddy
