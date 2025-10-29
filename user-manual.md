@@ -22,8 +22,8 @@ GoBuddy is a mobile-first platform designed for University of Washington (UW) st
 1. Clone the GitHub repository:
 
 ```bash
-git clone https://github.com/gobuddy-app/gobuddy.git
-cd gobuddy
+git clone https://github.com/Ashuchamp/CSE403-GoBuddy.git
+cd CSE403-GoBuddy
 ```
 
 2. Install dependencies:
@@ -109,7 +109,9 @@ Please report bugs using our GitHub issue tracker. We’ve provided a standardiz
 > GitHub will auto-fill these fields when you select a template. Please fill them out as completely as possible to help us fix the issue quickly.
 ---
 ## ⚠ Known Bugs
+
 All known issues are documented in our [GitHub issue tracker](https://github.com/Ashuchamp/CSE403-GoBuddy/issues?q=label%3Abug).  
 We regularly update and triage bugs to ensure smooth testing and usage.
 
+---
 Thank you for using GoBuddy!
