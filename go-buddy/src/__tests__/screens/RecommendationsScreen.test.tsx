@@ -68,8 +68,6 @@ describe('RecommendationsScreen', () => {
     );
 
     expect(getByText('No recommendations yet')).toBeTruthy();
-    expect(
-      getByText('Update your profile to see personalized recommendations'),
-    ).toBeTruthy();
+    expect(getByText('Update your profile to see personalized recommendations')).toBeTruthy();
   });
 });
