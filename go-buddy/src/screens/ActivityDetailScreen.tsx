@@ -8,6 +8,7 @@ import {Button} from '../components/Button';
 import {Card} from '../components/Card';
 import {Badge} from '../components/Badge';
 import {UserProfileModal} from '../components/UserProfileModal';
+import {DateTimePicker} from '../components/DateTimePicker';
 import {colors, spacing, typography} from '../theme';
 
 type ActivityDetailScreenProps = {
@@ -35,9 +36,7 @@ export function ActivityDetailScreen({
   const [editedTitle, setEditedTitle] = useState(activity.title);
   const [editedDescription, setEditedDescription] = useState(activity.description);
   const [editedMaxPeople, setEditedMaxPeople] = useState(activity.maxPeople.toString());
-  const [editedScheduledTime, setEditedScheduledTime] = useState(
-    activity.scheduledTimes.join(', '),
-  );
+  const [editedScheduledTimes, setEditedScheduledTimes] = useState(activity.scheduledTimes);
   const [editedLocation, setEditedLocation] = useState(activity.campusLocation || '');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
@@ -46,7 +45,7 @@ export function ActivityDetailScreen({
     setEditedTitle(activity.title);
     setEditedDescription(activity.description);
     setEditedMaxPeople(activity.maxPeople.toString());
-    setEditedScheduledTime(activity.scheduledTimes.join(', '));
+    setEditedScheduledTimes(activity.scheduledTimes);
     setEditedLocation(activity.campusLocation || '');
   }, [activity]);
 
@@ -54,12 +53,24 @@ export function ActivityDetailScreen({
   const approvedRequests = requests.filter((r) => r.status === 'approved');
 
   const handleSaveEdit = () => {
+    // Validate Title - cannot be blank
     if (!editedTitle.trim()) {
-      Alert.alert('Error', 'Title is required');
+      Alert.alert('Error', 'Title is required and cannot be blank');
+      return;
+    }
+
+    // Validate Maximum People - cannot be blank or invalid
+    if (!editedMaxPeople.trim()) {
+      Alert.alert('Error', 'Maximum People is required and cannot be blank');
       return;
     }
 
     const maxPeople = parseInt(editedMaxPeople);
+    if (isNaN(maxPeople) || maxPeople < 2) {
+      Alert.alert('Error', 'Maximum People must be at least 2');
+      return;
+    }
+
     if (maxPeople < approvedRequests.length + 1) {
       Alert.alert(
         'Error',
@@ -72,7 +83,7 @@ export function ActivityDetailScreen({
       title: editedTitle.trim(),
       description: editedDescription.trim(),
       maxPeople,
-      scheduledTimes: editedScheduledTime.split(',').map((t) => t.trim()),
+      scheduledTimes: editedScheduledTimes,
       campusLocation: editedLocation.trim() || undefined,
     });
 
@@ -175,6 +186,7 @@ export function ActivityDetailScreen({
                   multiline
                   numberOfLines={3}
                   style={styles.textArea}
+                  containerStyle={styles.textAreaContainer}
                 />
               </View>
 
@@ -188,8 +200,11 @@ export function ActivityDetailScreen({
               </View>
 
               <View style={styles.formSection}>
-                <Text style={styles.label}>Scheduled Times *</Text>
-                <Input value={editedScheduledTime} onChangeText={setEditedScheduledTime} />
+                <Text style={styles.label}>Scheduled Time(s)</Text>
+                <DateTimePicker
+                  selectedTimes={editedScheduledTimes}
+                  onTimesChange={setEditedScheduledTimes}
+                />
               </View>
 
               <View style={styles.formSection}>
@@ -487,6 +502,9 @@ const styles = StyleSheet.create({
   textArea: {
     minHeight: 80,
     textAlignVertical: 'top',
+  },
+  textAreaContainer: {
+    marginBottom: 40,
   },
   buttonRow: {
     flexDirection: 'row',

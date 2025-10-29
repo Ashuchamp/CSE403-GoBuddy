@@ -58,7 +58,7 @@ export function MyActivitiesScreen({
   // Form state for creating activities
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [maxPeople, setMaxPeople] = useState('4');
+  const [maxPeople, setMaxPeople] = useState('');
   const [scheduledTimes, setScheduledTimes] = useState<string[]>([]);
   const [location, setLocation] = useState('');
 
@@ -128,7 +128,7 @@ export function MyActivitiesScreen({
     // Reset form
     setTitle('');
     setDescription('');
-    setMaxPeople('4');
+    setMaxPeople('');
     setScheduledTimes([]);
     setLocation('');
 
@@ -409,7 +409,7 @@ export function MyActivitiesScreen({
             <View style={styles.formSection}>
               <Text style={styles.label}>Maximum People *</Text>
               <Input
-                placeholder="4"
+                placeholder="eg., 4"
                 value={maxPeople}
                 onChangeText={setMaxPeople}
                 keyboardType="number-pad"
@@ -417,11 +417,9 @@ export function MyActivitiesScreen({
             </View>
 
             <View style={styles.formSection}>
-              <Text style={styles.label}>Scheduled Time(s) (Optional)</Text>
+              <Text style={styles.label}>Scheduled Time(s)</Text>
               <DateTimePicker selectedTimes={scheduledTimes} onTimesChange={setScheduledTimes} />
-              <Text style={styles.helperText}>
-                Pick specific dates and times from the calendar (optional)
-              </Text>
+              <Text style={styles.helperText}>Pick specific dates and times from the calendar</Text>
             </View>
 
             <View style={styles.formSection}>
