@@ -13,6 +13,8 @@ type UserCardProps = {
   onPress?: () => void;
   onConnectRequest?: () => void;
   showContactInfo?: boolean;
+  requested?: boolean;
+  connected?: boolean;
 };
 
 export function UserCard({
@@ -21,6 +23,8 @@ export function UserCard({
   onPress,
   onConnectRequest,
   showContactInfo = false,
+  requested,
+  connected,
 }: UserCardProps) {
   const [requestSent, setRequestSent] = useState(false);
 
@@ -29,12 +33,20 @@ export function UserCard({
     onConnectRequest?.();
   };
 
-  const buttonStyle: ViewStyle = requestSent
+  const isConnected = connected === true;
+  const isRequested = requested ?? requestSent;
+
+  const buttonStyle: ViewStyle = isConnected
     ? {
         ...styles.connectButton,
         backgroundColor: colors.success,
       }
-    : styles.connectButton;
+    : isRequested
+      ? {
+          ...styles.connectButton,
+          backgroundColor: colors.primary,
+        }
+      : styles.connectButton;
 
   return (
     <Card style={styles.card}>
@@ -114,11 +126,21 @@ export function UserCard({
       </TouchableOpacity>
 
       {/* Action Button */}
-      <Button onPress={handleConnect} disabled={requestSent} style={buttonStyle} fullWidth>
+      <Button
+        onPress={handleConnect}
+        disabled={isRequested || isConnected}
+        style={buttonStyle}
+        fullWidth
+      >
         <View style={styles.buttonContent}>
-          <Ionicons name="person-add-outline" size={16} color="#fff" style={styles.buttonIcon} />
+          <Ionicons
+            name={isConnected ? 'checkmark-circle-outline' : 'person-add-outline'}
+            size={16}
+            color="#fff"
+            style={styles.buttonIcon}
+          />
           <Text style={styles.buttonText}>
-            {requestSent ? 'Request Sent' : 'Request to Connect'}
+            {isConnected ? 'Connected' : isRequested ? 'Request Sent' : 'Request to Connect'}
           </Text>
         </View>
       </Button>
