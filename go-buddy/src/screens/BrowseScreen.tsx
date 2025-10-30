@@ -1,5 +1,15 @@
 import React, {useState, useMemo} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, FlatList} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  Modal,
+  TextInput,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {User, ActivityIntent} from '../types';
 import {mockUsers} from '../data/mockUsers';
@@ -8,6 +18,13 @@ import {ActivityCard} from '../components/ActivityCard';
 import {ActivityDetailModal} from '../components/ActivityDetailModal';
 import {UserProfileModal} from '../components/UserProfileModal';
 import {colors, spacing, typography} from '../theme';
+import {
+  addSentRequest,
+  getSentRequests,
+  subscribeToSentRequests,
+  getConnectedUsers,
+  subscribeToConnectedUsers,
+} from '../services/connectionStore';
 
 type BrowseScreenProps = {
   currentUser: User;
@@ -29,6 +46,33 @@ export function BrowseScreen({
   const [browseCategory, setBrowseCategory] = useState<BrowseCategory>('students');
   const [selectedActivity, setSelectedActivity] = useState<ActivityIntent | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [connectModalVisible, setConnectModalVisible] = useState(false);
+  const [pendingConnectUser, setPendingConnectUser] = useState<User | null>(null);
+  const [connectNote, setConnectNote] = useState('');
+  const [sentToUserIds, setSentToUserIds] = useState<Set<string>>(new Set());
+  const [connectedUserIds, setConnectedUserIds] = useState<Set<string>>(new Set());
+
+  React.useEffect(() => {
+    const initial = new Set(getSentRequests().map((r) => r.to.id));
+    setSentToUserIds(initial);
+    const unsubscribe = subscribeToSentRequests((r) => {
+      setSentToUserIds((prev) => new Set(prev).add(r.to.id));
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  React.useEffect(() => {
+    const initial = new Set(getConnectedUsers().map((u) => u.id));
+    setConnectedUserIds(initial);
+    const unsubscribe = subscribeToConnectedUsers((u) => {
+      setConnectedUserIds((prev) => new Set(prev).add(u.id));
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   // Filter users
   const filteredUsers = useMemo(() => {
@@ -40,11 +84,35 @@ export function BrowseScreen({
     return activityIntents.filter((intent) => intent.userId !== currentUser.id);
   }, [currentUser.id, activityIntents]);
 
+  const openConnectModal = (user: User) => {
+    setPendingConnectUser(user);
+    setConnectNote('');
+    setConnectModalVisible(true);
+  };
+
+  const submitConnectRequest = () => {
+    if (!pendingConnectUser) return;
+    addSentRequest({
+      id: `sent_${Date.now()}`,
+      from: currentUser,
+      to: pendingConnectUser,
+      message: connectNote.trim(),
+      timestamp: new Date(),
+      status: 'pending',
+    });
+    setConnectModalVisible(false);
+    setPendingConnectUser(null);
+    setConnectNote('');
+  };
+
   const renderUserCard = ({item}: {item: User}) => (
     <UserCard
       user={item}
       currentUser={currentUser}
       onPress={() => setSelectedUser(item)}
+      requested={sentToUserIds.has(item.id)}
+      connected={connectedUserIds.has(item.id)}
+      onConnectRequest={() => openConnectModal(item)}
       showContactInfo={false}
     />
   );
@@ -174,8 +242,44 @@ export function BrowseScreen({
         visible={selectedUser !== null}
         onClose={() => setSelectedUser(null)}
         currentUserId={currentUser.id}
-        showContactInfo={false} // Contact info hidden in Browse
+        showContactInfo={selectedUser ? connectedUserIds.has(selectedUser.id) : false}
       />
+
+      {/* Connect Note Modal */}
+      <Modal
+        visible={connectModalVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setConnectModalVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalCard}>
+              <Text style={styles.modalTitle}>Add a note</Text>
+              <Text style={styles.modalSubtitle}>Why do you want to connect?</Text>
+              <TextInput
+                value={connectNote}
+                onChangeText={setConnectNote}
+                placeholder="Write a short note (optional)"
+                placeholderTextColor={colors.textMuted}
+                style={styles.textInput}
+                multiline
+              />
+              <View style={styles.modalActions}>
+                <TouchableOpacity
+                  onPress={() => setConnectModalVisible(false)}
+                  style={styles.modalButtonSecondary}
+                >
+                  <Text style={styles.modalButtonSecondaryText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={submitConnectRequest} style={styles.modalButtonPrimary}>
+                  <Text style={styles.modalButtonPrimaryText}>Send Request</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 }
@@ -243,5 +347,67 @@ const styles = StyleSheet.create({
   emptyText: {
     ...typography.body,
     color: colors.textMuted,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.md,
+  },
+  modalCard: {
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: spacing.md,
+  },
+  modalTitle: {
+    ...typography.h3,
+    color: colors.text,
+    marginBottom: spacing.xs,
+  },
+  modalSubtitle: {
+    ...typography.bodySmall,
+    color: colors.textSecondary,
+    marginBottom: spacing.md,
+  },
+  textInput: {
+    minHeight: 100,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    padding: spacing.sm,
+    ...typography.bodySmall,
+    color: colors.text,
+    marginBottom: spacing.md,
+    textAlignVertical: 'top',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: spacing.sm,
+  },
+  modalButtonSecondary: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  modalButtonSecondaryText: {
+    ...typography.body,
+    color: colors.textSecondary,
+    fontWeight: '600',
+  },
+  modalButtonPrimary: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: 8,
+    backgroundColor: colors.primary,
+  },
+  modalButtonPrimaryText: {
+    ...typography.body,
+    color: '#fff',
+    fontWeight: '700',
   },
 });
