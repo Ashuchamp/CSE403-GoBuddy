@@ -11,7 +11,7 @@ import {
   Keyboard,
 } from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
-import {User, ActivityIntent} from '../types';
+import {User, ActivityIntent, ActivityRequest} from '../types';
 import {mockUsers} from '../data/mockUsers';
 import {UserCard} from '../components/UserCard';
 import {ActivityCard} from '../components/ActivityCard';
@@ -29,6 +29,7 @@ import {
 type BrowseScreenProps = {
   currentUser: User;
   activityIntents: ActivityIntent[];
+  activityRequests?: ActivityRequest[];
   onUserPress?: (user: User) => void;
   onJoinActivity?: (intentId: string) => void;
   onConnectRequest?: (userId: string) => void;
@@ -39,6 +40,7 @@ type BrowseCategory = 'students' | 'activities';
 export function BrowseScreen({
   currentUser,
   activityIntents,
+  activityRequests = [],
   onUserPress: _onUserPress,
   onJoinActivity,
   onConnectRequest: _onConnectRequest,
@@ -95,6 +97,17 @@ export function BrowseScreen({
       });
   }, [currentUser.id, searchQuery]);
 
+  // User's participating requests (mocked for demo)
+  const myRequestsByActivity = useMemo(() => {
+    const map = new Map<string, ActivityRequest>();
+    activityRequests
+      .filter((r) => r.userId === currentUser.id)
+      .forEach((r) => {
+        map.set(r.activityId, r);
+      });
+    return map;
+  }, [activityRequests, currentUser.id]);
+
   // Filter activities
   const filteredIntents = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -148,15 +161,27 @@ export function BrowseScreen({
     />
   );
 
-  const renderActivityCard = ({item}: {item: ActivityIntent}) => (
-    <ActivityCard
-      intent={item}
-      onJoin={onJoinActivity}
-      onPress={(activity) => {
-        setSelectedActivity(activity);
-      }}
-    />
-  );
+  const renderActivityCard = ({item}: {item: ActivityIntent}) => {
+    const req = myRequestsByActivity.get(item.id);
+    const status =
+      req?.status === 'approved'
+        ? 'joined'
+        : req?.status === 'pending'
+          ? 'sent'
+          : req?.status === 'declined'
+            ? 'declined'
+            : undefined;
+    return (
+      <ActivityCard
+        intent={item}
+        onJoin={onJoinActivity}
+        onPress={(activity) => {
+          setSelectedActivity(activity);
+        }}
+        {...(status ? {joinStatus: status} : {})}
+      />
+    );
+  };
 
   return (
     <View style={styles.container}>

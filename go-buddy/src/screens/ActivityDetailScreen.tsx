@@ -39,6 +39,9 @@ export function ActivityDetailScreen({
   const [editedScheduledTimes, setEditedScheduledTimes] = useState(activity.scheduledTimes);
   const [editedLocation, setEditedLocation] = useState(activity.campusLocation || '');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUserShowContact, setSelectedUserShowContact] = useState(false);
+  const [approvedCountLocal, setApprovedCountLocal] = useState(0);
+  const [maxPeopleLocal, setMaxPeopleLocal] = useState(activity.maxPeople);
 
   // Update edit fields when activity changes
   useEffect(() => {
@@ -51,6 +54,15 @@ export function ActivityDetailScreen({
 
   const pendingRequests = requests.filter((r) => r.status === 'pending');
   const approvedRequests = requests.filter((r) => r.status === 'approved');
+
+  // Keep a local, optimistic approved count that updates immediately on approve/decline
+  useEffect(() => {
+    setApprovedCountLocal(approvedRequests.length);
+  }, [approvedRequests.length]);
+
+  useEffect(() => {
+    setMaxPeopleLocal(activity.maxPeople);
+  }, [activity.maxPeople]);
 
   const handleSaveEdit = () => {
     // Validate Title - cannot be blank
@@ -71,10 +83,11 @@ export function ActivityDetailScreen({
       return;
     }
 
-    if (maxPeople < approvedRequests.length + 1) {
+    const currentParticipants = Math.max(activity.currentPeople, approvedRequests.length + 1);
+    if (maxPeople < currentParticipants) {
       Alert.alert(
         'Error',
-        `Maximum people cannot be less than current participants (${approvedRequests.length + 1})`,
+        `Maximum people cannot be less than current participants (${currentParticipants})`,
       );
       return;
     }
@@ -100,7 +113,17 @@ export function ActivityDetailScreen({
         {
           text: 'Complete',
           onPress: () => {
-            onUpdateActivity(activity.id, {status: 'completed'});
+            // Decline all remaining pending requests
+            pendingRequests.forEach((r) => onDeclineRequest(r.id));
+            // Send full payload so app can insert/update without losing details
+            onUpdateActivity(activity.id, {
+              status: 'completed',
+              title: activity.title,
+              description: activity.description,
+              maxPeople: activity.maxPeople,
+              scheduledTimes: activity.scheduledTimes,
+              campusLocation: activity.campusLocation,
+            });
             Alert.alert('Success', 'Activity marked as complete!');
             onClose();
           },
@@ -129,10 +152,24 @@ export function ActivityDetailScreen({
   };
 
   const handleApprove = (request: ActivityRequest) => {
-    if (approvedRequests.length + 1 >= activity.maxPeople) {
-      Alert.alert('Notice', 'This activity will be full after approving this request.');
+    const willBeFull = approvedCountLocal + 1 >= maxPeopleLocal;
+    if (willBeFull) {
+      Alert.alert('Activity is full', 'Increase maximum people by 1 and approve this request?', [
+        {text: 'Cancel', style: 'cancel'},
+        {
+          text: 'Increase & Approve',
+          onPress: () => {
+            onUpdateActivity(activity.id, {maxPeople: maxPeopleLocal + 1});
+            onApproveRequest(request.id);
+            setApprovedCountLocal((c) => c + 1);
+            setMaxPeopleLocal((m) => m + 1);
+          },
+        },
+      ]);
+      return;
     }
     onApproveRequest(request.id);
+    setApprovedCountLocal((c) => c + 1);
   };
 
   const handleDecline = (request: ActivityRequest) => {
@@ -146,7 +183,8 @@ export function ActivityDetailScreen({
     ]);
   };
 
-  const spotsRemaining = activity.maxPeople - (approvedRequests.length + 1);
+  const currentParticipantsDisplay = Math.max(activity.currentPeople, approvedCountLocal + 1);
+  const spotsRemaining = maxPeopleLocal - currentParticipantsDisplay;
 
   return (
     <View style={styles.container}>
@@ -233,7 +271,7 @@ export function ActivityDetailScreen({
               <View style={styles.infoRow}>
                 <Ionicons name="people-outline" size={16} color={colors.textSecondary} />
                 <Text style={styles.infoText}>
-                  {approvedRequests.length + 1}/{activity.maxPeople} people
+                  {currentParticipantsDisplay}/{maxPeopleLocal} people
                   {spotsRemaining > 0 && ` • ${spotsRemaining} spots left`}
                 </Text>
               </View>
@@ -262,7 +300,7 @@ export function ActivityDetailScreen({
         </Card>
 
         {/* Pending Requests */}
-        {pendingRequests.length > 0 && (
+        {pendingRequests.length > 0 && activity.status !== 'completed' && (
           <Card style={styles.card}>
             <View style={styles.cardHeader}>
               <Text style={styles.sectionTitle}>Pending Requests</Text>
@@ -276,7 +314,10 @@ export function ActivityDetailScreen({
                 <View key={request.id} style={styles.requestCard}>
                   <TouchableOpacity
                     style={styles.requestHeader}
-                    onPress={() => setSelectedUser(userData || null)}
+                    onPress={() => {
+                      setSelectedUser(userData || null);
+                      setSelectedUserShowContact(false);
+                    }}
                     activeOpacity={0.7}
                   >
                     <View style={styles.requestInfo}>
@@ -361,48 +402,32 @@ export function ActivityDetailScreen({
           {approvedRequests.map((request) => {
             // Get user data for contact information
             const userData = mockUsers.find((user) => user.id === request.userId);
-            const hasContactInfo = userData && (userData.phone || userData.instagram);
 
             return (
-              <View key={request.id} style={styles.participantCard}>
+              <TouchableOpacity
+                key={request.id}
+                style={styles.participantCard}
+                activeOpacity={0.7}
+                onPress={() => {
+                  if (userData) {
+                    setSelectedUser(userData);
+                    setSelectedUserShowContact(true);
+                  }
+                }}
+              >
                 <View style={styles.participantInfo}>
-                  <Ionicons name="person-circle" size={40} color={colors.textSecondary} />
+                  <View style={styles.avatar}>
+                    <Text style={styles.avatarText}>{request.userName.charAt(0)}</Text>
+                  </View>
                   <View style={styles.participantDetails}>
                     <Text style={styles.participantName}>{request.userName}</Text>
                     <Text style={styles.participantBio} numberOfLines={1}>
                       {request.userBio}
                     </Text>
-                    {/* Contact Information - Only show for approved participants */}
-                    {hasContactInfo && (
-                      <View style={styles.contactContainer}>
-                        <Text style={styles.contactLabel}>Contact Information</Text>
-                        <View style={styles.contactWrapper}>
-                          {userData?.phone && (
-                            <View style={styles.contactItem}>
-                              <Ionicons
-                                name="call-outline"
-                                size={14}
-                                color={colors.textSecondary}
-                              />
-                              <Text style={styles.contactText}>{userData.phone}</Text>
-                            </View>
-                          )}
-                          {userData?.instagram && (
-                            <View style={styles.contactItem}>
-                              <Ionicons
-                                name="logo-instagram"
-                                size={14}
-                                color={colors.textSecondary}
-                              />
-                              <Text style={styles.contactText}>{userData.instagram}</Text>
-                            </View>
-                          )}
-                        </View>
-                      </View>
-                    )}
                   </View>
+                  <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
                 </View>
-              </View>
+              </TouchableOpacity>
             );
           })}
         </Card>
@@ -414,6 +439,7 @@ export function ActivityDetailScreen({
           <Button
             variant="outline"
             onPress={handleMarkComplete}
+            disabled={activity.status === 'completed' || activity.status === 'cancelled'}
             fullWidth
             style={styles.actionButton}
           >
@@ -439,7 +465,7 @@ export function ActivityDetailScreen({
         visible={selectedUser !== null}
         onClose={() => setSelectedUser(null)}
         currentUserId={currentUser.id}
-        showContactInfo={false} // Contact info hidden for pending requests
+        showContactInfo={selectedUserShowContact}
       />
     </View>
   );
@@ -592,6 +618,20 @@ const styles = StyleSheet.create({
   participantInfo: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.sm,
+  },
+  avatarText: {
+    ...typography.body,
+    color: '#fff',
+    fontWeight: '700',
   },
   participantDetails: {
     marginLeft: spacing.sm,

@@ -103,6 +103,7 @@ export function AppNavigator({
           <BrowseScreen
             currentUser={currentUser}
             activityIntents={activityIntents}
+            activityRequests={activityRequests}
             onJoinActivity={handleJoinActivity}
             onConnectRequest={onConnectRequest}
           />
