@@ -21,6 +21,8 @@ import {ActivityDetailScreen} from './ActivityDetailScreen';
 import {ActivityDetailModal} from '../components/ActivityDetailModal';
 import {DateTimePicker} from '../components/DateTimePicker';
 import {colors, spacing, typography, borderRadius} from '../theme';
+import {mockActivityIntents} from '../data/mockActivityIntents';
+import {mockActivityRequests} from '../data/mockActivityRequests';
 
 type MyActivitiesScreenProps = {
   currentUser: User;
@@ -48,6 +50,140 @@ export function MyActivitiesScreen({
   onApproveRequest,
   onDeclineRequest,
 }: MyActivitiesScreenProps) {
+  // Fallback demo data when props are empty
+  const demoOrganizingIntents: ActivityIntent[] = [
+    {
+      id: 'demo-activity-1',
+      userId: currentUser.id,
+      userName: currentUser.name,
+      title: 'Stats Study Group',
+      description: 'Work through problem sets together. Bring notes and questions!',
+      maxPeople: 5,
+      currentPeople: 2,
+      scheduledTimes: ['Tue 6-8pm'],
+      createdAt: new Date().toISOString(),
+      campusLocation: 'Odegaard Library',
+      status: 'active',
+    },
+    {
+      id: 'demo-activity-2',
+      userId: currentUser.id,
+      userName: currentUser.name,
+      title: 'Morning Run Club',
+      description: 'Easy 5K around campus. All paces welcome.',
+      maxPeople: 8,
+      currentPeople: 3,
+      scheduledTimes: ['Sat 8-9am'],
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+      campusLocation: 'Husky Stadium',
+      status: 'active',
+    },
+  ];
+
+  const demoCompletedIntents: ActivityIntent[] = [
+    {
+      id: 'demo-activity-3',
+      userId: currentUser.id,
+      userName: currentUser.name,
+      title: 'CSE 142 Practice Session',
+      description: 'Past session focused on arrays and loops. Marked as completed.',
+      maxPeople: 6,
+      currentPeople: 5,
+      scheduledTimes: ['Last Mon 5-6pm'],
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
+      campusLocation: 'Allen Library',
+      status: 'completed',
+    },
+    {
+      id: 'demo-activity-4',
+      userId: currentUser.id,
+      userName: currentUser.name,
+      title: 'Evening Badminton',
+      description: 'Cancelled due to venue unavailability.',
+      maxPeople: 4,
+      currentPeople: 0,
+      scheduledTimes: ['Last Fri 7-8pm'],
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 96).toISOString(),
+      campusLocation: 'IMA Courts',
+      status: 'cancelled',
+    },
+  ];
+
+  // Start with app-provided intents if any; otherwise seed with general mocks
+  const baseIntents: ActivityIntent[] =
+    activityIntents && activityIntents.length > 0 ? activityIntents : [...mockActivityIntents];
+
+  // Always include demo organizing and demo completed items, but dedupe by id
+  const idSet = new Set(baseIntents.map((a) => a.id));
+  const mergedWithDemos: ActivityIntent[] = [...baseIntents];
+  for (const demo of demoOrganizingIntents) {
+    if (!idSet.has(demo.id)) {
+      idSet.add(demo.id);
+      mergedWithDemos.push(demo);
+    }
+  }
+  for (const demo of demoCompletedIntents) {
+    if (!idSet.has(demo.id)) {
+      idSet.add(demo.id);
+      mergedWithDemos.push(demo);
+    }
+  }
+
+  const effectiveActivityIntents: ActivityIntent[] = mergedWithDemos;
+
+  const baseRequests: ActivityRequest[] =
+    activityRequests && activityRequests.length > 0
+      ? activityRequests
+      : mockActivityRequests.map((r) =>
+          r.userId === '1'
+            ? {
+                ...r,
+                userId: currentUser.id,
+                userName: currentUser.name,
+              }
+            : r,
+        );
+
+  const hasMyParticipating = baseRequests.some((r) => r.userId === currentUser.id);
+  const seedParticipating: ActivityRequest[] = hasMyParticipating
+    ? []
+    : [
+        {
+          id: 'demo-req-pending',
+          activityId: 'intent-1',
+          userId: currentUser.id,
+          userName: currentUser.name,
+          userBio:
+            "Hey! I'm a junior studying Computer Science. Looking for gym buddies and study partners!",
+          userSkills: ['Python', 'React', 'Data Structures'],
+          status: 'pending',
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 'demo-req-approved',
+          activityId: 'intent-2',
+          userId: currentUser.id,
+          userName: currentUser.name,
+          userBio:
+            "Hey! I'm a junior studying Computer Science. Looking for gym buddies and study partners!",
+          userSkills: ['Python', 'React', 'Data Structures'],
+          status: 'approved',
+          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
+        },
+        {
+          id: 'demo-req-declined',
+          activityId: 'intent-3',
+          userId: currentUser.id,
+          userName: currentUser.name,
+          userBio:
+            "Hey! I'm a junior studying Computer Science. Looking for gym buddies and study partners!",
+          userSkills: ['Python', 'React', 'Data Structures'],
+          status: 'declined',
+          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
+        },
+      ];
+
+  const effectiveActivityRequests: ActivityRequest[] = [...baseRequests, ...seedParticipating];
   const [viewMode, setViewMode] = useState<ViewMode>('organizing');
   const [participatingFilter, setParticipatingFilter] = useState<ParticipatingFilter>('pending');
   const [selectedActivity, setSelectedActivity] = useState<ActivityIntent | null>(null);
@@ -63,7 +199,9 @@ export function MyActivitiesScreen({
   const [location, setLocation] = useState('');
 
   // Get activities I'm organizing
-  const myActivities = activityIntents.filter((intent) => intent.userId === currentUser.id);
+  const myActivities = effectiveActivityIntents.filter(
+    (intent) => intent.userId === currentUser.id,
+  );
   const activeMyActivities = myActivities.filter(
     (intent) => intent.status !== 'completed' && intent.status !== 'cancelled',
   );
@@ -72,7 +210,7 @@ export function MyActivitiesScreen({
   );
 
   // Get activities I'm participating in (requested or approved)
-  const myParticipatingRequests = activityRequests.filter(
+  const myParticipatingRequests = effectiveActivityRequests.filter(
     (request) => request.userId === currentUser.id,
   );
   const pendingParticipating = myParticipatingRequests.filter((r) => r.status === 'pending');
@@ -92,7 +230,7 @@ export function MyActivitiesScreen({
     return requests
       .map((request) => ({
         request,
-        activity: activityIntents.find((a) => a.id === request.activityId),
+        activity: effectiveActivityIntents.find((a) => a.id === request.activityId),
       }))
       .filter(
         (item): item is {request: ActivityRequest; activity: ActivityIntent} =>
@@ -137,6 +275,8 @@ export function MyActivitiesScreen({
   };
 
   const renderOrganizingActivityCard = ({item}: {item: ActivityIntent}) => {
+    const fromApp = activityIntents.find((a) => a.id === item.id);
+    const latest = fromApp || effectiveActivityIntents.find((a) => a.id === item.id) || item;
     const requestsForActivity = activityRequests.filter(
       (r) => r.activityId === item.id && r.status === 'pending',
     );
@@ -146,13 +286,13 @@ export function MyActivitiesScreen({
     const hasNewRequests = requestsForActivity.length > 0;
 
     return (
-      <TouchableOpacity onPress={() => setSelectedActivity(item)} activeOpacity={0.7}>
+      <TouchableOpacity onPress={() => setSelectedActivity(latest)} activeOpacity={0.7}>
         <Card style={styles.activityCard}>
           <View style={styles.activityHeader}>
             <View style={styles.activityInfo}>
-              <Text style={styles.activityTitle}>{item.title}</Text>
+              <Text style={styles.activityTitle}>{latest.title}</Text>
               <Text style={styles.activityDescription} numberOfLines={2}>
-                {item.description}
+                {latest.description}
               </Text>
             </View>
             {hasNewRequests && (
@@ -166,13 +306,13 @@ export function MyActivitiesScreen({
             <View style={styles.metaItem}>
               <Ionicons name="people-outline" size={16} color={colors.textSecondary} />
               <Text style={styles.metaText}>
-                {item.currentPeople}/{item.maxPeople}
+                {Math.max(latest.currentPeople, approvedRequests.length + 1)}/{latest.maxPeople}
               </Text>
             </View>
-            {item.scheduledTimes[0] && (
+            {latest.scheduledTimes[0] && (
               <View style={styles.metaItem}>
                 <Ionicons name="time-outline" size={16} color={colors.textSecondary} />
-                <Text style={styles.metaText}>{item.scheduledTimes[0]}</Text>
+                <Text style={styles.metaText}>{latest.scheduledTimes[0]}</Text>
               </View>
             )}
           </View>
@@ -228,7 +368,7 @@ export function MyActivitiesScreen({
           <View style={styles.quickActions}>
             <TouchableOpacity
               style={styles.quickActionButton}
-              onPress={() => setSelectedActivity(item)}
+              onPress={() => setSelectedActivity(latest)}
             >
               <Ionicons name="create-outline" size={16} color={colors.primary} />
               <Text style={styles.quickActionText}>Manage</Text>
@@ -494,6 +634,11 @@ export function MyActivitiesScreen({
             data={showCompleted ? inactiveMyActivities : activeMyActivities}
             renderItem={renderOrganizingActivityCard}
             keyExtractor={(item) => item.id}
+            extraData={{
+              intents: effectiveActivityIntents,
+              appIntents: activityIntents,
+              requests: effectiveActivityRequests,
+            }}
             contentContainerStyle={styles.listContent}
             ListEmptyComponent={
               <View style={styles.emptyState}>
@@ -658,7 +803,9 @@ export function MyActivitiesScreen({
         {selectedActivity &&
           (() => {
             // Always get the latest version of the activity from the state
-            const currentActivity = activityIntents.find((a) => a.id === selectedActivity.id);
+            const currentActivity = effectiveActivityIntents.find(
+              (a) => a.id === selectedActivity.id,
+            );
 
             // If activity was deleted, close the modal
             if (!currentActivity) {
@@ -669,10 +816,12 @@ export function MyActivitiesScreen({
             return (
               <ActivityDetailScreen
                 activity={currentActivity}
-                requests={activityRequests.filter((r) => r.activityId === currentActivity.id)}
+                requests={effectiveActivityRequests.filter(
+                  (r) => r.activityId === currentActivity.id,
+                )}
                 currentUser={currentUser}
                 onClose={() => setSelectedActivity(null)}
-                onUpdateActivity={onUpdateActivity}
+                onUpdateActivity={(activityId, updates) => onUpdateActivity(activityId, updates)}
                 onDeleteActivity={onDeleteActivity}
                 onApproveRequest={onApproveRequest}
                 onDeclineRequest={onDeclineRequest}

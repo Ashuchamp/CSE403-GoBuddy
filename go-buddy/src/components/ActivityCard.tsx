@@ -12,16 +12,27 @@ type ActivityCardProps = {
   onJoin?: (intentId: string) => void;
   onPress?: (intent: ActivityIntent) => void;
   showActions?: boolean;
+  joinStatus?: 'default' | 'sent' | 'joined' | 'declined';
 };
 
-export function ActivityCard({intent, onJoin, onPress, showActions = true}: ActivityCardProps) {
+export function ActivityCard({
+  intent,
+  onJoin,
+  onPress,
+  showActions = true,
+  joinStatus,
+}: ActivityCardProps) {
   const [requestSent, setRequestSent] = useState(false);
   const isAlmostFull = intent.currentPeople >= intent.maxPeople * 0.8;
   const isFull = intent.currentPeople >= intent.maxPeople;
 
   const statusColor = isFull ? colors.error : isAlmostFull ? colors.warning : colors.success;
 
+  const computedStatus: 'default' | 'sent' | 'joined' | 'declined' =
+    joinStatus ?? (requestSent ? 'sent' : 'default');
+
   const handleJoin = () => {
+    if (computedStatus !== 'default') return;
     setRequestSent(true);
     onJoin?.(intent.id);
   };
@@ -90,23 +101,42 @@ export function ActivityCard({intent, onJoin, onPress, showActions = true}: Acti
         {showActions && (
           <Button
             onPress={handleJoin}
-            disabled={isFull || requestSent}
+            disabled={
+              isFull ||
+              computedStatus === 'sent' ||
+              computedStatus === 'joined' ||
+              computedStatus === 'declined'
+            }
             variant={isFull ? 'outline' : 'default'}
             fullWidth
             style={{
               ...styles.joinButton,
-              ...(requestSent && styles.joinButtonSent),
+              ...(computedStatus === 'joined' && styles.joinButtonSent),
+              ...(computedStatus === 'sent' && styles.joinButtonRequested),
+              ...(computedStatus === 'declined' && styles.joinButtonDeclined),
             }}
           >
             <View style={styles.buttonContent}>
               <Ionicons
-                name="checkmark-circle-outline"
+                name={
+                  computedStatus === 'declined'
+                    ? 'close-circle-outline'
+                    : 'checkmark-circle-outline'
+                }
                 size={16}
                 color="#fff"
                 style={styles.buttonIcon}
               />
               <Text style={styles.buttonText}>
-                {isFull ? 'Full' : requestSent ? 'Request Sent' : 'Join Activity'}
+                {isFull
+                  ? 'Full'
+                  : computedStatus === 'joined'
+                    ? 'Joined'
+                    : computedStatus === 'sent'
+                      ? 'Request Sent'
+                      : computedStatus === 'declined'
+                        ? 'Declined'
+                        : 'Join Activity'}
               </Text>
             </View>
           </Button>
@@ -189,6 +219,12 @@ const styles = StyleSheet.create({
   },
   joinButtonSent: {
     backgroundColor: colors.success,
+  },
+  joinButtonRequested: {
+    backgroundColor: colors.primary,
+  },
+  joinButtonDeclined: {
+    backgroundColor: colors.error,
   },
   buttonContent: {
     flexDirection: 'row',

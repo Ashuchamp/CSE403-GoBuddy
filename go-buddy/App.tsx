@@ -59,6 +59,24 @@ export default function App() {
     }
   }, [currentUser]);
 
+  // Normalize mock requests to the logged-in user once
+  useEffect(() => {
+    if (!currentUser) return;
+    setActivityRequests((prev) => {
+      const hasDemoUser = prev.some((r) => r.userId === '1');
+      if (!hasDemoUser) return prev;
+      return prev.map((r) =>
+        r.userId === '1'
+          ? {
+              ...r,
+              userId: currentUser.id,
+              userName: currentUser.name,
+            }
+          : r,
+      );
+    });
+  }, [currentUser]);
+
   const handleLogout = () => {
     setCurrentUser(null);
   };
@@ -78,14 +96,31 @@ export default function App() {
       createdAt: new Date().toISOString(),
       status: 'active',
     };
-    setActivityIntents([newActivity, ...activityIntents]);
+    setActivityIntents((prev) => [newActivity, ...prev]);
   };
 
   const handleUpdateActivity = (activityId: string, updates: Partial<ActivityIntent>) => {
-    setActivityIntents(
-      activityIntents.map((activity) =>
-        activity.id === activityId ? {...activity, ...updates} : activity,
-      ),
+    const exists = activityIntents.some((a) => a.id === activityId);
+    if (!exists) {
+      // Insert a new activity with the SAME id so existing requests keep working
+      const fallback: ActivityIntent = {
+        id: activityId,
+        userId: currentUser!.id,
+        userName: currentUser!.name,
+        title: updates.title ?? 'Untitled Activity',
+        description: updates.description ?? '',
+        maxPeople: updates.maxPeople ?? 4,
+        currentPeople: 1,
+        scheduledTimes: updates.scheduledTimes ?? [],
+        createdAt: new Date().toISOString(),
+        campusLocation: updates.campusLocation,
+        status: updates.status ?? 'active',
+      };
+      setActivityIntents((prev) => [fallback, ...prev]);
+      return;
+    }
+    setActivityIntents((prev) =>
+      prev.map((activity) => (activity.id === activityId ? {...activity, ...updates} : activity)),
     );
   };
 
@@ -125,18 +160,16 @@ export default function App() {
     if (!request) return;
 
     // Update request status
-    setActivityRequests(
-      activityRequests.map((r) =>
-        r.id === requestId ? {...r, status: 'approved' as const} : r,
-      ),
+    setActivityRequests((prev) =>
+      prev.map((r) => (r.id === requestId ? {...r, status: 'approved' as const} : r)),
     );
 
     // Increment activity's current people count
-    setActivityIntents(
-      activityIntents.map((activity) =>
-        activity.id === request.activityId ?
-          {...activity, currentPeople: activity.currentPeople + 1} :
-          activity,
+    setActivityIntents((prev) =>
+      prev.map((activity) =>
+        activity.id === request.activityId
+          ? {...activity, currentPeople: activity.currentPeople + 1}
+          : activity,
       ),
     );
   };
