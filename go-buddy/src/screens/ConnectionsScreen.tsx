@@ -52,31 +52,7 @@ const mockConnectionRequests: ConnectionRequest[] = [
 
 // No mock sent requests here; rely on shared store seeding to avoid duplicates
 
-const mockConnectedUsers: User[] = [
-  {
-    id: '5',
-    email: 'alex.rodriguez@uw.edu',
-    name: 'Alex Rodriguez',
-    bio: 'Econ student and gym enthusiast. Love playing tennis and discussing markets!',
-    skills: ['Financial Analysis', 'Excel', 'Economics', 'Statistics'],
-    preferredTimes: ['Weekday Evenings', 'Weekend Mornings'],
-    activityTags: ['Gym', 'Tennis', 'ECON 200', 'Finance Club', 'Investing'],
-    phone: '253-555-0177',
-    instagram: '@alexr_uw',
-    campusLocation: 'North Campus',
-  },
-  {
-    id: '6',
-    email: 'jessica.kim@uw.edu',
-    name: 'Jessica Kim',
-    bio: 'Art major looking for creative collaborators! Also love yoga and exploring Seattle.',
-    skills: ['Illustration', 'Graphic Design', 'Adobe Creative Suite'],
-    preferredTimes: ['Weekend Afternoons', 'Weekend Evenings'],
-    activityTags: ['Art', 'Design', 'Yoga', 'Photography', 'Exploring Seattle'],
-    instagram: '@jess.creates',
-    campusLocation: 'South Campus',
-  },
-];
+// Connected users are sourced from the shared store
 
 export function ConnectionsScreen({currentUser}: ConnectionsScreenProps) {
   const [receivedRequests, setReceivedRequests] = React.useState(mockConnectionRequests);
