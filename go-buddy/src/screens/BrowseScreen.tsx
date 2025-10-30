@@ -51,6 +51,7 @@ export function BrowseScreen({
   const [connectNote, setConnectNote] = useState('');
   const [sentToUserIds, setSentToUserIds] = useState<Set<string>>(new Set());
   const [connectedUserIds, setConnectedUserIds] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
 
   React.useEffect(() => {
     const initial = new Set(getSentRequests().map((r) => r.to.id));
@@ -76,13 +77,43 @@ export function BrowseScreen({
 
   // Filter users
   const filteredUsers = useMemo(() => {
-    return mockUsers.filter((user) => user.id !== currentUser.id);
-  }, [currentUser.id]);
+    const q = searchQuery.trim().toLowerCase();
+    return mockUsers
+      .filter((user) => user.id !== currentUser.id)
+      .filter((user) => {
+        if (!q) return true;
+        const haystack = [
+          user.name,
+          user.bio,
+          user.campusLocation ?? '',
+          ...user.skills,
+          ...user.activityTags,
+        ]
+          .join(' ')
+          .toLowerCase();
+        return haystack.includes(q);
+      });
+  }, [currentUser.id, searchQuery]);
 
   // Filter activities
   const filteredIntents = useMemo(() => {
-    return activityIntents.filter((intent) => intent.userId !== currentUser.id);
-  }, [currentUser.id, activityIntents]);
+    const q = searchQuery.trim().toLowerCase();
+    return activityIntents
+      .filter((intent) => intent.userId !== currentUser.id)
+      .filter((intent) => {
+        if (!q) return true;
+        const haystack = [
+          intent.title,
+          intent.description,
+          intent.userName,
+          intent.campusLocation ?? '',
+          ...(intent.scheduledTimes ?? []),
+        ]
+          .join(' ')
+          .toLowerCase();
+        return haystack.includes(q);
+      });
+  }, [currentUser.id, activityIntents, searchQuery]);
 
   const openConnectModal = (user: User) => {
     setPendingConnectUser(user);
@@ -184,6 +215,37 @@ export function BrowseScreen({
             Activities
           </Text>
         </TouchableOpacity>
+      </View>
+
+      {/* Search Bar */}
+      <View style={styles.searchBar}>
+        <Ionicons name="search-outline" size={18} color={colors.textSecondary} />
+        <TextInput
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder={
+            browseCategory === 'students'
+              ? 'Search students by name, skills, tags, location'
+              : 'Search activities by title, description, host, location'
+          }
+          placeholderTextColor={colors.textMuted}
+          style={styles.searchInput}
+          returnKeyType="search"
+          onSubmitEditing={Keyboard.dismiss}
+        />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity
+            onPress={() => setSearchQuery('')}
+            hitSlop={{
+              top: 8,
+              bottom: 8,
+              left: 8,
+              right: 8,
+            }}
+          >
+            <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Content */}
@@ -338,6 +400,25 @@ const styles = StyleSheet.create({
     ...typography.bodySmall,
     color: colors.textSecondary,
     marginBottom: spacing.md,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.card,
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.sm,
+    borderRadius: 8,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  searchInput: {
+    flex: 1,
+    ...typography.bodySmall,
+    color: colors.text,
+    paddingVertical: spacing.sm,
   },
   emptyState: {
     alignItems: 'center',
