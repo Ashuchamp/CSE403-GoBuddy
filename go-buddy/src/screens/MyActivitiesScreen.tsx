@@ -154,7 +154,8 @@ export function MyActivitiesScreen({
       activityId: 'demo-activity-3',
       userId: '11',
       userName: 'Chris Davis',
-      userBio: 'Math major who loves problem-solving and rock climbing. Looking for study partners!',
+      userBio:
+        'Math major who loves problem-solving and rock climbing. Looking for study partners!',
       userSkills: ['Calculus', 'Linear Algebra', 'Proof Writing'],
       status: 'approved',
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 76).toISOString(),
@@ -352,8 +353,7 @@ export function MyActivitiesScreen({
       (r) => r.activityId === item.id && r.status === 'approved',
     );
     // Only show "new" badge for active activities
-    const hasNewRequests =
-      latest.status === 'active' && requestsForActivity.length > 0;
+    const hasNewRequests = latest.status === 'active' && requestsForActivity.length > 0;
 
     return (
       <TouchableOpacity onPress={() => setSelectedActivity(latest)} activeOpacity={0.7}>

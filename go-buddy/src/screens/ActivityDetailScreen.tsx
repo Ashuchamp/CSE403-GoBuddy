@@ -239,13 +239,11 @@ export function ActivityDetailScreen({
         <Card style={styles.card}>
           <View style={styles.cardHeader}>
             <Text style={styles.sectionTitle}>Activity Details</Text>
-            {!isEditing &&
-              activity.status !== 'completed' &&
-              activity.status !== 'cancelled' && (
-                <TouchableOpacity onPress={() => setIsEditing(true)}>
-                  <Ionicons name="pencil" size={20} color={colors.primary} />
-                </TouchableOpacity>
-              )}
+            {!isEditing && activity.status !== 'completed' && activity.status !== 'cancelled' && (
+              <TouchableOpacity onPress={() => setIsEditing(true)}>
+                <Ionicons name="pencil" size={20} color={colors.primary} />
+              </TouchableOpacity>
+            )}
           </View>
 
           {isEditing ? (
