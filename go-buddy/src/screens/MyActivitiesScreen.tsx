@@ -71,8 +71,8 @@ export function MyActivitiesScreen({
       userName: currentUser.name,
       title: 'Morning Run Club',
       description: 'Easy 5K around campus. All paces welcome.',
-      maxPeople: 8,
-      currentPeople: 3,
+      maxPeople: 2,
+      currentPeople: 1,
       scheduledTimes: ['Sat 8-9am'],
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
       campusLocation: 'Husky Stadium',
@@ -106,6 +106,70 @@ export function MyActivitiesScreen({
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 96).toISOString(),
       campusLocation: 'IMA Courts',
       status: 'cancelled',
+    },
+  ];
+
+  // Demo approved requests for organizing activities
+  const demoOrganizingRequests: ActivityRequest[] = [
+    // Participant for Stats Study Group (1 approved + 1 organizer = 2 current)
+    {
+      id: 'demo-organizing-req-1',
+      activityId: 'demo-activity-1',
+      userId: '4',
+      userName: 'Emily Park',
+      userBio:
+        'Psychology major interested in research and coffee chats. Looking for study buddies for stats!',
+      userSkills: ['SPSS', 'Research Methods', 'Data Analysis'],
+      status: 'approved',
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+    },
+  ];
+
+  // Demo approved requests for completed activities
+  const demoCompletedRequests: ActivityRequest[] = [
+    // Participants for CSE 142 Practice Session (4 approved + 1 organizer = 5 total)
+    {
+      id: 'demo-completed-req-1',
+      activityId: 'demo-activity-3',
+      userId: '3',
+      userName: 'Mike Chen',
+      userBio: 'CSE major who loves basketball and coding. Always down to work on side projects!',
+      userSkills: ['Java', 'C++', 'Machine Learning', 'iOS Development'],
+      status: 'approved',
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 80).toISOString(),
+    },
+    {
+      id: 'demo-completed-req-2',
+      activityId: 'demo-activity-3',
+      userId: '4',
+      userName: 'Emily Park',
+      userBio:
+        'Psychology major interested in research and coffee chats. Looking for study buddies for stats!',
+      userSkills: ['SPSS', 'Research Methods', 'Data Analysis'],
+      status: 'approved',
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 78).toISOString(),
+    },
+    {
+      id: 'demo-completed-req-3',
+      activityId: 'demo-activity-3',
+      userId: '11',
+      userName: 'Chris Davis',
+      userBio:
+        'Math major who loves problem-solving and rock climbing. Looking for study partners!',
+      userSkills: ['Calculus', 'Linear Algebra', 'Proof Writing'],
+      status: 'approved',
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 76).toISOString(),
+    },
+    {
+      id: 'demo-completed-req-4',
+      activityId: 'demo-activity-3',
+      userId: '7',
+      userName: 'David Nguyen',
+      userBio:
+        'Pre-med studying hard! Looking for study partners for organic chem and fellow gym-goers.',
+      userSkills: ['Chemistry', 'Biology', 'MCAT Prep'],
+      status: 'approved',
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 74).toISOString(),
     },
   ];
 
@@ -183,7 +247,12 @@ export function MyActivitiesScreen({
         },
       ];
 
-  const effectiveActivityRequests: ActivityRequest[] = [...baseRequests, ...seedParticipating];
+  const effectiveActivityRequests: ActivityRequest[] = [
+    ...baseRequests,
+    ...seedParticipating,
+    ...demoOrganizingRequests,
+    ...demoCompletedRequests,
+  ];
   const [viewMode, setViewMode] = useState<ViewMode>('organizing');
   const [participatingFilter, setParticipatingFilter] = useState<ParticipatingFilter>('pending');
   const [selectedActivity, setSelectedActivity] = useState<ActivityIntent | null>(null);
@@ -277,13 +346,14 @@ export function MyActivitiesScreen({
   const renderOrganizingActivityCard = ({item}: {item: ActivityIntent}) => {
     const fromApp = activityIntents.find((a) => a.id === item.id);
     const latest = fromApp || effectiveActivityIntents.find((a) => a.id === item.id) || item;
-    const requestsForActivity = activityRequests.filter(
+    const requestsForActivity = effectiveActivityRequests.filter(
       (r) => r.activityId === item.id && r.status === 'pending',
     );
-    const approvedRequests = activityRequests.filter(
+    const approvedRequests = effectiveActivityRequests.filter(
       (r) => r.activityId === item.id && r.status === 'approved',
     );
-    const hasNewRequests = requestsForActivity.length > 0;
+    // Only show "new" badge for active activities
+    const hasNewRequests = latest.status === 'active' && requestsForActivity.length > 0;
 
     return (
       <TouchableOpacity onPress={() => setSelectedActivity(latest)} activeOpacity={0.7}>
@@ -578,7 +648,7 @@ export function MyActivitiesScreen({
         </ScrollView>
       ) : viewMode === 'organizing' ? (
         <View style={styles.listContainer}>
-          {/* Active/Completed Toggle */}
+          {/* Active/Inactive Toggle */}
           <View style={styles.subFilter}>
             <View style={styles.filterToggle}>
               <TouchableOpacity
@@ -612,14 +682,14 @@ export function MyActivitiesScreen({
                 onPress={() => setShowCompleted(true)}
               >
                 <Ionicons
-                  name="checkmark-circle-outline"
+                  name="archive-outline"
                   size={16}
                   color={showCompleted ? '#FFFFFF' : colors.textSecondary}
                 />
                 <Text
                   style={[styles.filterToggleText, showCompleted && styles.filterToggleTextActive]}
                 >
-                  Completed
+                  Inactive
                 </Text>
                 <View style={[styles.countBadge, showCompleted && styles.countBadgeActive]}>
                   <Text style={[styles.countText, showCompleted && styles.countTextActive]}>
@@ -644,11 +714,11 @@ export function MyActivitiesScreen({
               <View style={styles.emptyState}>
                 <Ionicons name="calendar-outline" size={64} color={colors.textMuted} />
                 <Text style={styles.emptyText}>
-                  {showCompleted ? 'No completed activities' : 'No activities yet'}
+                  {showCompleted ? 'No inactive activities' : 'No activities yet'}
                 </Text>
                 <Text style={styles.emptySubtext}>
                   {showCompleted
-                    ? 'Completed activities will appear here'
+                    ? 'Completed or cancelled activities will appear here'
                     : 'Create a new activity to get started'}
                 </Text>
               </View>
