@@ -36,7 +36,7 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
   const handleAuthSuccess = async (accessToken: string) => {
     try {
       const userInfo = await getUserInfo(accessToken);
-      
+
       // Validate UW email domain
       if (!userInfo.email.endsWith('@uw.edu')) {
         Alert.alert(

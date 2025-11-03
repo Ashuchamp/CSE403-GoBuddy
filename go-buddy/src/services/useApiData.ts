@@ -108,7 +108,7 @@ export function useActivities(currentUser: User | null) {
     [currentUser],
   );
 
-  const updateActivity = useCallback(async (activityId: string, updates: Partial<ActivityIntent>) => {
+  const updateActivity = useCallback(async (activityId: string, updates: Partial<ActivityIntent>)=>{
     try {
       const updated = await api.activities.update(activityId, updates);
       if (updated) {

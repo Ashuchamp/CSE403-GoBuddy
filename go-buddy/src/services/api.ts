@@ -9,13 +9,14 @@ import {User, ActivityIntent, ActivityRequest} from '../types';
 // For iOS simulator: use localhost
 // For Android emulator: use 10.0.2.2
 // For physical device: use your computer's IP address
-const getBaseUrl = () => {
-  // You can set this in .env or hardcode for now
-  const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api';
-  return API_URL;
-};
+// const getBaseUrl = () => {
+//   // You can set this in .env or hardcode for now
+//   const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api';
+//   return API_URL;
+// };
 
-const API_BASE_URL = 'http://10.19.23.123:3000/api'
+// const API_BASE_URL = getBaseUrl();
+const API_BASE_URL = 'http://10.19.23.123:3000/api';
 // LOOK HERE TO CHANGE TO URL OF YOUR MACHINE
 
 interface ApiResponse<T> {

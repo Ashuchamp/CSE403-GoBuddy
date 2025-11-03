@@ -17,13 +17,13 @@ export interface GoogleUserInfo {
 export const useGoogleAuth = () => {
   // Get iOS client ID from environment
   const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || '';
-  
+
   // Create the reversed client ID for iOS URL scheme
   // Format: com.googleusercontent.apps.{CLIENT_ID}
   const reversedClientId = iosClientId.split('.').reverse().join('.');
-  
+
   // Use the proper redirect URI for iOS
-  const redirectUri = Platform.OS === 'ios' 
+  const redirectUri = Platform.OS === 'ios'
     ? `${reversedClientId}:/oauth2redirect/google`
     : undefined; // Let expo-auth-session handle it for other platforms
 

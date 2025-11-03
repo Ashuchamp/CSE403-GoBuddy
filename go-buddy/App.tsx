@@ -41,7 +41,7 @@ export default function App() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
+
         // Fetch activities and requests
         const [activities, userRequests] = await Promise.all([
           api.activities.getAll(),

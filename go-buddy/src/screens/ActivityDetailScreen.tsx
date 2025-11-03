@@ -38,7 +38,7 @@ export function ActivityDetailScreen({
   const [editedScheduledTimes, setEditedScheduledTimes] = useState(activity.scheduledTimes);
   const [editedLocation, setEditedLocation] = useState(activity.campusLocation || '');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [selectedUserShowContact, setSelectedUserShowContact] = useState(false);
+  const [selectedUserShowContact] = useState(false);
   const [approvedCountLocal, setApprovedCountLocal] = useState(0);
   const [maxPeopleLocal, setMaxPeopleLocal] = useState(activity.maxPeople);
 

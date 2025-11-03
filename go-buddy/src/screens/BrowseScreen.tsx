@@ -56,6 +56,9 @@ export function BrowseScreen({
   const [searchQuery, setSearchQuery] = useState('');
   const [users, setUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
+  if (loadingUsers) {
+    console.log('Loading users...');
+  }
 
   // Fetch users from API
   useEffect(() => {
