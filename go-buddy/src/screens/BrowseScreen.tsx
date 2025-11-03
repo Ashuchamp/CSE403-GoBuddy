@@ -1,4 +1,4 @@
-import React, {useState, useMemo} from 'react';
+import React, {useState, useMemo, useEffect} from 'react';
 import {
   View,
   Text,
@@ -12,12 +12,12 @@ import {
 } from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {User, ActivityIntent, ActivityRequest} from '../types';
-import {mockUsers} from '../data/mockUsers';
 import {UserCard} from '../components/UserCard';
 import {ActivityCard} from '../components/ActivityCard';
 import {ActivityDetailModal} from '../components/ActivityDetailModal';
 import {UserProfileModal} from '../components/UserProfileModal';
 import {colors, spacing, typography} from '../theme';
+import api from '../services/api';
 import {
   addSentRequest,
   getSentRequests,
@@ -54,6 +54,26 @@ export function BrowseScreen({
   const [sentToUserIds, setSentToUserIds] = useState<Set<string>>(new Set());
   const [connectedUserIds, setConnectedUserIds] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
+  const [users, setUsers] = useState<User[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(true);
+
+  // Fetch users from API
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoadingUsers(true);
+      try {
+        const allUsers = await api.users.getAll();
+        setUsers(allUsers);
+      } catch (error) {
+        console.error('Failed to fetch users:', error);
+        setUsers([]);
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   React.useEffect(() => {
     const initial = new Set(getSentRequests().map((r) => r.to.id));
@@ -80,7 +100,7 @@ export function BrowseScreen({
   // Filter users
   const filteredUsers = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    return mockUsers
+    return users
       .filter((user) => user.id !== currentUser.id)
       .filter((user) => {
         if (!q) return true;
@@ -95,7 +115,7 @@ export function BrowseScreen({
           .toLowerCase();
         return haystack.includes(q);
       });
-  }, [currentUser.id, searchQuery]);
+  }, [currentUser.id, searchQuery, users]);
 
   // User's participating requests (mocked for demo)
   const myRequestsByActivity = useMemo(() => {

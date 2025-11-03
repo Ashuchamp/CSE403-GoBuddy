@@ -27,9 +27,11 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>com.googleusercontent.apps.353229046135-53diq1mhgnlimc4rsqnmqgnmfmgngn9</string>
+          <string>com.googleusercontent.apps.353229046135-c1cq6bijclsnk1tdsjf520od87idhgma</string>
           <string>com.yourcompany.gobuddy</string>
         </array>
+        <key>CFBundleURLName</key>
+        <string>com.yourcompany.gobuddy</string>
       </dict>
     </array>
     <key>CFBundleVersion</key>

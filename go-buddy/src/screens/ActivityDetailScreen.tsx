@@ -2,7 +2,6 @@ import React, {useState, useEffect} from 'react';
 import {View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {ActivityIntent, ActivityRequest, User} from '../types';
-import {mockUsers} from '../data/mockUsers';
 import {Input} from '../components/Input';
 import {Button} from '../components/Button';
 import {Card} from '../components/Card';
@@ -308,18 +307,9 @@ export function ActivityDetailScreen({
             </View>
 
             {pendingRequests.map((request) => {
-              const userData = mockUsers.find((user) => user.id === request.userId);
-
               return (
                 <View key={request.id} style={styles.requestCard}>
-                  <TouchableOpacity
-                    style={styles.requestHeader}
-                    onPress={() => {
-                      setSelectedUser(userData || null);
-                      setSelectedUserShowContact(false);
-                    }}
-                    activeOpacity={0.7}
-                  >
+                  <View style={styles.requestHeader}>
                     <View style={styles.requestInfo}>
                       <Text style={styles.requestName}>{request.userName}</Text>
                       <Text style={styles.requestBio} numberOfLines={2}>
@@ -335,8 +325,7 @@ export function ActivityDetailScreen({
                         </View>
                       )}
                     </View>
-                    <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
-                  </TouchableOpacity>
+                  </View>
                   <View style={styles.requestActions}>
                     <Button
                       variant="outline"
@@ -400,21 +389,8 @@ export function ActivityDetailScreen({
           </View>
 
           {approvedRequests.map((request) => {
-            // Get user data for contact information
-            const userData = mockUsers.find((user) => user.id === request.userId);
-
             return (
-              <TouchableOpacity
-                key={request.id}
-                style={styles.participantCard}
-                activeOpacity={0.7}
-                onPress={() => {
-                  if (userData) {
-                    setSelectedUser(userData);
-                    setSelectedUserShowContact(true);
-                  }
-                }}
-              >
+              <View key={request.id} style={styles.participantCard}>
                 <View style={styles.participantInfo}>
                   <View style={styles.avatar}>
                     <Text style={styles.avatarText}>{request.userName.charAt(0)}</Text>
@@ -425,9 +401,8 @@ export function ActivityDetailScreen({
                       {request.userBio}
                     </Text>
                   </View>
-                  <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
                 </View>
-              </TouchableOpacity>
+              </View>
             );
           })}
         </Card>

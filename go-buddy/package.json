@@ -15,7 +15,8 @@
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json}\"",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "verify-google-auth": "./scripts/verify-google-auth.sh"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",

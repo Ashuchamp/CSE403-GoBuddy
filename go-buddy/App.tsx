@@ -2,80 +2,68 @@ import React, {useState, useEffect} from 'react';
 import {StatusBar} from 'expo-status-bar';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {NavigationContainer} from '@react-navigation/native';
+import {View, Text, ActivityIndicator, StyleSheet, Alert} from 'react-native';
 import {User, ActivityIntent, ActivityRequest} from './src/types';
 import {AuthScreen} from './src/screens/AuthScreen';
 import {AppNavigator} from './src/navigation/AppNavigator';
-import {mockActivityIntents} from './src/data/mockActivityIntents';
-import {mockActivityRequests} from './src/data/mockActivityRequests';
+import api from './src/services/api';
+import {colors, typography, spacing} from './src/theme';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [activityIntents, setActivityIntents] = useState<ActivityIntent[]>(
-    mockActivityIntents,
-  );
-  const [activityRequests, setActivityRequests] = useState<ActivityRequest[]>(mockActivityRequests);
+  const [activityIntents, setActivityIntents] = useState<ActivityIntent[]>([]);
+  const [activityRequests, setActivityRequests] = useState<ActivityRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [backendConnected, setBackendConnected] = useState(false);
 
-  // Add demo activities when user logs in
+  // Check backend connection and load initial data
   useEffect(() => {
-    if (currentUser && currentUser.id === '1') {
-      setActivityIntents((prevIntents) => {
-        // Check if demo activities already exist
-        const hasDemoActivities = prevIntents.some((a) => a.id.startsWith('demo-activity-'));
+    const checkBackend = async () => {
+      try {
+        await api.health();
+        setBackendConnected(true);
+        console.log('✅ Backend connected successfully');
+      } catch (error) {
+        console.error('❌ Backend not available. Please ensure the backend server is running.');
+        setBackendConnected(false);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-        if (!hasDemoActivities) {
-          const demoActivities: ActivityIntent[] = [
-            {
-              id: 'demo-activity-1',
-              userId: '1',
-              userName: currentUser.name,
-              title: 'Weekend Study Group',
-              description: 'Looking for people to study together for upcoming midterms. All majors welcome!',
-              maxPeople: 6,
-              currentPeople: 2, // 1 (you) + 1 approved
-              scheduledTimes: ['Saturday 2:00 PM', 'Sunday 3:00 PM'],
-              createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
-              campusLocation: 'Suzzallo Library',
-              status: 'active',
-            },
-            {
-              id: 'demo-activity-2',
-              userId: '1',
-              userName: currentUser.name,
-              title: 'Morning Jogging Group',
-              description: 'Early morning jog around campus. Great way to start the day!',
-              maxPeople: 8,
-              currentPeople: 1,
-              scheduledTimes: ['Monday 7:00 AM', 'Wednesday 7:00 AM', 'Friday 7:00 AM'],
-              createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
-              campusLocation: 'Red Square',
-              status: 'active',
-            },
-          ];
+    checkBackend();
+  }, []);
 
-          return [...demoActivities, ...prevIntents];
-        }
-        return prevIntents;
-      });
-    }
-  }, [currentUser]);
-
-  // Normalize mock requests to the logged-in user once
+  // Fetch data from backend when user logs in
   useEffect(() => {
-    if (!currentUser) return;
-    setActivityRequests((prev) => {
-      const hasDemoUser = prev.some((r) => r.userId === '1');
-      if (!hasDemoUser) return prev;
-      return prev.map((r) =>
-        r.userId === '1'
-          ? {
-              ...r,
-              userId: currentUser.id,
-              userName: currentUser.name,
-            }
-          : r,
-      );
-    });
-  }, [currentUser]);
+    if (!currentUser || !backendConnected) return;
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch activities and requests
+        const [activities, userRequests] = await Promise.all([
+          api.activities.getAll(),
+          api.requests.getByUserId(currentUser.id),
+        ]);
+
+        setActivityIntents(activities);
+        setActivityRequests(userRequests);
+
+        console.log(`✅ Loaded ${activities.length} activities and ${userRequests.length} requests`);
+      } catch (error) {
+        console.error('Failed to fetch data from backend:', error);
+        // Keep empty arrays - no fallback to mock data
+        setActivityIntents([]);
+        setActivityRequests([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [currentUser, backendConnected]);
 
   const handleLogout = () => {
     setCurrentUser(null);
@@ -85,52 +73,68 @@ export default function App() {
     setCurrentUser(updatedUser);
   };
 
-  const handleCreateActivity = (
+  const handleCreateActivity = async (
     activity: Omit<ActivityIntent, 'id' | 'userId' | 'userName' | 'createdAt'>,
   ) => {
-    const newActivity: ActivityIntent = {
-      ...activity,
-      id: Date.now().toString(),
-      userId: currentUser!.id,
-      userName: currentUser!.name,
-      createdAt: new Date().toISOString(),
-      status: 'active',
-    };
-    setActivityIntents((prev) => [newActivity, ...prev]);
-  };
+    if (!currentUser) return;
 
-  const handleUpdateActivity = (activityId: string, updates: Partial<ActivityIntent>) => {
-    const exists = activityIntents.some((a) => a.id === activityId);
-    if (!exists) {
-      // Insert a new activity with the SAME id so existing requests keep working
-      const fallback: ActivityIntent = {
-        id: activityId,
-        userId: currentUser!.id,
-        userName: currentUser!.name,
-        title: updates.title ?? 'Untitled Activity',
-        description: updates.description ?? '',
-        maxPeople: updates.maxPeople ?? 4,
-        currentPeople: 1,
-        scheduledTimes: updates.scheduledTimes ?? [],
-        createdAt: new Date().toISOString(),
-        campusLocation: updates.campusLocation,
-        status: updates.status ?? 'active',
-      };
-      setActivityIntents((prev) => [fallback, ...prev]);
+    if (!backendConnected) {
+      Alert.alert('Error', 'Backend is not connected. Please ensure the server is running.');
       return;
     }
-    setActivityIntents((prev) =>
-      prev.map((activity) => (activity.id === activityId ? {...activity, ...updates} : activity)),
-    );
+
+    try {
+      const newActivity = await api.activities.create({
+        ...activity,
+        userId: currentUser.id,
+        userName: currentUser.name,
+      });
+
+      if (newActivity) {
+        setActivityIntents((prev) => [newActivity, ...prev]);
+      }
+    } catch (error) {
+      console.error('Failed to create activity:', error);
+      Alert.alert('Error', 'Failed to create activity. Please try again.');
+    }
   };
 
-  const handleDeleteActivity = (activityId: string) => {
-    setActivityIntents(activityIntents.filter((activity) => activity.id !== activityId));
-    // Also delete all requests for this activity
-    setActivityRequests(activityRequests.filter((request) => request.activityId !== activityId));
+  const handleUpdateActivity = async (activityId: string, updates: Partial<ActivityIntent>) => {
+    if (!backendConnected) {
+      Alert.alert('Error', 'Backend is not connected. Please ensure the server is running.');
+      return;
+    }
+
+    try {
+      const updated = await api.activities.update(activityId, updates);
+      if (updated) {
+        setActivityIntents((prev) =>
+          prev.map((activity) => (activity.id === activityId ? updated : activity)),
+        );
+      }
+    } catch (error) {
+      console.error('Failed to update activity:', error);
+      Alert.alert('Error', 'Failed to update activity. Please try again.');
+    }
   };
 
-  const handleJoinActivity = (activityId: string) => {
+  const handleDeleteActivity = async (activityId: string) => {
+    if (!backendConnected) {
+      Alert.alert('Error', 'Backend is not connected. Please ensure the server is running.');
+      return;
+    }
+
+    try {
+      await api.activities.delete(activityId);
+      setActivityIntents((prev) => prev.filter((activity) => activity.id !== activityId));
+      setActivityRequests((prev) => prev.filter((request) => request.activityId !== activityId));
+    } catch (error) {
+      console.error('Failed to delete activity:', error);
+      Alert.alert('Error', 'Failed to delete activity. Please try again.');
+    }
+  };
+
+  const handleJoinActivity = async (activityId: string) => {
     const activity = activityIntents.find((a) => a.id === activityId);
     if (!activity || !currentUser) return;
 
@@ -142,49 +146,92 @@ export default function App() {
       return; // Already requested
     }
 
-    const newRequest: ActivityRequest = {
-      id: Date.now().toString(),
-      activityId,
-      userId: currentUser.id,
-      userName: currentUser.name,
-      userBio: currentUser.bio,
-      userSkills: currentUser.skills,
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-    };
-    setActivityRequests([...activityRequests, newRequest]);
+    if (!backendConnected) {
+      Alert.alert('Error', 'Backend is not connected. Please ensure the server is running.');
+      return;
+    }
+
+    try {
+      const newRequest = await api.requests.create({
+        activityId,
+        userId: currentUser.id,
+        userName: currentUser.name,
+        userBio: currentUser.bio,
+        userSkills: currentUser.skills,
+      });
+
+      if (newRequest) {
+        setActivityRequests((prev) => [...prev, newRequest]);
+      }
+    } catch (error) {
+      console.error('Failed to join activity:', error);
+      Alert.alert('Error', 'Failed to join activity. Please try again.');
+    }
   };
 
-  const handleApproveRequest = (requestId: string) => {
+  const handleApproveRequest = async (requestId: string) => {
     const request = activityRequests.find((r) => r.id === requestId);
     if (!request) return;
 
-    // Update request status
-    setActivityRequests((prev) =>
-      prev.map((r) => (r.id === requestId ? {...r, status: 'approved' as const} : r)),
-    );
+    if (!backendConnected) {
+      Alert.alert('Error', 'Backend is not connected. Please ensure the server is running.');
+      return;
+    }
 
-    // Increment activity's current people count
-    setActivityIntents((prev) =>
-      prev.map((activity) =>
-        activity.id === request.activityId
-          ? {...activity, currentPeople: activity.currentPeople + 1}
-          : activity,
-      ),
-    );
+    try {
+      const updated = await api.requests.updateStatus(requestId, 'approved');
+      if (updated) {
+        setActivityRequests((prev) =>
+          prev.map((r) => (r.id === requestId ? updated : r)),
+        );
+
+        // Refresh the activity to get updated currentPeople count from backend
+        const activity = await api.activities.getById(request.activityId);
+        if (activity) {
+          setActivityIntents((prev) =>
+            prev.map((a) => (a.id === request.activityId ? activity : a)),
+          );
+        }
+      }
+    } catch (error) {
+      console.error('Failed to approve request:', error);
+      Alert.alert('Error', 'Failed to approve request. Please try again.');
+    }
   };
 
-  const handleDeclineRequest = (requestId: string) => {
-    setActivityRequests(
-      activityRequests.map((r) =>
-        r.id === requestId ? {...r, status: 'declined' as const} : r,
-      ),
-    );
+  const handleDeclineRequest = async (requestId: string) => {
+    if (!backendConnected) {
+      Alert.alert('Error', 'Backend is not connected. Please ensure the server is running.');
+      return;
+    }
+
+    try {
+      const updated = await api.requests.updateStatus(requestId, 'declined');
+      if (updated) {
+        setActivityRequests((prev) =>
+          prev.map((r) => (r.id === requestId ? updated : r)),
+        );
+      }
+    } catch (error) {
+      console.error('Failed to decline request:', error);
+      Alert.alert('Error', 'Failed to decline request. Please try again.');
+    }
   };
 
   const handleConnectRequest = (_userId: string) => {
     // Connection request sent - no popup needed as button provides visual feedback
   };
+
+  if (loading && !currentUser) {
+    return (
+      <SafeAreaProvider>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+      </SafeAreaProvider>
+    );
+  }
 
   return (
     <SafeAreaProvider>
@@ -212,4 +259,18 @@ export default function App() {
     </SafeAreaProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.background,
+  },
+  loadingText: {
+    ...typography.body,
+    color: colors.textSecondary,
+    marginTop: spacing.md,
+  },
+});
 
