@@ -106,7 +106,7 @@ export function ActivityDetailScreen({
   const handleMarkComplete = () => {
     Alert.alert(
       'Mark as Complete',
-      'Are you sure you want to mark this activity as complete? It will move to inactive.',
+      'Are you sure you want to mark this activity as complete? It will move to the completed section.',
       [
         {text: 'Cancel', style: 'cancel'},
         {
@@ -124,6 +124,35 @@ export function ActivityDetailScreen({
               campusLocation: activity.campusLocation,
             });
             Alert.alert('Success', 'Activity marked as complete!');
+            onClose();
+          },
+        },
+      ],
+    );
+  };
+
+  const handleCancelActivity = () => {
+    Alert.alert(
+      'Cancel Activity',
+      'Are you sure you want to cancel this activity? It will move to the completed section and all pending requests will be declined.',
+      [
+        {text: 'No', style: 'cancel'},
+        {
+          text: 'Yes, Cancel',
+          style: 'destructive',
+          onPress: () => {
+            // Decline all remaining pending requests
+            pendingRequests.forEach((r) => onDeclineRequest(r.id));
+            // Send full payload so app can insert/update without losing details
+            onUpdateActivity(activity.id, {
+              status: 'cancelled',
+              title: activity.title,
+              description: activity.description,
+              maxPeople: activity.maxPeople,
+              scheduledTimes: activity.scheduledTimes,
+              campusLocation: activity.campusLocation,
+            });
+            Alert.alert('Activity Cancelled', 'The activity has been cancelled.');
             onClose();
           },
         },
@@ -158,7 +187,15 @@ export function ActivityDetailScreen({
         {
           text: 'Increase & Approve',
           onPress: () => {
-            onUpdateActivity(activity.id, {maxPeople: maxPeopleLocal + 1});
+            // Send full payload to ensure all activity details are preserved
+            onUpdateActivity(activity.id, {
+              maxPeople: maxPeopleLocal + 1,
+              title: activity.title,
+              description: activity.description,
+              scheduledTimes: activity.scheduledTimes,
+              campusLocation: activity.campusLocation,
+              status: activity.status,
+            });
             onApproveRequest(request.id);
             setApprovedCountLocal((c) => c + 1);
             setMaxPeopleLocal((m) => m + 1);
@@ -201,7 +238,7 @@ export function ActivityDetailScreen({
         <Card style={styles.card}>
           <View style={styles.cardHeader}>
             <Text style={styles.sectionTitle}>Activity Details</Text>
-            {!isEditing && (
+            {!isEditing && activity.status !== 'completed' && activity.status !== 'cancelled' && (
               <TouchableOpacity onPress={() => setIsEditing(true)}>
                 <Ionicons name="pencil" size={20} color={colors.primary} />
               </TouchableOpacity>
@@ -264,7 +301,17 @@ export function ActivityDetailScreen({
             </View>
           ) : (
             <View>
-              <Text style={styles.activityTitle}>{activity.title}</Text>
+              <View style={styles.titleRow}>
+                <Text style={styles.activityTitle}>{activity.title}</Text>
+                {(activity.status === 'completed' || activity.status === 'cancelled') && (
+                  <Badge
+                    variant={activity.status === 'completed' ? 'success' : 'destructive'}
+                    style={styles.statusBadge}
+                  >
+                    {activity.status.charAt(0).toUpperCase() + activity.status.slice(1)}
+                  </Badge>
+                )}
+              </View>
               <Text style={styles.activityDescription}>{activity.description}</Text>
 
               <View style={styles.infoRow}>
@@ -298,8 +345,8 @@ export function ActivityDetailScreen({
           )}
         </Card>
 
-        {/* Pending Requests */}
-        {pendingRequests.length > 0 && activity.status !== 'completed' && (
+        {/* Pending Requests - Only show for active activities */}
+        {activity.status === 'active' && pendingRequests.length > 0 && (
           <Card style={styles.card}>
             <View style={styles.cardHeader}>
               <Text style={styles.sectionTitle}>Pending Requests</Text>
@@ -364,26 +411,6 @@ export function ActivityDetailScreen({
                 <Badge variant="primary" style={styles.organizerBadge}>
                   Organizer
                 </Badge>
-                {/* Show organizer's contact information */}
-                {(currentUser.phone || currentUser.instagram) && (
-                  <View style={styles.contactContainer}>
-                    <Text style={styles.contactLabel}>Your Contact Information</Text>
-                    <View style={styles.contactWrapper}>
-                      {currentUser.phone && (
-                        <View style={styles.contactItem}>
-                          <Ionicons name="call-outline" size={14} color={colors.textSecondary} />
-                          <Text style={styles.contactText}>{currentUser.phone}</Text>
-                        </View>
-                      )}
-                      {currentUser.instagram && (
-                        <View style={styles.contactItem}>
-                          <Ionicons name="logo-instagram" size={14} color={colors.textSecondary} />
-                          <Text style={styles.contactText}>{currentUser.instagram}</Text>
-                        </View>
-                      )}
-                    </View>
-                  </View>
-                )}
               </View>
             </View>
           </View>
@@ -411,26 +438,39 @@ export function ActivityDetailScreen({
         <Card style={styles.card}>
           <Text style={styles.sectionTitle}>Actions</Text>
 
-          <Button
-            variant="outline"
-            onPress={handleMarkComplete}
-            disabled={activity.status === 'completed' || activity.status === 'cancelled'}
-            fullWidth
-            style={styles.actionButton}
-          >
-            <Ionicons name="checkmark-circle-outline" size={20} color={colors.text} />
-            <Text style={styles.actionButtonText}>Mark as Complete</Text>
-          </Button>
+          {activity.status === 'active' ? (
+            <>
+              <Button
+                variant="outline"
+                onPress={handleMarkComplete}
+                fullWidth
+                style={styles.actionButton}
+              >
+                <Ionicons name="checkmark-circle-outline" size={20} color={colors.text} />
+                <Text style={styles.actionButtonText}>Mark as Complete</Text>
+              </Button>
 
-          <Button
-            variant="destructive"
-            onPress={handleDelete}
-            fullWidth
-            style={styles.actionButton}
-          >
-            <Ionicons name="trash-outline" size={20} color="#fff" />
-            <Text style={[styles.actionButtonText, {color: '#fff'}]}>Delete Activity</Text>
-          </Button>
+              <Button
+                variant="destructive"
+                onPress={handleCancelActivity}
+                fullWidth
+                style={styles.actionButton}
+              >
+                <Ionicons name="close-circle-outline" size={20} color="#fff" />
+                <Text style={[styles.actionButtonText, {color: '#fff'}]}>Cancel Activity</Text>
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="destructive"
+              onPress={handleDelete}
+              fullWidth
+              style={styles.actionButton}
+            >
+              <Ionicons name="trash-outline" size={20} color="#fff" />
+              <Text style={[styles.actionButtonText, {color: '#fff'}]}>Delete Activity</Text>
+            </Button>
+          )}
         </Card>
       </ScrollView>
 
@@ -514,10 +554,19 @@ const styles = StyleSheet.create({
   halfButton: {
     flex: 1,
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.sm,
+  },
   activityTitle: {
     ...typography.h3,
     color: colors.text,
-    marginBottom: spacing.sm,
+    flex: 1,
+  },
+  statusBadge: {
+    marginLeft: spacing.sm,
   },
   activityDescription: {
     ...typography.body,

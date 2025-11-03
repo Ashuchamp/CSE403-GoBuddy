@@ -143,13 +143,14 @@ export function MyActivitiesScreen({
   const renderOrganizingActivityCard = ({item}: {item: ActivityIntent}) => {
     const fromApp = activityIntents.find((a) => a.id === item.id);
     const latest = fromApp || effectiveActivityIntents.find((a) => a.id === item.id) || item;
-    const requestsForActivity = activityRequests.filter(
+    const requestsForActivity = effectiveActivityRequests.filter(
       (r) => r.activityId === item.id && r.status === 'pending',
     );
-    const approvedRequests = activityRequests.filter(
+    const approvedRequests = effectiveActivityRequests.filter(
       (r) => r.activityId === item.id && r.status === 'approved',
     );
-    const hasNewRequests = requestsForActivity.length > 0;
+    // Only show "new" badge for active activities
+    const hasNewRequests = latest.status === 'active' && requestsForActivity.length > 0;
 
     return (
       <TouchableOpacity onPress={() => setSelectedActivity(latest)} activeOpacity={0.7}>
@@ -417,7 +418,7 @@ export function MyActivitiesScreen({
         </ScrollView>
       ) : viewMode === 'organizing' ? (
         <View style={styles.listContainer}>
-          {/* Active/Completed Toggle */}
+          {/* Active/Inactive Toggle */}
           <View style={styles.subFilter}>
             <View style={styles.filterToggle}>
               <TouchableOpacity
@@ -451,14 +452,14 @@ export function MyActivitiesScreen({
                 onPress={() => setShowCompleted(true)}
               >
                 <Ionicons
-                  name="checkmark-circle-outline"
+                  name="archive-outline"
                   size={16}
                   color={showCompleted ? '#FFFFFF' : colors.textSecondary}
                 />
                 <Text
                   style={[styles.filterToggleText, showCompleted && styles.filterToggleTextActive]}
                 >
-                  Completed
+                  Inactive
                 </Text>
                 <View style={[styles.countBadge, showCompleted && styles.countBadgeActive]}>
                   <Text style={[styles.countText, showCompleted && styles.countTextActive]}>
@@ -483,11 +484,11 @@ export function MyActivitiesScreen({
               <View style={styles.emptyState}>
                 <Ionicons name="calendar-outline" size={64} color={colors.textMuted} />
                 <Text style={styles.emptyText}>
-                  {showCompleted ? 'No completed activities' : 'No activities yet'}
+                  {showCompleted ? 'No inactive activities' : 'No activities yet'}
                 </Text>
                 <Text style={styles.emptySubtext}>
                   {showCompleted
-                    ? 'Completed activities will appear here'
+                    ? 'Completed or cancelled activities will appear here'
                     : 'Create a new activity to get started'}
                 </Text>
               </View>
