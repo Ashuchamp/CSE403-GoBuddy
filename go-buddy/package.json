@@ -15,7 +15,8 @@
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json}\"",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "verify-google-auth": "./scripts/verify-google-auth.sh"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
@@ -52,7 +53,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "jest": "^29.7.0",
     "jest-expo": "~54.0.13",
-    "prettier": "^3.2.5",
+    "prettier": "3.6.2",
     "react-test-renderer": "19.1.0",
     "typescript": "~5.9.2"
   },

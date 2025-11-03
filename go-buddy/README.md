@@ -17,6 +17,16 @@ A React Native mobile application for connecting students with shared interests 
 # Install dependencies
 npm install
 
+# Set up Google Authentication (REQUIRED for iOS)
+# See GOOGLE_AUTH_QUICKSTART.md for detailed instructions
+cp .env.example .env
+# Edit .env and add your Google OAuth credentials
+
+# Install iOS dependencies
+cd ios
+pod install
+cd ..
+
 # Start development server
 npm start
 
@@ -29,6 +39,30 @@ npm run android
 # Run on web
 npm run web
 ```
+
+## 🔐 Google Authentication Setup
+
+This app uses Google OAuth for authentication with UW email validation.
+
+### Quick Setup
+
+1. **Get OAuth Credentials** from [Google Cloud Console](https://console.cloud.google.com/)
+2. **Configure Environment**: Copy `.env.example` to `.env` and add your credentials
+3. **Update iOS Config**: Set the reversed client ID in `Info.plist`
+4. **Run Verification**: `./scripts/verify-google-auth.sh`
+
+📖 **Detailed Guides:**
+
+- [Quick Start Guide](./GOOGLE_AUTH_QUICKSTART.md) - Fast setup in 5 steps
+- [Complete Setup Guide](./GOOGLE_AUTH_SETUP.md) - Detailed instructions with troubleshooting
+
+### Features
+
+✅ Google OAuth 2.0 integration
+✅ UW email validation (`@uw.edu` only)
+✅ iOS-optimized authentication flow
+✅ Secure token handling
+✅ Error handling and user feedback
 
 ## 🧪 Testing
 
@@ -124,21 +158,21 @@ go-buddy/
 
 ## 📝 Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm start` | Start Expo development server |
-| `npm test` | Run tests once |
-| `npm run test:watch` | Run tests in watch mode |
-| `npm run test:coverage` | Generate coverage report |
-| `npm run test:ci` | Run tests in CI mode |
-| `npm run lint` | Run ESLint |
-| `npm run lint:fix` | Fix ESLint issues |
-| `npm run format` | Format code with Prettier |
-| `npm run format:check` | Check code formatting |
-| `npm run type-check` | Run TypeScript type checking |
-| `npm run ios` | Run on iOS simulator |
-| `npm run android` | Run on Android emulator |
-| `npm run web` | Run in web browser |
+| Script                  | Description                   |
+| ----------------------- | ----------------------------- |
+| `npm start`             | Start Expo development server |
+| `npm test`              | Run tests once                |
+| `npm run test:watch`    | Run tests in watch mode       |
+| `npm run test:coverage` | Generate coverage report      |
+| `npm run test:ci`       | Run tests in CI mode          |
+| `npm run lint`          | Run ESLint                    |
+| `npm run lint:fix`      | Fix ESLint issues             |
+| `npm run format`        | Format code with Prettier     |
+| `npm run format:check`  | Check code formatting         |
+| `npm run type-check`    | Run TypeScript type checking  |
+| `npm run ios`           | Run on iOS simulator          |
+| `npm run android`       | Run on Android emulator       |
+| `npm run web`           | Run in web browser            |
 
 ## 🔄 Continuous Integration
 
@@ -255,4 +289,3 @@ University of Washington - CSE 403 Team
 ---
 
 **Need help?** Check the documentation or contact the team!
-

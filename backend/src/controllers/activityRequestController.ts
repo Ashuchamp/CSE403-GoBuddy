@@ -1,0 +1,172 @@
+import { Request, Response } from 'express';
+import { ActivityRequest, Activity, User } from '../models';
+import { v4 as uuidv4 } from 'uuid';
+
+export const activityRequestController = {
+  // Get all requests for an activity
+  getRequestsByActivityId: async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { activityId } = req.params;
+
+      const requests = await ActivityRequest.findAll({
+        where: { activityId },
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'name', 'email', 'profilePicture', 'bio', 'skills'],
+          },
+        ],
+        order: [['createdAt', 'ASC']],
+      });
+
+      res.json({ success: true, data: requests });
+    } catch (error) {
+      console.error('Error fetching activity requests:', error);
+      res.status(500).json({ success: false, error: 'Failed to fetch activity requests' });
+    }
+  },
+
+  // Get all requests by a user
+  getRequestsByUserId: async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { userId } = req.params;
+
+      const requests = await ActivityRequest.findAll({
+        where: { userId },
+        include: [
+          {
+            model: Activity,
+            as: 'activity',
+          },
+        ],
+        order: [['createdAt', 'DESC']],
+      });
+
+      res.json({ success: true, data: requests });
+    } catch (error) {
+      console.error('Error fetching user requests:', error);
+      res.status(500).json({ success: false, error: 'Failed to fetch user requests' });
+    }
+  },
+
+  // Create a new join request
+  createRequest: async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { activityId, userId, userName, userBio, userSkills } = req.body;
+
+      // Validate required fields
+      if (!activityId || !userId || !userName) {
+        res.status(400).json({ success: false, error: 'Missing required fields' });
+        return;
+      }
+
+      // Check if activity exists
+      const activity = await Activity.findByPk(activityId);
+      if (!activity) {
+        res.status(404).json({ success: false, error: 'Activity not found' });
+        return;
+      }
+
+      // Check if activity is full
+      if (activity.currentPeople >= activity.maxPeople) {
+        res.status(400).json({ success: false, error: 'Activity is full' });
+        return;
+      }
+
+      // Check if user already requested
+      const existingRequest = await ActivityRequest.findOne({
+        where: { activityId, userId },
+      });
+
+      if (existingRequest) {
+        res.status(400).json({ success: false, error: 'Request already exists' });
+        return;
+      }
+
+      const request = await ActivityRequest.create({
+        id: uuidv4(),
+        activityId,
+        userId,
+        userName,
+        userBio: userBio || '',
+        userSkills: userSkills || [],
+        status: 'pending',
+      });
+
+      res.status(201).json({ success: true, data: request });
+    } catch (error) {
+      console.error('Error creating request:', error);
+      res.status(500).json({ success: false, error: 'Failed to create request' });
+    }
+  },
+
+  // Update request status (approve/decline)
+  updateRequestStatus: async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      if (!['approved', 'declined'].includes(status)) {
+        res.status(400).json({ success: false, error: 'Invalid status' });
+        return;
+      }
+
+      const request = await ActivityRequest.findByPk(id);
+      if (!request) {
+        res.status(404).json({ success: false, error: 'Request not found' });
+        return;
+      }
+
+      // If approving, check if activity is full
+      if (status === 'approved') {
+        const activity = await Activity.findByPk(request.activityId);
+        if (!activity) {
+          res.status(404).json({ success: false, error: 'Activity not found' });
+          return;
+        }
+
+        if (activity.currentPeople >= activity.maxPeople) {
+          res.status(400).json({ success: false, error: 'Activity is full' });
+          return;
+        }
+
+        // Increment current people
+        await activity.update({ currentPeople: activity.currentPeople + 1 });
+      }
+
+      await request.update({ status });
+      res.json({ success: true, data: request });
+    } catch (error) {
+      console.error('Error updating request status:', error);
+      res.status(500).json({ success: false, error: 'Failed to update request status' });
+    }
+  },
+
+  // Delete a request
+  deleteRequest: async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+
+      const request = await ActivityRequest.findByPk(id);
+      if (!request) {
+        res.status(404).json({ success: false, error: 'Request not found' });
+        return;
+      }
+
+      // If request was approved, decrement activity's current people
+      if (request.status === 'approved') {
+        const activity = await Activity.findByPk(request.activityId);
+        if (activity && activity.currentPeople > 1) {
+          await activity.update({ currentPeople: activity.currentPeople - 1 });
+        }
+      }
+
+      await request.destroy();
+      res.json({ success: true, message: 'Request deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting request:', error);
+      res.status(500).json({ success: false, error: 'Failed to delete request' });
+    }
+  },
+};

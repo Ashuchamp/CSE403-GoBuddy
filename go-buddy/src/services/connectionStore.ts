@@ -1,5 +1,4 @@
 import {User} from '../types';
-import {mockUsers} from '../data/mockUsers';
 
 export type ConnectionRequestStoreItem = {
   id: string;
@@ -55,37 +54,4 @@ export function getConnectedUsers(): User[] {
 export function subscribeToConnectedUsers(cb: ConnectedSubscriber) {
   connectedSubscribers.add(cb);
   return () => connectedSubscribers.delete(cb);
-}
-
-let seeded = false;
-export function ensureDemoSeed() {
-  if (seeded) return;
-  seeded = true;
-  // Seed two connected users (Alex id '5', Jessica id '6') if present
-  const alex = mockUsers.find((u) => u.id === '5');
-  const jess = mockUsers.find((u) => u.id === '6');
-  if (alex && !connectedUsersById.has(alex.id)) addConnectedUser(alex, false);
-  if (jess && !connectedUsersById.has(jess.id)) addConnectedUser(jess, false);
-
-  // Seed one sent request to Sarah (id '2') if present
-  const sarah = mockUsers.find((u) => u.id === '2');
-  if (sarah && sentRequests.length === 0) {
-    const demoCurrent: User = {
-      id: '1',
-      email: 'current@uw.edu',
-      name: 'Current User',
-      bio: 'Demo user',
-      skills: [],
-      preferredTimes: [],
-      activityTags: [],
-    };
-    addSentRequest({
-      id: 'sent_demo_seed',
-      from: demoCurrent,
-      to: sarah,
-      message: 'Hi Sarah! Looking to connect for study groups.',
-      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
-      status: 'pending',
-    });
-  }
 }

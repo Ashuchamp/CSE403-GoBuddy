@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {User, ActivityIntent, ActivityRequest} from '../types';
-import {mockUsers} from '../data/mockUsers';
 import {Input} from '../components/Input';
 import {Button} from '../components/Button';
 import {Card} from '../components/Card';
@@ -21,8 +20,6 @@ import {ActivityDetailScreen} from './ActivityDetailScreen';
 import {ActivityDetailModal} from '../components/ActivityDetailModal';
 import {DateTimePicker} from '../components/DateTimePicker';
 import {colors, spacing, typography, borderRadius} from '../theme';
-import {mockActivityIntents} from '../data/mockActivityIntents';
-import {mockActivityRequests} from '../data/mockActivityRequests';
 
 type MyActivitiesScreenProps = {
   currentUser: User;
@@ -50,209 +47,9 @@ export function MyActivitiesScreen({
   onApproveRequest,
   onDeclineRequest,
 }: MyActivitiesScreenProps) {
-  // Fallback demo data when props are empty
-  const demoOrganizingIntents: ActivityIntent[] = [
-    {
-      id: 'demo-activity-1',
-      userId: currentUser.id,
-      userName: currentUser.name,
-      title: 'Stats Study Group',
-      description: 'Work through problem sets together. Bring notes and questions!',
-      maxPeople: 5,
-      currentPeople: 2,
-      scheduledTimes: ['Tue 6-8pm'],
-      createdAt: new Date().toISOString(),
-      campusLocation: 'Odegaard Library',
-      status: 'active',
-    },
-    {
-      id: 'demo-activity-2',
-      userId: currentUser.id,
-      userName: currentUser.name,
-      title: 'Morning Run Club',
-      description: 'Easy 5K around campus. All paces welcome.',
-      maxPeople: 2,
-      currentPeople: 1,
-      scheduledTimes: ['Sat 8-9am'],
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-      campusLocation: 'Husky Stadium',
-      status: 'active',
-    },
-  ];
-
-  const demoCompletedIntents: ActivityIntent[] = [
-    {
-      id: 'demo-activity-3',
-      userId: currentUser.id,
-      userName: currentUser.name,
-      title: 'CSE 142 Practice Session',
-      description: 'Past session focused on arrays and loops. Marked as completed.',
-      maxPeople: 6,
-      currentPeople: 5,
-      scheduledTimes: ['Last Mon 5-6pm'],
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
-      campusLocation: 'Allen Library',
-      status: 'completed',
-    },
-    {
-      id: 'demo-activity-4',
-      userId: currentUser.id,
-      userName: currentUser.name,
-      title: 'Evening Badminton',
-      description: 'Cancelled due to venue unavailability.',
-      maxPeople: 4,
-      currentPeople: 0,
-      scheduledTimes: ['Last Fri 7-8pm'],
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 96).toISOString(),
-      campusLocation: 'IMA Courts',
-      status: 'cancelled',
-    },
-  ];
-
-  // Demo approved requests for organizing activities
-  const demoOrganizingRequests: ActivityRequest[] = [
-    // Participant for Stats Study Group (1 approved + 1 organizer = 2 current)
-    {
-      id: 'demo-organizing-req-1',
-      activityId: 'demo-activity-1',
-      userId: '4',
-      userName: 'Emily Park',
-      userBio:
-        'Psychology major interested in research and coffee chats. Looking for study buddies for stats!',
-      userSkills: ['SPSS', 'Research Methods', 'Data Analysis'],
-      status: 'approved',
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-    },
-  ];
-
-  // Demo approved requests for completed activities
-  const demoCompletedRequests: ActivityRequest[] = [
-    // Participants for CSE 142 Practice Session (4 approved + 1 organizer = 5 total)
-    {
-      id: 'demo-completed-req-1',
-      activityId: 'demo-activity-3',
-      userId: '3',
-      userName: 'Mike Chen',
-      userBio: 'CSE major who loves basketball and coding. Always down to work on side projects!',
-      userSkills: ['Java', 'C++', 'Machine Learning', 'iOS Development'],
-      status: 'approved',
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 80).toISOString(),
-    },
-    {
-      id: 'demo-completed-req-2',
-      activityId: 'demo-activity-3',
-      userId: '4',
-      userName: 'Emily Park',
-      userBio:
-        'Psychology major interested in research and coffee chats. Looking for study buddies for stats!',
-      userSkills: ['SPSS', 'Research Methods', 'Data Analysis'],
-      status: 'approved',
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 78).toISOString(),
-    },
-    {
-      id: 'demo-completed-req-3',
-      activityId: 'demo-activity-3',
-      userId: '11',
-      userName: 'Chris Davis',
-      userBio:
-        'Math major who loves problem-solving and rock climbing. Looking for study partners!',
-      userSkills: ['Calculus', 'Linear Algebra', 'Proof Writing'],
-      status: 'approved',
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 76).toISOString(),
-    },
-    {
-      id: 'demo-completed-req-4',
-      activityId: 'demo-activity-3',
-      userId: '7',
-      userName: 'David Nguyen',
-      userBio:
-        'Pre-med studying hard! Looking for study partners for organic chem and fellow gym-goers.',
-      userSkills: ['Chemistry', 'Biology', 'MCAT Prep'],
-      status: 'approved',
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 74).toISOString(),
-    },
-  ];
-
-  // Start with app-provided intents if any; otherwise seed with general mocks
-  const baseIntents: ActivityIntent[] =
-    activityIntents && activityIntents.length > 0 ? activityIntents : [...mockActivityIntents];
-
-  // Always include demo organizing and demo completed items, but dedupe by id
-  const idSet = new Set(baseIntents.map((a) => a.id));
-  const mergedWithDemos: ActivityIntent[] = [...baseIntents];
-  for (const demo of demoOrganizingIntents) {
-    if (!idSet.has(demo.id)) {
-      idSet.add(demo.id);
-      mergedWithDemos.push(demo);
-    }
-  }
-  for (const demo of demoCompletedIntents) {
-    if (!idSet.has(demo.id)) {
-      idSet.add(demo.id);
-      mergedWithDemos.push(demo);
-    }
-  }
-
-  const effectiveActivityIntents: ActivityIntent[] = mergedWithDemos;
-
-  const baseRequests: ActivityRequest[] =
-    activityRequests && activityRequests.length > 0
-      ? activityRequests
-      : mockActivityRequests.map((r) =>
-          r.userId === '1'
-            ? {
-                ...r,
-                userId: currentUser.id,
-                userName: currentUser.name,
-              }
-            : r,
-        );
-
-  const hasMyParticipating = baseRequests.some((r) => r.userId === currentUser.id);
-  const seedParticipating: ActivityRequest[] = hasMyParticipating
-    ? []
-    : [
-        {
-          id: 'demo-req-pending',
-          activityId: 'intent-1',
-          userId: currentUser.id,
-          userName: currentUser.name,
-          userBio:
-            "Hey! I'm a junior studying Computer Science. Looking for gym buddies and study partners!",
-          userSkills: ['Python', 'React', 'Data Structures'],
-          status: 'pending',
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: 'demo-req-approved',
-          activityId: 'intent-2',
-          userId: currentUser.id,
-          userName: currentUser.name,
-          userBio:
-            "Hey! I'm a junior studying Computer Science. Looking for gym buddies and study partners!",
-          userSkills: ['Python', 'React', 'Data Structures'],
-          status: 'approved',
-          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
-        },
-        {
-          id: 'demo-req-declined',
-          activityId: 'intent-3',
-          userId: currentUser.id,
-          userName: currentUser.name,
-          userBio:
-            "Hey! I'm a junior studying Computer Science. Looking for gym buddies and study partners!",
-          userSkills: ['Python', 'React', 'Data Structures'],
-          status: 'declined',
-          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
-        },
-      ];
-
-  const effectiveActivityRequests: ActivityRequest[] = [
-    ...baseRequests,
-    ...seedParticipating,
-    ...demoOrganizingRequests,
-    ...demoCompletedRequests,
-  ];
+  // Use the activity intents and requests from props (backend data)
+  const effectiveActivityIntents: ActivityIntent[] = activityIntents;
+  const effectiveActivityRequests: ActivityRequest[] = activityRequests;
   const [viewMode, setViewMode] = useState<ViewMode>('organizing');
   const [participatingFilter, setParticipatingFilter] = useState<ParticipatingFilter>('pending');
   const [selectedActivity, setSelectedActivity] = useState<ActivityIntent | null>(null);
@@ -393,39 +190,12 @@ export function MyActivitiesScreen({
               <Text style={styles.participantsTitle}>Team Members</Text>
               <View style={styles.participantsList}>
                 {approvedRequests.map((request) => {
-                  const userData = mockUsers.find((user) => user.id === request.userId);
-                  const hasContactInfo = userData && (userData.phone || userData.instagram);
-
                   return (
                     <View key={request.id} style={styles.participantItem}>
                       <View style={styles.participantInfo}>
                         <Ionicons name="person-circle" size={24} color={colors.primary} />
                         <View style={styles.participantDetails}>
                           <Text style={styles.participantName}>{request.userName}</Text>
-                          {hasContactInfo && (
-                            <View style={styles.participantContact}>
-                              {userData?.phone && (
-                                <View style={styles.contactItem}>
-                                  <Ionicons
-                                    name="call-outline"
-                                    size={12}
-                                    color={colors.textSecondary}
-                                  />
-                                  <Text style={styles.contactText}>{userData.phone}</Text>
-                                </View>
-                              )}
-                              {userData?.instagram && (
-                                <View style={styles.contactItem}>
-                                  <Ionicons
-                                    name="logo-instagram"
-                                    size={12}
-                                    color={colors.textSecondary}
-                                  />
-                                  <Text style={styles.contactText}>{userData.instagram}</Text>
-                                </View>
-                              )}
-                            </View>
-                          )}
                         </View>
                       </View>
                     </View>

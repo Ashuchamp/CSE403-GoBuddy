@@ -1,7 +1,6 @@
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
-// import {makeRedirectUri} from 'expo-auth-session'; // Unused for now
-// import {Platform} from 'react-native'; // Unused for now
+import {Platform} from 'react-native';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -16,20 +15,16 @@ export interface GoogleUserInfo {
 }
 
 export const useGoogleAuth = () => {
-  // For Expo Go development, we need to work around the exp:// scheme limitation
-  // Use the reversed client ID as the scheme (Google's requirement for iOS)
+  // Get iOS client ID from environment
   const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || '';
+
+  // Create the reversed client ID for iOS URL scheme
+  // Format: com.googleusercontent.apps.{CLIENT_ID}
   const reversedClientId = iosClientId.split('.').reverse().join('.');
 
-  const redirectUri = `${reversedClientId}:/oauth2redirect/google`;
-
-  // Debug: Log the configuration
-  // console.log('🔍 Google Auth Debug Info:');
-  // console.log('Custom Redirect URI:', redirectUri);
-  // console.log('Web Client ID:', process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID);
-  // console.log('iOS Client ID:', process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID);
-  // console.log('Android Client ID:', process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID);
-  // console.log('Platform:', Platform.OS);
+  // Use the proper redirect URI for iOS
+  const redirectUri =
+    Platform.OS === 'ios' ? `${reversedClientId}:/oauth2redirect/google` : undefined; // Let expo-auth-session handle it for other platforms
 
   const [request, response, promptAsync] = Google.useAuthRequest({
     iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
@@ -38,11 +33,6 @@ export const useGoogleAuth = () => {
     scopes: ['profile', 'email'],
     redirectUri: redirectUri,
   });
-
-  // Log the actual redirect URI being used
-  if (request) {
-    // console.log('🔍 Actual Redirect URI:', request.redirectUri);
-  }
 
   const signIn = async () => {
     try {

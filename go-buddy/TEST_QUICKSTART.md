@@ -45,7 +45,7 @@ describe('MyComponent', () => {
   it('should handle button press', () => {
     const onPressMock = jest.fn();
     const {getByText} = render(<MyComponent onPress={onPressMock} />);
-    
+
     fireEvent.press(getByText('Click Me'));
     expect(onPressMock).toHaveBeenCalled();
   });
@@ -75,7 +75,7 @@ Before submitting a PR, ensure:
 ## 🎯 Coverage Requirements
 
 | Metric     | Minimum |
-|------------|---------|
+| ---------- | ------- |
 | Statements | ≥ 80%   |
 | Branches   | ≥ 70%   |
 | Functions  | ≥ 80%   |
@@ -143,6 +143,7 @@ npm install
 ### Module not found?
 
 Check your import paths - they should be relative:
+
 ```typescript
 // ✅ Good
 import {Button} from '../../components/Button';
@@ -168,4 +169,3 @@ import {Button} from '@/components/Button';
 ---
 
 **Need Help?** Check the [full TESTING.md guide](../TESTING.md) or ask the team!
-

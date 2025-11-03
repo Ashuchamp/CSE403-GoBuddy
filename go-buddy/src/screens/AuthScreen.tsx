@@ -1,11 +1,20 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Alert,
+} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {Button} from '../components/Button';
 import {Card} from '../components/Card';
 import {User} from '../types';
 import {colors, spacing, typography} from '../theme';
-// import {useGoogleAuth} from '../services/googleAuth'; // Disabled for demo mode
+import {useGoogleAuth} from '../services/googleAuth';
+import api from '../services/api';
 
 type AuthScreenProps = {
   onAuthenticated: (user: User) => void;
@@ -13,32 +22,83 @@ type AuthScreenProps = {
 
 export function AuthScreen({onAuthenticated}: AuthScreenProps) {
   const [loading, setLoading] = useState(false);
-  // const {response, getUserInfo} = useGoogleAuth(); // Disabled for demo mode
+  const {response, getUserInfo, signIn} = useGoogleAuth();
 
-  // useEffect removed - not needed for demo mode
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const {authentication} = response;
+      if (authentication?.accessToken) {
+        handleAuthSuccess(authentication.accessToken);
+      }
+    } else if (response?.type === 'error') {
+      setLoading(false);
+      Alert.alert('Authentication Error', 'Failed to sign in with Google. Please try again.');
+    } else if (response?.type === 'cancel') {
+      setLoading(false);
+    }
+  }, [response]);
+
+  const handleAuthSuccess = async (accessToken: string) => {
+    try {
+      const userInfo = await getUserInfo(accessToken);
+
+      // Validate UW email domain
+      if (!userInfo.email.endsWith('@uw.edu')) {
+        Alert.alert('Invalid Email', 'Please sign in with a valid @uw.edu email address.');
+        setLoading(false);
+        return;
+      }
+
+      // Try to authenticate with backend
+      try {
+        const backendUser = await api.users.googleAuth({
+          googleId: userInfo.id,
+          email: userInfo.email,
+          name: userInfo.name,
+          profilePicture: userInfo.picture,
+        });
+
+        if (backendUser) {
+          console.log('✅ User authenticated with backend:', backendUser.email);
+          onAuthenticated(backendUser);
+        } else {
+          throw new Error('Failed to authenticate with backend');
+        }
+      } catch (backendError) {
+        console.warn('⚠️ Backend auth failed, using local user:', backendError);
+        // Fallback to local user if backend is not available
+        const user: User = {
+          id: userInfo.id,
+          name: userInfo.name,
+          email: userInfo.email,
+          bio: '',
+          activityTags: [],
+          preferredTimes: [],
+          campusLocation: '',
+          skills: [],
+          phone: '',
+          instagram: '',
+        };
+        onAuthenticated(user);
+      }
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching user info:', error);
+      Alert.alert('Error', 'Failed to retrieve user information. Please try again.');
+      setLoading(false);
+    }
+  };
 
   const handleGoogleSignIn = async () => {
-    // For demo purposes, create a mock user instead of using Google Auth
     setLoading(true);
-
-    // Simulate network delay
-    setTimeout(() => {
-      const mockUser: User = {
-        id: 'demo-user-1',
-        name: 'UW Demo User',
-        email: 'demo@uw.edu',
-        bio: 'Student at University of Washington',
-        activityTags: ['Study Groups', 'Social Events'],
-        preferredTimes: ['Evenings', 'Weekends'],
-        campusLocation: 'Seattle Campus',
-        skills: ['Collaboration', 'Leadership'],
-        phone: '',
-        instagram: '',
-      };
-
-      onAuthenticated(mockUser);
+    try {
+      await signIn();
+    } catch (error) {
+      console.error('Sign-in error:', error);
+      Alert.alert('Sign-in Error', 'An error occurred during sign-in. Please try again.');
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -57,8 +117,8 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
             <Ionicons name="logo-google" size={48} color={colors.primary} />
           </View>
 
-          <Text style={styles.cardTitle}>Demo Login</Text>
-          <Text style={styles.cardSubtitle}>Click to sign in as a demo user</Text>
+          <Text style={styles.cardTitle}>Sign in with Google</Text>
+          <Text style={styles.cardSubtitle}>Use your @uw.edu account to continue</Text>
 
           <Button
             onPress={handleGoogleSignIn}
@@ -69,14 +129,12 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
             <View style={styles.googleButtonContent}>
               <Ionicons name="logo-google" size={20} color="#fff" style={styles.googleIcon} />
               <Text style={styles.googleButtonText}>
-                {loading ? 'Signing in...' : 'Demo Login'}
+                {loading ? 'Signing in...' : 'Sign in with Google'}
               </Text>
             </View>
           </Button>
 
-          <Text style={styles.notice}>
-            Demo mode — no real authentication. In production, a valid @uw.edu email is required.
-          </Text>
+          <Text style={styles.notice}>Only @uw.edu email addresses are allowed.</Text>
         </Card>
       </ScrollView>
     </KeyboardAvoidingView>

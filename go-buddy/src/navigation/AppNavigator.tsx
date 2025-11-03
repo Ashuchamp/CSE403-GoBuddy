@@ -9,7 +9,6 @@ import {ConnectionsScreen} from '../screens/ConnectionsScreen';
 import {ProfileScreen} from '../screens/ProfileScreen';
 import {colors} from '../theme';
 import {TouchableOpacity} from 'react-native';
-import {ensureDemoSeed} from '../services/connectionStore';
 
 const Tab = createBottomTabNavigator();
 
@@ -44,10 +43,6 @@ export function AppNavigator({
   onDeclineRequest,
   onConnectRequest,
 }: AppNavigatorProps) {
-  React.useEffect(() => {
-    // Ensure shared connection store is seeded before screens render
-    ensureDemoSeed();
-  }, []);
   const handleJoinActivity = (intentId: string) => {
     onJoinActivity(intentId);
     // No popup needed as button provides visual feedback
