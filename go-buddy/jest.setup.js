@@ -22,4 +22,3 @@ jest.mock('@expo/vector-icons', () => ({
 
 // Set up test timeout
 jest.setTimeout(10000);
-

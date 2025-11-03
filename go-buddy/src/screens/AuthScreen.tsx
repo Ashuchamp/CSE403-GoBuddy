@@ -1,5 +1,13 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Alert,
+} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {Button} from '../components/Button';
 import {Card} from '../components/Card';
@@ -24,10 +32,7 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
       }
     } else if (response?.type === 'error') {
       setLoading(false);
-      Alert.alert(
-        'Authentication Error',
-        'Failed to sign in with Google. Please try again.',
-      );
+      Alert.alert('Authentication Error', 'Failed to sign in with Google. Please try again.');
     } else if (response?.type === 'cancel') {
       setLoading(false);
     }
@@ -39,10 +44,7 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
 
       // Validate UW email domain
       if (!userInfo.email.endsWith('@uw.edu')) {
-        Alert.alert(
-          'Invalid Email',
-          'Please sign in with a valid @uw.edu email address.',
-        );
+        Alert.alert('Invalid Email', 'Please sign in with a valid @uw.edu email address.');
         setLoading(false);
         return;
       }
@@ -83,10 +85,7 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
       setLoading(false);
     } catch (error) {
       console.error('Error fetching user info:', error);
-      Alert.alert(
-        'Error',
-        'Failed to retrieve user information. Please try again.',
-      );
+      Alert.alert('Error', 'Failed to retrieve user information. Please try again.');
       setLoading(false);
     }
   };
@@ -97,10 +96,7 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
       await signIn();
     } catch (error) {
       console.error('Sign-in error:', error);
-      Alert.alert(
-        'Sign-in Error',
-        'An error occurred during sign-in. Please try again.',
-      );
+      Alert.alert('Sign-in Error', 'An error occurred during sign-in. Please try again.');
       setLoading(false);
     }
   };
@@ -138,9 +134,7 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
             </View>
           </Button>
 
-          <Text style={styles.notice}>
-            Only @uw.edu email addresses are allowed.
-          </Text>
+          <Text style={styles.notice}>Only @uw.edu email addresses are allowed.</Text>
         </Card>
       </ScrollView>
     </KeyboardAvoidingView>

@@ -51,7 +51,9 @@ export default function App() {
         setActivityIntents(activities);
         setActivityRequests(userRequests);
 
-        console.log(`✅ Loaded ${activities.length} activities and ${userRequests.length} requests`);
+        console.log(
+          `✅ Loaded ${activities.length} activities and ${userRequests.length} requests`,
+        );
       } catch (error) {
         console.error('Failed to fetch data from backend:', error);
         // Keep empty arrays - no fallback to mock data
@@ -181,9 +183,7 @@ export default function App() {
     try {
       const updated = await api.requests.updateStatus(requestId, 'approved');
       if (updated) {
-        setActivityRequests((prev) =>
-          prev.map((r) => (r.id === requestId ? updated : r)),
-        );
+        setActivityRequests((prev) => prev.map((r) => (r.id === requestId ? updated : r)));
 
         // Refresh the activity to get updated currentPeople count from backend
         const activity = await api.activities.getById(request.activityId);
@@ -208,9 +208,7 @@ export default function App() {
     try {
       const updated = await api.requests.updateStatus(requestId, 'declined');
       if (updated) {
-        setActivityRequests((prev) =>
-          prev.map((r) => (r.id === requestId ? updated : r)),
-        );
+        setActivityRequests((prev) => prev.map((r) => (r.id === requestId ? updated : r)));
       }
     } catch (error) {
       console.error('Failed to decline request:', error);
@@ -273,4 +271,3 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
   },
 });
-

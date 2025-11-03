@@ -87,7 +87,9 @@ class ApiService {
       }
     },
 
-    create: async (userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User | null> => {
+    create: async (
+      userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>,
+    ): Promise<User | null> => {
       try {
         const response = await this.request<ApiResponse<User>>('/users', {
           method: 'POST',

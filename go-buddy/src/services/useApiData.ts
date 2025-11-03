@@ -108,19 +108,22 @@ export function useActivities(currentUser: User | null) {
     [currentUser],
   );
 
-  const updateActivity = useCallback(async (activityId: string, updates: Partial<ActivityIntent>)=>{
-    try {
-      const updated = await api.activities.update(activityId, updates);
-      if (updated) {
-        setActivities((prev) =>
-          prev.map((activity) => (activity.id === activityId ? updated : activity)),
-        );
+  const updateActivity = useCallback(
+    async (activityId: string, updates: Partial<ActivityIntent>) => {
+      try {
+        const updated = await api.activities.update(activityId, updates);
+        if (updated) {
+          setActivities((prev) =>
+            prev.map((activity) => (activity.id === activityId ? updated : activity)),
+          );
+        }
+      } catch (error) {
+        console.error('Failed to update activity:', error);
+        throw error;
       }
-    } catch (error) {
-      console.error('Failed to update activity:', error);
-      throw error;
-    }
-  }, []);
+    },
+    [],
+  );
 
   const deleteActivity = useCallback(async (activityId: string) => {
     try {

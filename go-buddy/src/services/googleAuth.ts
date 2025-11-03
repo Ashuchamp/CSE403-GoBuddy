@@ -23,9 +23,8 @@ export const useGoogleAuth = () => {
   const reversedClientId = iosClientId.split('.').reverse().join('.');
 
   // Use the proper redirect URI for iOS
-  const redirectUri = Platform.OS === 'ios'
-    ? `${reversedClientId}:/oauth2redirect/google`
-    : undefined; // Let expo-auth-session handle it for other platforms
+  const redirectUri =
+    Platform.OS === 'ios' ? `${reversedClientId}:/oauth2redirect/google` : undefined; // Let expo-auth-session handle it for other platforms
 
   const [request, response, promptAsync] = Google.useAuthRequest({
     iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,

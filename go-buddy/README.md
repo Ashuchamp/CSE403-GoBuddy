@@ -52,6 +52,7 @@ This app uses Google OAuth for authentication with UW email validation.
 4. **Run Verification**: `./scripts/verify-google-auth.sh`
 
 📖 **Detailed Guides:**
+
 - [Quick Start Guide](./GOOGLE_AUTH_QUICKSTART.md) - Fast setup in 5 steps
 - [Complete Setup Guide](./GOOGLE_AUTH_SETUP.md) - Detailed instructions with troubleshooting
 
@@ -157,21 +158,21 @@ go-buddy/
 
 ## 📝 Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm start` | Start Expo development server |
-| `npm test` | Run tests once |
-| `npm run test:watch` | Run tests in watch mode |
-| `npm run test:coverage` | Generate coverage report |
-| `npm run test:ci` | Run tests in CI mode |
-| `npm run lint` | Run ESLint |
-| `npm run lint:fix` | Fix ESLint issues |
-| `npm run format` | Format code with Prettier |
-| `npm run format:check` | Check code formatting |
-| `npm run type-check` | Run TypeScript type checking |
-| `npm run ios` | Run on iOS simulator |
-| `npm run android` | Run on Android emulator |
-| `npm run web` | Run in web browser |
+| Script                  | Description                   |
+| ----------------------- | ----------------------------- |
+| `npm start`             | Start Expo development server |
+| `npm test`              | Run tests once                |
+| `npm run test:watch`    | Run tests in watch mode       |
+| `npm run test:coverage` | Generate coverage report      |
+| `npm run test:ci`       | Run tests in CI mode          |
+| `npm run lint`          | Run ESLint                    |
+| `npm run lint:fix`      | Fix ESLint issues             |
+| `npm run format`        | Format code with Prettier     |
+| `npm run format:check`  | Check code formatting         |
+| `npm run type-check`    | Run TypeScript type checking  |
+| `npm run ios`           | Run on iOS simulator          |
+| `npm run android`       | Run on Android emulator       |
+| `npm run web`           | Run in web browser            |
 
 ## 🔄 Continuous Integration
 
@@ -288,4 +289,3 @@ University of Washington - CSE 403 Team
 ---
 
 **Need help?** Check the documentation or contact the team!
-

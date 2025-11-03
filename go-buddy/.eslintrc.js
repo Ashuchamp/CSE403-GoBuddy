@@ -31,10 +31,10 @@ module.exports = {
     'valid-jsdoc': 'off',
     'max-len': ['error', {code: 100, ignoreUrls: true, ignoreStrings: true}],
     'object-curly-spacing': ['error', 'never'],
-    'indent': 'off', // Let Prettier handle indentation
+    indent: 'off', // Let Prettier handle indentation
     'linebreak-style': ['error', 'unix'],
-    'quotes': ['error', 'single', {avoidEscape: true}],
-    'semi': ['error', 'always'],
+    quotes: ['error', 'single', {avoidEscape: true}],
+    semi: ['error', 'always'],
     'comma-dangle': ['error', 'always-multiline'],
     'operator-linebreak': 'off', // Let Prettier handle this
 
@@ -63,4 +63,3 @@ module.exports = {
     'dist/',
   ],
 };
-
