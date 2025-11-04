@@ -226,7 +226,11 @@ export function ActivityDetailScreen({
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+        <TouchableOpacity 
+          onPress={onClose} 
+          style={styles.closeButton}
+          testID="back-button"
+          >
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Manage Activity</Text>
