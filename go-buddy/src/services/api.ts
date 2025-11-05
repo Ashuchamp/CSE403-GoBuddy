@@ -15,9 +15,11 @@ import {User, ActivityIntent, ActivityRequest} from '../types';
 //   return API_URL;
 // };
 
-// const API_BASE_URL = getBaseUrl();
-const API_BASE_URL = 'http://10.19.23.123:3000/api';
-// LOOK HERE TO CHANGE TO URL OF YOUR MACHINE
+// For iOS Simulator: use localhost
+// For Android Emulator: use 10.0.2.2
+// For Physical Device: use your computer's actual IP (run: ipconfig getifaddr en0)
+const API_BASE_URL = 'http://localhost:3000/api';
+// Change to your machine's IP if testing on physical device
 
 interface ApiResponse<T> {
   success: boolean;
@@ -48,9 +50,19 @@ class ApiService {
       },
     };
 
+    // Add timeout to prevent hanging
+    const timeout = 10000; // 10 seconds
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+
     try {
       console.log(`API Request: ${config.method || 'GET'} ${url}`);
-      const response = await fetch(url, config);
+      const response = await fetch(url, {
+        ...config,
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -60,6 +72,11 @@ class ApiService {
       console.log(`API Response: ${config.method || 'GET'} ${url} - Success`);
       return data;
     } catch (error) {
+      clearTimeout(timeoutId);
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.error('API request timed out:', url);
+        throw new Error('Request timed out. Please check if the backend is running.');
+      }
       console.error('API request failed:', error);
       throw error;
     }
