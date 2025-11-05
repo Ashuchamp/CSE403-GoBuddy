@@ -28,34 +28,16 @@ type ConnectionsScreenProps = {
 
 type SectionType = 'received' | 'sent' | 'connected';
 
-// Mock connection requests
-const mockConnectionRequests: ConnectionRequest[] = [
-  {
-    id: 'req1',
-    from: {
-      id: '3',
-      email: 'mike.chen@uw.edu',
-      name: 'Mike Chen',
-      bio: 'CSE major who loves basketball and coding. Always down to work on side projects!',
-      skills: ['Java', 'C++', 'Machine Learning', 'iOS Development'],
-      preferredTimes: ['Weekday Afternoons', 'Weekend Mornings'],
-      activityTags: ['Basketball', 'CSE 373', 'Coding Projects', 'Gym', 'Gaming'],
-      phone: '425-555-0198',
-      instagram: '@mikechen_dev',
-      campusLocation: 'North Campus',
-    },
-    message: "Hey! I saw you're also interested in CSE 373 study groups. Want to team up?",
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-    status: 'pending',
-  },
-];
+// Mock connection requests - removed to avoid showing for all users
+// Backend seed data will provide demo data when needed
+const mockConnectionRequests: ConnectionRequest[] = [];
 
 // No mock sent requests here; rely on shared store seeding to avoid duplicates
 
 // Connected users are sourced from the shared store
 
 export function ConnectionsScreen({currentUser}: ConnectionsScreenProps) {
-  const [receivedRequests, setReceivedRequests] = React.useState(mockConnectionRequests);
+  const [receivedRequests, setReceivedRequests] = React.useState<ConnectionRequest[]>([]);
   const [sentRequests, setSentRequests] = React.useState<ConnectionRequest[]>(
     getSentRequests().map((r) => ({
       id: r.id,
