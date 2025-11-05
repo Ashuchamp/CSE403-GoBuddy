@@ -28,14 +28,6 @@ type ConnectionsScreenProps = {
 
 type SectionType = 'received' | 'sent' | 'connected';
 
-// Mock connection requests - removed to avoid showing for all users
-// Backend seed data will provide demo data when needed
-const mockConnectionRequests: ConnectionRequest[] = [];
-
-// No mock sent requests here; rely on shared store seeding to avoid duplicates
-
-// Connected users are sourced from the shared store
-
 export function ConnectionsScreen({currentUser}: ConnectionsScreenProps) {
   const [receivedRequests, setReceivedRequests] = React.useState<ConnectionRequest[]>([]);
   const [sentRequests, setSentRequests] = React.useState<ConnectionRequest[]>(

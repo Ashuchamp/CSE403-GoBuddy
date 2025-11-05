@@ -23,21 +23,16 @@ describe('ConnectionsScreen', () => {
     expect(getByText('Manage your connection requests')).toBeTruthy();
   });
 
-  it('displays a connection request card', () => {
+  it('displays empty state when no connection requests exist', () => {
     const {getByText} = render(<ConnectionsScreen currentUser={mockCurrentUser} />);
-    expect(getByText('Mike Chen')).toBeTruthy();
-    expect(
-      getByText("Hey! I saw you're also interested in CSE 373 study groups. Want to team up?"),
-    ).toBeTruthy();
-    expect(getByText('Accept')).toBeTruthy();
-    expect(getByText('Decline')).toBeTruthy();
-  });
-
-  it('shows empty state if no requests remain', () => {
-    const {getByText} = render(<ConnectionsScreen currentUser={mockCurrentUser} />);
-    fireEvent.press(getByText('Decline'));
-
     expect(getByText('No pending requests')).toBeTruthy();
     expect(getByText('New connection requests will appear here')).toBeTruthy();
+  });
+
+  it('displays all three tabs', () => {
+    const {getByText} = render(<ConnectionsScreen currentUser={mockCurrentUser} />);
+    expect(getByText('Received')).toBeTruthy();
+    expect(getByText('Sent')).toBeTruthy();
+    expect(getByText('Connected')).toBeTruthy();
   });
 });
