@@ -25,10 +25,12 @@ export function ProfileScreen({user, isCurrentUser = false, onUpdateProfile}: Pr
             <Text style={styles.avatarText}>{user.name.charAt(0)}</Text>
           </View>
           <Text style={styles.name}>{user.name}</Text>
-          <View style={styles.emailRow}>
-            <Ionicons name="mail-outline" size={16} color={colors.textSecondary} />
-            <Text style={styles.email}>{user.email}</Text>
-          </View>
+          {isCurrentUser && (
+            <View style={styles.emailRow}>
+              <Ionicons name="mail-outline" size={16} color={colors.textSecondary} />
+              <Text style={styles.email}>{user.email}</Text>
+            </View>
+          )}
 
           {isCurrentUser && onUpdateProfile && (
             <Button
@@ -102,9 +104,15 @@ export function ProfileScreen({user, isCurrentUser = false, onUpdateProfile}: Pr
         )}
 
         {/* Contact Info (if available) */}
-        {(user.phone || user.instagram) && (
+        {(user.phone || user.instagram || user.contactEmail) && (
           <Card style={styles.section}>
             <Text style={styles.sectionTitle}>Contact</Text>
+            {user.contactEmail && (
+              <View style={styles.contactRow}>
+                <Ionicons name="mail-outline" size={16} color={colors.textSecondary} />
+                <Text style={styles.contactText}>{user.contactEmail}</Text>
+              </View>
+            )}
             {user.phone && (
               <View style={styles.contactRow}>
                 <Ionicons name="call-outline" size={16} color={colors.textSecondary} />

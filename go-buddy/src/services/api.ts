@@ -69,7 +69,7 @@ class ApiService {
         throw new Error(data.error || `HTTP error! status: ${response.status}`);
       }
 
-      console.log(`API Response: ${config.method || 'GET'} ${url} - Success`);
+      // API Response successful
       return data;
     } catch (error) {
       clearTimeout(timeoutId);
@@ -84,7 +84,7 @@ class ApiService {
 
   // Health Check
   health = async () => {
-    return this.request<ApiResponse<any>>('/health');
+    return this.request<ApiResponse<{status: string}>>('/health');
   };
 
   // User endpoints
@@ -99,7 +99,7 @@ class ApiService {
         const response = await this.request<ApiResponse<User>>(`/users/${id}`);
         return response.data || null;
       } catch (error) {
-        console.error(`Failed to get user ${id}:`, error);
+        // Failed to get user
         return null;
       }
     },
@@ -114,7 +114,7 @@ class ApiService {
         });
         return response.data || null;
       } catch (error) {
-        console.error('Failed to create user:', error);
+        // Failed to create user
         throw error;
       }
     },
@@ -127,19 +127,19 @@ class ApiService {
         });
         return response.data || null;
       } catch (error) {
-        console.error(`Failed to update user ${id}:`, error);
+        // Failed to update user
         throw error;
       }
     },
 
     delete: async (id: string): Promise<boolean> => {
       try {
-        await this.request<ApiResponse<any>>(`/users/${id}`, {
+        await this.request<ApiResponse<{success: boolean}>>(`/users/${id}`, {
           method: 'DELETE',
         });
         return true;
       } catch (error) {
-        console.error(`Failed to delete user ${id}:`, error);
+        // Failed to delete user
         return false;
       }
     },
@@ -157,7 +157,7 @@ class ApiService {
         });
         return response.data || null;
       } catch (error) {
-        console.error('Failed to authenticate with Google:', error);
+        // Failed to authenticate with Google
         throw error;
       }
     },
@@ -172,12 +172,12 @@ class ApiService {
       search?: string;
     }): Promise<ActivityIntent[]> => {
       try {
-        const params = new URLSearchParams(filters as any);
+        const params = new URLSearchParams(filters as Record<string, string>);
         const query = params.toString() ? `?${params.toString()}` : '';
         const response = await this.request<ApiResponse<ActivityIntent[]>>(`/activities${query}`);
         return response.data || [];
       } catch (error) {
-        console.error('Failed to get activities:', error);
+        // Failed to get activities
         return [];
       }
     },
@@ -187,7 +187,7 @@ class ApiService {
         const response = await this.request<ApiResponse<ActivityIntent>>(`/activities/${id}`);
         return response.data || null;
       } catch (error) {
-        console.error(`Failed to get activity ${id}:`, error);
+        // Failed to get activity
         return null;
       }
     },
@@ -199,7 +199,7 @@ class ApiService {
         );
         return response.data || [];
       } catch (error) {
-        console.error(`Failed to get activities for user ${userId}:`, error);
+        // Failed to get activities for user
         return [];
       }
     },
@@ -214,7 +214,7 @@ class ApiService {
         });
         return response.data || null;
       } catch (error) {
-        console.error('Failed to create activity:', error);
+        // Failed to create activity
         throw error;
       }
     },
@@ -230,7 +230,7 @@ class ApiService {
         });
         return response.data || null;
       } catch (error) {
-        console.error(`Failed to update activity ${id}:`, error);
+        // Failed to update activity
         throw error;
       }
     },
@@ -249,19 +249,19 @@ class ApiService {
         );
         return response.data || null;
       } catch (error) {
-        console.error(`Failed to update activity status ${id}:`, error);
+        // Failed to update activity status
         throw error;
       }
     },
 
     delete: async (id: string): Promise<boolean> => {
       try {
-        await this.request<ApiResponse<any>>(`/activities/${id}`, {
+        await this.request<ApiResponse<{success: boolean}>>(`/activities/${id}`, {
           method: 'DELETE',
         });
         return true;
       } catch (error) {
-        console.error(`Failed to delete activity ${id}:`, error);
+        // Failed to delete activity
         return false;
       }
     },
@@ -276,7 +276,7 @@ class ApiService {
         );
         return response.data || [];
       } catch (error) {
-        console.error(`Failed to get requests for activity ${activityId}:`, error);
+        // Failed to get requests for activity
         return [];
       }
     },
@@ -288,7 +288,7 @@ class ApiService {
         );
         return response.data || [];
       } catch (error) {
-        console.error(`Failed to get requests for user ${userId}:`, error);
+        // Failed to get requests for user
         return [];
       }
     },
@@ -299,7 +299,7 @@ class ApiService {
         // For now, return empty array - this would need backend support
         return [];
       } catch (error) {
-        console.error('Failed to get all requests:', error);
+        // Failed to get all requests
         return [];
       }
     },
@@ -318,7 +318,7 @@ class ApiService {
         });
         return response.data || null;
       } catch (error) {
-        console.error('Failed to create request:', error);
+        // Failed to create request
         throw error;
       }
     },
@@ -337,19 +337,19 @@ class ApiService {
         );
         return response.data || null;
       } catch (error) {
-        console.error(`Failed to update request status ${id}:`, error);
+        // Failed to update request status
         throw error;
       }
     },
 
     delete: async (id: string): Promise<boolean> => {
       try {
-        await this.request<ApiResponse<any>>(`/requests/${id}`, {
+        await this.request<ApiResponse<{success: boolean}>>(`/requests/${id}`, {
           method: 'DELETE',
         });
         return true;
       } catch (error) {
-        console.error(`Failed to delete request ${id}:`, error);
+        // Failed to delete request
         return false;
       }
     },

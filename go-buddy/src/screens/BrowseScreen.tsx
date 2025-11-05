@@ -55,23 +55,16 @@ export function BrowseScreen({
   const [connectedUserIds, setConnectedUserIds] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [users, setUsers] = useState<User[]>([]);
-  const [loadingUsers, setLoadingUsers] = useState(true);
-  if (loadingUsers) {
-    console.log('Loading users...');
-  }
 
   // Fetch users from API
   useEffect(() => {
     const fetchUsers = async () => {
-      setLoadingUsers(true);
       try {
         const allUsers = await api.users.getAll();
         setUsers(allUsers);
       } catch (error) {
-        console.error('Failed to fetch users:', error);
+        // Failed to fetch users
         setUsers([]);
-      } finally {
-        setLoadingUsers(false);
       }
     };
 

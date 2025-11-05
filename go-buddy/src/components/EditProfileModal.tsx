@@ -18,10 +18,10 @@ type EditProfileModalProps = {
 export function EditProfileModal({visible, onClose, user, onSave}: EditProfileModalProps) {
   const [formData, setFormData] = useState({
     name: user.name,
-    email: user.email,
     bio: user.bio,
     phone: user.phone || '',
     instagram: user.instagram || '',
+    contactEmail: user.contactEmail || '',
     campusLocation: user.campusLocation || '',
   });
 
@@ -37,10 +37,10 @@ export function EditProfileModal({visible, onClose, user, onSave}: EditProfileMo
     const updatedUser: User = {
       ...user,
       name: formData.name,
-      email: formData.email,
       bio: formData.bio,
       phone: formData.phone,
       instagram: formData.instagram,
+      contactEmail: formData.contactEmail,
       campusLocation: formData.campusLocation,
       activityTags,
       skills,
@@ -94,14 +94,6 @@ export function EditProfileModal({visible, onClose, user, onSave}: EditProfileMo
             value={formData.name}
             onChangeText={(text) => setFormData({...formData, name: text})}
             placeholder="Enter your name"
-          />
-          <Input
-            label="Email"
-            value={formData.email}
-            onChangeText={(text) => setFormData({...formData, email: text})}
-            placeholder="Enter your email"
-            keyboardType="email-address"
-            autoCapitalize="none"
           />
           <Input
             label="Bio"
@@ -212,6 +204,14 @@ export function EditProfileModal({visible, onClose, user, onSave}: EditProfileMo
             value={formData.instagram}
             onChangeText={(text) => setFormData({...formData, instagram: text})}
             placeholder="@your_instagram_handle"
+            autoCapitalize="none"
+          />
+          <Input
+            label="Contact Email"
+            value={formData.contactEmail}
+            onChangeText={(text) => setFormData({...formData, contactEmail: text})}
+            placeholder="your.email@example.com"
+            keyboardType="email-address"
             autoCapitalize="none"
           />
           <Input

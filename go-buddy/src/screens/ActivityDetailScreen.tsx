@@ -9,6 +9,7 @@ import {Badge} from '../components/Badge';
 import {UserProfileModal} from '../components/UserProfileModal';
 import {DateTimePicker} from '../components/DateTimePicker';
 import {colors, spacing, typography} from '../theme';
+import api from '../services/api';
 
 type ActivityDetailScreenProps = {
   activity: ActivityIntent;
@@ -38,7 +39,7 @@ export function ActivityDetailScreen({
   const [editedScheduledTimes, setEditedScheduledTimes] = useState(activity.scheduledTimes);
   const [editedLocation, setEditedLocation] = useState(activity.campusLocation || '');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [selectedUserShowContact] = useState(false);
+  const [selectedUserShowContact, setSelectedUserShowContact] = useState(false);
   const [approvedCountLocal, setApprovedCountLocal] = useState(0);
   const [maxPeopleLocal, setMaxPeopleLocal] = useState(activity.maxPeople);
 
@@ -53,6 +54,55 @@ export function ActivityDetailScreen({
 
   const pendingRequests = requests.filter((r) => r.status === 'pending');
   const approvedRequests = requests.filter((r) => r.status === 'approved');
+
+  // Handler to view user profile from request - fetch full user data from backend
+  const handleViewPendingUser = async (request: ActivityRequest) => {
+    try {
+      const fullUser = await api.users.getById(request.userId);
+      if (fullUser) {
+        setSelectedUser(fullUser);
+        setSelectedUserShowContact(false); // Don't show contact for pending requests
+      }
+    } catch (error) {
+      // Fallback to request data if API fails
+      const user: User = {
+        id: request.userId,
+        email: '',
+        name: request.userName,
+        bio: request.userBio,
+        skills: request.userSkills,
+        preferredTimes: [],
+        activityTags: [],
+        campusLocation: '',
+      };
+      setSelectedUser(user);
+      setSelectedUserShowContact(false);
+    }
+  };
+
+  const handleViewApprovedUser = async (request: ActivityRequest) => {
+    try {
+      const fullUser = await api.users.getById(request.userId);
+      if (fullUser) {
+        setSelectedUser(fullUser);
+        setSelectedUserShowContact(true); // Show contact info for approved participants
+      }
+    } catch (error) {
+      // Fallback to request data if API fails
+      const user: User = {
+        id: request.userId,
+        email: '',
+        name: request.userName,
+        bio: request.userBio,
+        skills: request.userSkills,
+        preferredTimes: [],
+        activityTags: [],
+        campusLocation: '',
+      };
+      setSelectedUser(user);
+      setSelectedUserShowContact(true);
+    }
+  };
 
   // Keep a local, optimistic approved count that updates immediately on approve/decline
   useEffect(() => {
@@ -356,7 +406,10 @@ export function ActivityDetailScreen({
             {pendingRequests.map((request) => {
               return (
                 <View key={request.id} style={styles.requestCard}>
-                  <View style={styles.requestHeader}>
+                  <TouchableOpacity
+                    style={styles.requestHeader}
+                    onPress={() => handleViewPendingUser(request)}
+                  >
                     <View style={styles.requestInfo}>
                       <Text style={styles.requestName}>{request.userName}</Text>
                       <Text style={styles.requestBio} numberOfLines={2}>
@@ -372,7 +425,8 @@ export function ActivityDetailScreen({
                         </View>
                       )}
                     </View>
-                  </View>
+                    <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+                  </TouchableOpacity>
                   <View style={styles.requestActions}>
                     <Button
                       variant="outline"
@@ -417,7 +471,11 @@ export function ActivityDetailScreen({
 
           {approvedRequests.map((request) => {
             return (
-              <View key={request.id} style={styles.participantCard}>
+              <TouchableOpacity
+                key={request.id}
+                style={styles.participantCard}
+                onPress={() => handleViewApprovedUser(request)}
+              >
                 <View style={styles.participantInfo}>
                   <View style={styles.avatar}>
                     <Text style={styles.avatarText}>{request.userName.charAt(0)}</Text>
@@ -429,7 +487,7 @@ export function ActivityDetailScreen({
                     </Text>
                   </View>
                 </View>
-              </View>
+              </TouchableOpacity>
             );
           })}
         </Card>
@@ -634,6 +692,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   participantCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     borderTopWidth: 1,
     borderTopColor: colors.border,
     paddingTop: spacing.md,

@@ -3,7 +3,7 @@ import sequelize from '../config/database';
 
 interface UserAttributes {
   id: string;
-  email: string;
+  email: string; // UW authentication email (private)
   name: string;
   bio: string;
   skills: string[];
@@ -11,6 +11,7 @@ interface UserAttributes {
   activityTags: string[];
   phone?: string;
   instagram?: string;
+  contactEmail?: string; // Public contact email
   campusLocation?: string;
   googleId?: string;
   profilePicture?: string;
@@ -30,6 +31,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public activityTags!: string[];
   public phone?: string;
   public instagram?: string;
+  public contactEmail?: string;
   public campusLocation?: string;
   public googleId?: string;
   public profilePicture?: string;
@@ -80,6 +82,13 @@ User.init(
     instagram: {
       type: DataTypes.STRING,
       allowNull: true,
+    },
+    contactEmail: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      validate: {
+        isEmail: true,
+      },
     },
     campusLocation: {
       type: DataTypes.STRING,
