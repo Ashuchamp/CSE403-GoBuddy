@@ -48,7 +48,6 @@ export function UserProfileModal({
             {/* Title and Bio */}
             <View style={styles.titleSection}>
               <Text style={styles.title}>{user.name}</Text>
-              {showContactInfo && <Text style={styles.author}>{user.email}</Text>}
             </View>
 
             {/* Status Badge - Show user type */}
@@ -115,45 +114,33 @@ export function UserProfileModal({
               </View>
             )}
 
-            {/* Contact Information - Only show if showContactInfo is true or it's own profile */}
-            {(showContactInfo || isOwnProfile) && (user.phone || user.instagram) && (
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Contact Information</Text>
-                <View style={styles.contactContainer}>
-                  {user.phone && (
-                    <View style={styles.contactItem}>
-                      <Ionicons name="call-outline" size={16} color={colors.textSecondary} />
-                      <Text style={styles.contactText}>{user.phone}</Text>
-                    </View>
-                  )}
-                  {user.instagram && (
-                    <View style={styles.contactItem}>
-                      <Ionicons name="logo-instagram" size={16} color={colors.textSecondary} />
-                      <Text style={styles.contactText}>{user.instagram}</Text>
-                    </View>
-                  )}
-                </View>
-              </View>
-            )}
-
-            {/* Profile Info */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Profile Info</Text>
-              <View style={styles.infoGrid}>
-                <View style={styles.infoItem}>
-                  <Ionicons name="school-outline" size={16} color={colors.textSecondary} />
-                  <Text style={styles.infoLabel}>Student</Text>
-                  <Text style={styles.infoValue}>UW Student</Text>
-                </View>
-                {showContactInfo && (
-                  <View style={styles.infoItem}>
-                    <Ionicons name="mail-outline" size={16} color={colors.textSecondary} />
-                    <Text style={styles.infoLabel}>Email</Text>
-                    <Text style={styles.infoValue}>{user.email}</Text>
+            {/* Contact Info - Only show if showContactInfo is true or it's own profile */}
+            {(showContactInfo || isOwnProfile) &&
+              (user.phone || user.instagram || user.contactEmail) && (
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>Contact Info</Text>
+                  <View style={styles.contactContainer}>
+                    {user.contactEmail && (
+                      <View style={styles.contactItem}>
+                        <Ionicons name="mail-outline" size={16} color={colors.textSecondary} />
+                        <Text style={styles.contactText}>{user.contactEmail}</Text>
+                      </View>
+                    )}
+                    {user.phone && (
+                      <View style={styles.contactItem}>
+                        <Ionicons name="call-outline" size={16} color={colors.textSecondary} />
+                        <Text style={styles.contactText}>{user.phone}</Text>
+                      </View>
+                    )}
+                    {user.instagram && (
+                      <View style={styles.contactItem}>
+                        <Ionicons name="logo-instagram" size={16} color={colors.textSecondary} />
+                        <Text style={styles.contactText}>{user.instagram}</Text>
+                      </View>
+                    )}
                   </View>
-                )}
-              </View>
-            </View>
+                </View>
+              )}
           </Card>
         </ScrollView>
       </View>

@@ -1,7 +1,7 @@
 // User type
 export type User = {
   id: string;
-  email: string;
+  email: string; // UW authentication email (private, visible only to self)
   name: string;
   bio: string;
   skills: string[];
@@ -9,6 +9,7 @@ export type User = {
   activityTags: string[];
   phone?: string;
   instagram?: string;
+  contactEmail?: string; // Public contact email (visible to others)
   campusLocation?: string;
 };
 

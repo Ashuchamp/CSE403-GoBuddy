@@ -7,6 +7,7 @@ import {
   Platform,
   ScrollView,
   Alert,
+  TouchableOpacity,
 } from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {Button} from '../components/Button';
@@ -24,6 +25,61 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
   const [loading, setLoading] = useState(false);
   const {response, getUserInfo, signIn} = useGoogleAuth();
 
+  const handleAuthSuccess = React.useCallback(
+    async (accessToken: string) => {
+      try {
+        const userInfo = await getUserInfo(accessToken);
+
+        // Validate UW email domain
+        if (!userInfo.email.endsWith('@uw.edu')) {
+          Alert.alert('Invalid Email', 'Please sign in with a valid @uw.edu email address.');
+          setLoading(false);
+          return;
+        }
+
+        // Try to authenticate with backend
+        try {
+          const backendUser = await api.users.googleAuth({
+            googleId: userInfo.id,
+            email: userInfo.email,
+            name: userInfo.name,
+            profilePicture: userInfo.picture,
+          });
+
+          if (backendUser) {
+            // User authenticated with backend successfully
+            onAuthenticated(backendUser);
+          } else {
+            throw new Error('Failed to authenticate with backend');
+          }
+        } catch (backendError) {
+          // Backend auth failed, using local user
+          // Fallback to local user if backend is not available
+          const user: User = {
+            id: userInfo.id,
+            name: userInfo.name,
+            email: userInfo.email,
+            bio: '',
+            activityTags: [],
+            preferredTimes: [],
+            campusLocation: '',
+            skills: [],
+            phone: '',
+            instagram: '',
+          };
+          onAuthenticated(user);
+        }
+
+        setLoading(false);
+      } catch (error) {
+        // Error fetching user info
+        Alert.alert('Error', 'Failed to retrieve user information. Please try again.');
+        setLoading(false);
+      }
+    },
+    [getUserInfo, onAuthenticated],
+  );
+
   useEffect(() => {
     if (response?.type === 'success') {
       const {authentication} = response;
@@ -36,67 +92,37 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
     } else if (response?.type === 'cancel') {
       setLoading(false);
     }
-  }, [response]);
-
-  const handleAuthSuccess = async (accessToken: string) => {
-    try {
-      const userInfo = await getUserInfo(accessToken);
-
-      // Validate UW email domain
-      if (!userInfo.email.endsWith('@uw.edu')) {
-        Alert.alert('Invalid Email', 'Please sign in with a valid @uw.edu email address.');
-        setLoading(false);
-        return;
-      }
-
-      // Try to authenticate with backend
-      try {
-        const backendUser = await api.users.googleAuth({
-          googleId: userInfo.id,
-          email: userInfo.email,
-          name: userInfo.name,
-          profilePicture: userInfo.picture,
-        });
-
-        if (backendUser) {
-          console.log('✅ User authenticated with backend:', backendUser.email);
-          onAuthenticated(backendUser);
-        } else {
-          throw new Error('Failed to authenticate with backend');
-        }
-      } catch (backendError) {
-        console.warn('⚠️ Backend auth failed, using local user:', backendError);
-        // Fallback to local user if backend is not available
-        const user: User = {
-          id: userInfo.id,
-          name: userInfo.name,
-          email: userInfo.email,
-          bio: '',
-          activityTags: [],
-          preferredTimes: [],
-          campusLocation: '',
-          skills: [],
-          phone: '',
-          instagram: '',
-        };
-        onAuthenticated(user);
-      }
-
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching user info:', error);
-      Alert.alert('Error', 'Failed to retrieve user information. Please try again.');
-      setLoading(false);
-    }
-  };
+  }, [response, handleAuthSuccess]);
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
       await signIn();
     } catch (error) {
-      console.error('Sign-in error:', error);
+      // Sign-in error
       Alert.alert('Sign-in Error', 'An error occurred during sign-in. Please try again.');
+      setLoading(false);
+    }
+  };
+
+  const handleSkipToDemo = async () => {
+    setLoading(true);
+    try {
+      // Fetch the demo user from backend
+      const demoUser = await api.users.googleAuth({
+        googleId: 'demo-google-id',
+        email: 'demo@uw.edu',
+        name: 'Demo User',
+      });
+
+      if (demoUser) {
+        // Logged in as Demo User
+        onAuthenticated(demoUser);
+      }
+    } catch (error) {
+      // Demo login error
+      Alert.alert('Error', 'Make sure backend is running with seeded data (npm run seed)');
+    } finally {
       setLoading(false);
     }
   };
@@ -133,6 +159,10 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
               </Text>
             </View>
           </Button>
+
+          <TouchableOpacity onPress={handleSkipToDemo} style={styles.skipButton}>
+            <Text style={styles.skipText}>Skip to Demo (for showcase)</Text>
+          </TouchableOpacity>
 
           <Text style={styles.notice}>Only @uw.edu email addresses are allowed.</Text>
         </Card>
@@ -198,6 +228,17 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  skipButton: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    marginTop: spacing.sm,
+    alignItems: 'center',
+  },
+  skipText: {
+    ...typography.bodySmall,
+    color: colors.primary,
+    textDecorationLine: 'underline',
   },
   notice: {
     ...typography.bodySmall,

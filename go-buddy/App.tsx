@@ -22,9 +22,9 @@ export default function App() {
       try {
         await api.health();
         setBackendConnected(true);
-        console.log('✅ Backend connected successfully');
+        // Backend connected successfully
       } catch (error) {
-        console.error('❌ Backend not available. Please ensure the backend server is running.');
+        // Backend not available
         setBackendConnected(false);
       } finally {
         setLoading(false);
@@ -42,21 +42,22 @@ export default function App() {
       try {
         setLoading(true);
 
-        // Fetch activities and requests
-        const [activities, userRequests] = await Promise.all([
-          api.activities.getAll(),
-          api.requests.getByUserId(currentUser.id),
-        ]);
-
+        // Fetch activities
+        const activities = await api.activities.getAll();
         setActivityIntents(activities);
-        setActivityRequests(userRequests);
 
-        console.log(
-          `✅ Loaded ${activities.length} activities and ${userRequests.length} requests`,
+        // Fetch ALL requests (for activities you created AND requests you made)
+        const allRequestsPromises = activities.map((activity) =>
+          api.requests.getByActivityId(activity.id),
         );
+        const allRequestsArrays = await Promise.all(allRequestsPromises);
+        const allRequests = allRequestsArrays.flat();
+
+        setActivityRequests(allRequests);
+
+        // Loaded activities and requests successfully
       } catch (error) {
-        console.error('Failed to fetch data from backend:', error);
-        // Keep empty arrays - no fallback to mock data
+        // Failed to fetch data from backend
         setActivityIntents([]);
         setActivityRequests([]);
       } finally {
@@ -96,7 +97,7 @@ export default function App() {
         setActivityIntents((prev) => [newActivity, ...prev]);
       }
     } catch (error) {
-      console.error('Failed to create activity:', error);
+      // Failed to create activity
       Alert.alert('Error', 'Failed to create activity. Please try again.');
     }
   };
@@ -115,7 +116,7 @@ export default function App() {
         );
       }
     } catch (error) {
-      console.error('Failed to update activity:', error);
+      // Failed to update activity
       Alert.alert('Error', 'Failed to update activity. Please try again.');
     }
   };
@@ -131,7 +132,7 @@ export default function App() {
       setActivityIntents((prev) => prev.filter((activity) => activity.id !== activityId));
       setActivityRequests((prev) => prev.filter((request) => request.activityId !== activityId));
     } catch (error) {
-      console.error('Failed to delete activity:', error);
+      // Failed to delete activity
       Alert.alert('Error', 'Failed to delete activity. Please try again.');
     }
   };
@@ -166,7 +167,7 @@ export default function App() {
         setActivityRequests((prev) => [...prev, newRequest]);
       }
     } catch (error) {
-      console.error('Failed to join activity:', error);
+      // Failed to join activity
       Alert.alert('Error', 'Failed to join activity. Please try again.');
     }
   };
@@ -194,7 +195,7 @@ export default function App() {
         }
       }
     } catch (error) {
-      console.error('Failed to approve request:', error);
+      // Failed to approve request
       Alert.alert('Error', 'Failed to approve request. Please try again.');
     }
   };
@@ -211,7 +212,7 @@ export default function App() {
         setActivityRequests((prev) => prev.map((r) => (r.id === requestId ? updated : r)));
       }
     } catch (error) {
-      console.error('Failed to decline request:', error);
+      // Failed to decline request
       Alert.alert('Error', 'Failed to decline request. Please try again.');
     }
   };
