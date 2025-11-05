@@ -139,6 +139,36 @@ Open two terminal windows:
 
 **Stop servers**: Press `Ctrl + C` in each terminal
 
+## Working with Mock Data
+
+The backend includes a seed script to populate the database with demo data for testing and development.
+
+### Running with Mock Data
+
+1. **Start backend with mock data**:
+```bash
+cd backend
+npm run seed                 # Populate database with demo users and activities
+npm run dev                  # Start backend server
+```
+
+2. **Start mobile app**:
+```bash
+cd go-buddy
+npx expo start               # Start Expo dev server
+```
+
+### Clear Mock Data
+
+To remove all seeded data and start fresh:
+
+```bash
+cd backend
+psql -d gobuddy -f clear-seed.sql
+```
+
+**Note**: The mobile app will show empty states when no data exists in the database. This is normal and expected for a clean installation.
+
 ## Technical Processes
 
 ### Version Control
