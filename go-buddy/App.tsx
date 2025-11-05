@@ -55,6 +55,10 @@ export default function App() {
 
         setActivityRequests(allRequests);
 
+        console.log(
+          `✅ Loaded ${activities.length} activities and ${allRequests.length} requests`,
+        );
+
         // Loaded activities and requests successfully
       } catch (error) {
         // Failed to fetch data from backend

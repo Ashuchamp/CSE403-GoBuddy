@@ -116,11 +116,11 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
       });
 
       if (demoUser) {
-        // Logged in as Demo User
+        console.log('📱 Logged in as Demo User for showcase');
         onAuthenticated(demoUser);
       }
     } catch (error) {
-      // Demo login error
+      console.error('Demo login error:', error);
       Alert.alert('Error', 'Make sure backend is running with seeded data (npm run seed)');
     } finally {
       setLoading(false);

@@ -52,7 +52,7 @@ class ApiService {
     };
 
     try {
-      // API Request
+      console.log(`API Request: ${config.method || 'GET'} ${url}`);
       const response = await fetch(url, config);
       const data = await response.json();
 
@@ -63,7 +63,7 @@ class ApiService {
       // API Response successful
       return data;
     } catch (error) {
-      // API request failed
+      console.error('API request failed:', error);
       throw error;
     }
   }
