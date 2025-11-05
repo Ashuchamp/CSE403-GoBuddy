@@ -158,6 +158,9 @@ cd go-buddy
 npx expo start               # Start Expo dev server
 ```
 
+3. **On mobile app**:
+Click "Skip to Demo (for showcase)" to view the demo data
+
 ### Clear Mock Data
 
 To remove all seeded data and start fresh:
