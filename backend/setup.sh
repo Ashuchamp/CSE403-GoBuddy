@@ -49,16 +49,24 @@ if [ ! -f .env ]; then
     echo "📝 Creating .env file..."
     cp .env.example .env
     echo "✅ .env file created"
-    echo "⚠️  Please edit .env file with your database credentials"
 else
     echo "✅ .env file already exists"
 fi
 
-echo ""
-echo "✨ Setup complete!"
-echo ""
-echo "Next steps:"
-echo "1. Edit the .env file with your database configuration"
-echo "2. Create PostgreSQL database: createdb gobuddy"
-echo "3. Run the development server: npm run dev"
-echo ""
+# Auto-configure database user based on platform
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS - use current user and no password
+    CURRENT_USER=$(whoami)
+    echo ""
+    echo "🔧 Configuring for macOS (user: $CURRENT_USER)..."
+    sed -i '' "s/DB_USER=.*/DB_USER=$CURRENT_USER/" .env
+    sed -i '' "s/DB_PASSWORD=.*/DB_PASSWORD=/" .env
+    echo "✅ .env configured for macOS (using user '$CURRENT_USER', no password)"
+else
+    echo ""
+    echo "⚠️  Please edit .env file with your database credentials"
+    echo "   - For Linux/Docker: Usually DB_USER=postgres with a password"
+    echo "   - For Windows: Check your PostgreSQL installation settings"
+fi
+
+
