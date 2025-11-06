@@ -354,6 +354,76 @@ class ApiService {
       }
     },
   };
+
+  // Connection endpoints
+  connections = {
+    getReceivedRequests: async (userId: string) => {
+      try {
+        const response = await this.request<any[]>(`/connections/received/${userId}`);
+        return response;
+      } catch (error) {
+        console.error('Failed to get received connection requests:', error);
+        return [];
+      }
+    },
+
+    getSentRequests: async (userId: string) => {
+      try {
+        const response = await this.request<any[]>(`/connections/sent/${userId}`);
+        return response;
+      } catch (error) {
+        console.error('Failed to get sent connection requests:', error);
+        return [];
+      }
+    },
+
+    getConnectedUsers: async (userId: string): Promise<User[]> => {
+      try {
+        const response = await this.request<User[]>(`/connections/connected/${userId}`);
+        return response;
+      } catch (error) {
+        console.error('Failed to get connected users:', error);
+        return [];
+      }
+    },
+
+    sendRequest: async (fromUserId: string, toUserId: string, message?: string) => {
+      try {
+        const response = await this.request<any>('/connections/send', {
+          method: 'POST',
+          body: JSON.stringify({fromUserId, toUserId, message}),
+        });
+        return response;
+      } catch (error) {
+        console.error('Failed to send connection request:', error);
+        throw error;
+      }
+    },
+
+    acceptRequest: async (requestId: string) => {
+      try {
+        const response = await this.request<any>(`/connections/accept/${requestId}`, {
+          method: 'PUT',
+        });
+        return response;
+      } catch (error) {
+        console.error('Failed to accept connection request:', error);
+        throw error;
+      }
+    },
+
+    declineRequest: async (requestId: string) => {
+      try {
+        const response = await this.request<any>(`/connections/decline/${requestId}`, {
+          method: 'PUT',
+        });
+        return response;
+      } catch (error) {
+        console.error('Failed to decline connection request:', error);
+        throw error;
+      }
+    },
+  };
 }
 
 // Export singleton instance

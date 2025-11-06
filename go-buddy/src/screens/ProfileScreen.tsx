@@ -55,7 +55,7 @@ export function ProfileScreen({user, isCurrentUser = false, onUpdateProfile}: Pr
 
         {/* Activity Tags */}
         <Card style={styles.section}>
-          <Text style={styles.sectionTitle}>Activities & Interests</Text>
+          <Text style={styles.sectionTitle}>Activity Interests</Text>
           <View style={styles.tagsContainer}>
             {user.activityTags.map((tag, index) => (
               <Badge key={index} variant="secondary" style={styles.tag}>
@@ -64,20 +64,6 @@ export function ProfileScreen({user, isCurrentUser = false, onUpdateProfile}: Pr
             ))}
           </View>
         </Card>
-
-        {/* Skills */}
-        {user.skills.length > 0 && (
-          <Card style={styles.section}>
-            <Text style={styles.sectionTitle}>Skills & Experience</Text>
-            <View style={styles.tagsContainer}>
-              {user.skills.map((skill, index) => (
-                <Badge key={index} variant="outline" style={styles.tag}>
-                  {skill}
-                </Badge>
-              ))}
-            </View>
-          </Card>
-        )}
 
         {/* Preferred Times */}
         <Card style={styles.section}>

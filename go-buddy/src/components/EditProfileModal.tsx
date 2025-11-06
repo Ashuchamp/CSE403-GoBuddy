@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Alert} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {User} from '../types';
 import {Modal} from './Modal';
@@ -15,6 +15,21 @@ type EditProfileModalProps = {
   onSave: (updatedUser: User) => void;
 };
 
+// Phone number validation function
+const isValidPhoneNumber = (phone: string): boolean => {
+  if (!phone || phone.trim() === '') return true; // Empty is valid (optional field)
+
+  // Remove all non-digit characters for validation
+  const digitsOnly = phone.replace(/\D/g, '');
+
+  // Accept 10-digit US phone numbers
+  if (digitsOnly.length !== 10) return false;
+
+  // Common formats: (206) 555-0123, 206-555-0123, 206.555.0123, 2065550123
+  const phoneRegex = /^(\d{10}|(\(\d{3}\)\s?|\d{3}[-.\s]?)\d{3}[-.\s]?\d{4})$/;
+  return phoneRegex.test(phone);
+};
+
 export function EditProfileModal({visible, onClose, user, onSave}: EditProfileModalProps) {
   const [formData, setFormData] = useState({
     name: user.name,
@@ -26,14 +41,31 @@ export function EditProfileModal({visible, onClose, user, onSave}: EditProfileMo
   });
 
   const [activityTags, setActivityTags] = useState<string[]>(user.activityTags);
-  const [skills, setSkills] = useState<string[]>(user.skills);
   const [preferredTimes, setPreferredTimes] = useState<string[]>(user.preferredTimes);
 
   const [newTag, setNewTag] = useState('');
-  const [newSkill, setNewSkill] = useState('');
   const [newTime, setNewTime] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+
+  const validateAndSetPhone = (text: string) => {
+    setFormData({...formData, phone: text});
+
+    if (text.trim() === '') {
+      setPhoneError('');
+    } else if (!isValidPhoneNumber(text)) {
+      setPhoneError('Invalid phone format. Use: (206) 555-0123 or 206-555-0123');
+    } else {
+      setPhoneError('');
+    }
+  };
 
   const handleSave = () => {
+    // Validate phone number before saving
+    if (formData.phone && !isValidPhoneNumber(formData.phone)) {
+      Alert.alert('Invalid Phone Number', 'Please enter a valid 10-digit US phone number.');
+      return;
+    }
+
     const updatedUser: User = {
       ...user,
       name: formData.name,
@@ -43,7 +75,6 @@ export function EditProfileModal({visible, onClose, user, onSave}: EditProfileMo
       contactEmail: formData.contactEmail,
       campusLocation: formData.campusLocation,
       activityTags,
-      skills,
       preferredTimes,
     };
     onSave(updatedUser);
@@ -59,17 +90,6 @@ export function EditProfileModal({visible, onClose, user, onSave}: EditProfileMo
 
   const removeTag = (tag: string) => {
     setActivityTags(activityTags.filter((t) => t !== tag));
-  };
-
-  const addSkill = () => {
-    if (newSkill.trim() && !skills.includes(newSkill.trim())) {
-      setSkills([...skills, newSkill.trim()]);
-      setNewSkill('');
-    }
-  };
-
-  const removeSkill = (skill: string) => {
-    setSkills(skills.filter((s) => s !== skill));
   };
 
   const addTime = () => {
@@ -108,7 +128,7 @@ export function EditProfileModal({visible, onClose, user, onSave}: EditProfileMo
 
         {/* Activity Tags */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Activities & Interests</Text>
+          <Text style={styles.sectionTitle}>Activity Interests</Text>
           <View style={styles.tagsContainer}>
             {activityTags.map((tag, index) => (
               <Badge key={index} variant="secondary" style={styles.tag}>
@@ -129,34 +149,6 @@ export function EditProfileModal({visible, onClose, user, onSave}: EditProfileMo
               containerStyle={styles.addInput}
             />
             <TouchableOpacity style={styles.addButton} onPress={addTag}>
-              <Ionicons name="add-circle" size={32} color={colors.primary} />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Skills */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Skills & Experience</Text>
-          <View style={styles.tagsContainer}>
-            {skills.map((skill, index) => (
-              <Badge key={index} variant="outline" style={styles.tag}>
-                <View style={styles.tagContent}>
-                  <Text style={styles.tagText}>{skill}</Text>
-                  <TouchableOpacity onPress={() => removeSkill(skill)}>
-                    <Ionicons name="close-circle" size={16} color={colors.textSecondary} />
-                  </TouchableOpacity>
-                </View>
-              </Badge>
-            ))}
-          </View>
-          <View style={styles.addRow}>
-            <Input
-              value={newSkill}
-              onChangeText={setNewSkill}
-              placeholder="Add skill"
-              containerStyle={styles.addInput}
-            />
-            <TouchableOpacity style={styles.addButton} onPress={addSkill}>
               <Ionicons name="add-circle" size={32} color={colors.primary} />
             </TouchableOpacity>
           </View>
@@ -192,13 +184,16 @@ export function EditProfileModal({visible, onClose, user, onSave}: EditProfileMo
         {/* Contact Info */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Contact Information</Text>
-          <Input
-            label="Phone"
-            value={formData.phone}
-            onChangeText={(text) => setFormData({...formData, phone: text})}
-            placeholder="Enter your phone number"
-            keyboardType="phone-pad"
-          />
+          <View>
+            <Input
+              label="Phone"
+              value={formData.phone}
+              onChangeText={validateAndSetPhone}
+              placeholder="(206) 555-0123"
+              keyboardType="phone-pad"
+            />
+            {phoneError ? <Text style={styles.errorText}>{phoneError}</Text> : null}
+          </View>
           <Input
             label="Instagram"
             value={formData.instagram}
@@ -297,5 +292,12 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: spacing.md,
+  },
+  errorText: {
+    ...typography.bodySmall,
+    color: colors.error,
+    marginTop: -spacing.sm,
+    marginBottom: spacing.sm,
+    marginLeft: spacing.xs,
   },
 });

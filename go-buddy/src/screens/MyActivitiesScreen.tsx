@@ -35,7 +35,7 @@ type MyActivitiesScreenProps = {
 };
 
 type ViewMode = 'create' | 'organizing' | 'participating';
-type ParticipatingFilter = 'pending' | 'approved' | 'declined';
+type ParticipatingFilter = 'pending' | 'approved';
 
 export function MyActivitiesScreen({
   currentUser,
@@ -75,13 +75,12 @@ export function MyActivitiesScreen({
     (intent) => intent.status === 'completed' || intent.status === 'cancelled',
   );
 
-  // Get activities I'm participating in (requested or approved)
+  // Get activities I'm participating in (requested or approved, excluding declined)
   const myParticipatingRequests = effectiveActivityRequests.filter(
-    (request) => request.userId === currentUser.id,
+    (request) => request.userId === currentUser.id && request.status !== 'declined',
   );
   const pendingParticipating = myParticipatingRequests.filter((r) => r.status === 'pending');
   const approvedParticipating = myParticipatingRequests.filter((r) => r.status === 'approved');
-  const declinedParticipating = myParticipatingRequests.filter((r) => r.status === 'declined');
 
   // Get the activities for participating view
   const getParticipatingActivities = (): Array<{
@@ -90,8 +89,7 @@ export function MyActivitiesScreen({
   }> => {
     let requests: ActivityRequest[] = [];
     if (participatingFilter === 'pending') requests = pendingParticipating;
-    else if (participatingFilter === 'approved') requests = approvedParticipating;
-    else requests = declinedParticipating;
+    else requests = approvedParticipating;
 
     return requests
       .map((request) => ({
@@ -572,42 +570,6 @@ export function MyActivitiesScreen({
                   </Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.filterToggleButton,
-                  participatingFilter === 'declined' && styles.filterToggleButtonActive,
-                ]}
-                onPress={() => setParticipatingFilter('declined')}
-              >
-                <Ionicons
-                  name="close-circle-outline"
-                  size={16}
-                  color={participatingFilter === 'declined' ? '#FFFFFF' : colors.textSecondary}
-                />
-                <Text
-                  style={[
-                    styles.filterToggleText,
-                    participatingFilter === 'declined' && styles.filterToggleTextActive,
-                  ]}
-                >
-                  Declined
-                </Text>
-                <View
-                  style={[
-                    styles.countBadge,
-                    participatingFilter === 'declined' && styles.countBadgeActive,
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.countText,
-                      participatingFilter === 'declined' && styles.countTextActive,
-                    ]}
-                  >
-                    {declinedParticipating.length}
-                  </Text>
-                </View>
-              </TouchableOpacity>
             </View>
           </View>
 
@@ -623,9 +585,7 @@ export function MyActivitiesScreen({
                 <Text style={styles.emptySubtext}>
                   {participatingFilter === 'pending'
                     ? 'Your join requests will appear here'
-                    : participatingFilter === 'approved'
-                      ? 'Approved activities will appear here'
-                      : 'Declined requests will appear here'}
+                    : 'Approved activities will appear here'}
                 </Text>
               </View>
             }

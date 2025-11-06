@@ -80,6 +80,18 @@ export const activityRequestController = {
       });
 
       if (existingRequest) {
+        // If the existing request was declined, allow re-request by updating it to pending
+        if (existingRequest.status === 'declined') {
+          await existingRequest.update({
+            userName,
+            userBio: userBio || '',
+            userSkills: userSkills || [],
+            status: 'pending',
+          });
+          res.status(200).json({ success: true, data: existingRequest });
+          return;
+        }
+        // Otherwise, block duplicate requests (pending or approved)
         res.status(400).json({ success: false, error: 'Request already exists' });
         return;
       }

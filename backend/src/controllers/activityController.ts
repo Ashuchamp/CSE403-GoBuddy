@@ -73,8 +73,8 @@ export const activityController = {
     try {
       const { userId, userName, title, description, maxPeople, scheduledTimes, campusLocation } = req.body;
 
-      // Validate required fields
-      if (!userId || !userName || !title || !description || !maxPeople || !scheduledTimes) {
+      // Validate required fields (only title and maxPeople are required from user)
+      if (!userId || !userName || !title || !maxPeople) {
         res.status(400).json({ success: false, error: 'Missing required fields' });
         return;
       }
@@ -91,11 +91,11 @@ export const activityController = {
         userId,
         userName,
         title,
-        description,
+        description: description || '',
         maxPeople,
         currentPeople: 1,
-        scheduledTimes,
-        campusLocation,
+        scheduledTimes: scheduledTimes || [],
+        campusLocation: campusLocation || undefined,
         status: 'active',
       });
 

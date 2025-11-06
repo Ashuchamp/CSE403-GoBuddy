@@ -182,7 +182,7 @@ export function useActivityRequests(currentUser: User | null) {
           userId: currentUser.id,
           userName: currentUser.name,
           userBio: currentUser.bio,
-          userSkills: currentUser.skills,
+          userSkills: [],
         });
 
         if (newRequest) {
