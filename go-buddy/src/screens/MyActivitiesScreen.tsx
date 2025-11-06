@@ -108,15 +108,17 @@ export function MyActivitiesScreen({
       Alert.alert('Error', 'Please enter an activity title');
       return;
     }
-    if (!maxPeople || parseInt(maxPeople) < 2) {
-      Alert.alert('Error', 'Maximum people must be at least 2');
+
+    const maxPeopleNum = parseInt(maxPeople);
+    if (!maxPeople || isNaN(maxPeopleNum) || maxPeopleNum < 2) {
+      Alert.alert('Error', 'Maximum people must be a number and at least 2');
       return;
     }
 
     const newActivity = {
       title: title.trim(),
       description: description.trim(),
-      maxPeople: parseInt(maxPeople),
+      maxPeople: maxPeopleNum,
       currentPeople: 1,
       scheduledTimes: scheduledTimes,
       campusLocation: location.trim() || undefined,

@@ -54,57 +54,74 @@ psql --version  # Should show PostgreSQL 12+
 
 ## How to Build the System
 
-### Mobile App (Frontend)
+Follow these steps **once** when first setting up the project:
+
+### 1. Frontend Setup
 
 ```bash
 cd go-buddy
-npm install                # Install dependencies
-npm run type-check         # Verify TypeScript
+npm install                # Install all dependencies
+npm run type-check         # Verify TypeScript compiles
 ```
 
-### Backend API
+### 2. Backend Setup
 
 ```bash
 cd backend
-npm install                # Install dependencies
+npm install                # Install all dependencies
 createdb gobuddy          # Create PostgreSQL database
-./setup.sh                # Automated setup (recommended)
-# OR manually: cp .env.example .env and edit
-npm run build             # Compile TypeScript
+./setup.sh                # Configure environment (recommended)
 ```
 
-**Automated setup (recommended)**: The `./setup.sh` script automatically configures database credentials for your platform.
+**Automated setup (recommended)**: The `./setup.sh` script automatically creates and configures `.env` with correct database credentials for your platform.
 
-**Manual setup**: If editing `.env` manually, set `DB_USER` to:
-- macOS (Homebrew): Your macOS username, leave `DB_PASSWORD` empty
-- Linux/Docker: Usually `postgres` with a password
-- Windows: Check your PostgreSQL installation settings
+**Manual setup alternative**: 
+```bash
+cp .env.example .env       # Copy template
+# Edit .env and set DB_USER to:
+#   - macOS: Your macOS username, leave DB_PASSWORD empty
+#   - Linux/Docker: Usually 'postgres' with a password
+#   - Windows: Check your PostgreSQL installation settings
+```
+
+**Note**: You don't need to run `npm run build` for development. TypeScript is compiled on-the-fly by `nodemon` when you run `npm run dev`.
 
 ## How to Test the System
 
 ### Quick Test (All Components)
 
+Run all tests, linting, and type-checking at once:
+
 ```bash
-./pre-pr-check.sh          # Runs all tests, linting, type-checking
+./pre-pr-check.sh          # From project root
 ```
 
-### Mobile App Tests
+This runs frontend tests with coverage, linting, formatting checks, and TypeScript validation.
+
+### Frontend Tests Only
 
 ```bash
 cd go-buddy
 npm test                   # Run all tests
-npm run test:coverage      # Run with coverage report
-npm run lint              # Check code quality
-npm run type-check        # Verify TypeScript
+npm run test:coverage      # Run tests with coverage report
+npm run lint              # Check code quality (ESLint)
+npm run type-check        # Verify TypeScript compiles
 ```
 
-**Coverage Requirements**: ≥80% statements, ≥70% branches, ≥80% functions, ≥80% lines
+**Coverage Requirements**: Minimum 5% (configured in `package.json`)
 
-### Backend Tests (First needs a running backend before testing)
+### Backend Tests (Manual API Testing)
+
+**Prerequisites**: Backend must be running first
 
 ```bash
 cd backend
-./test-api.sh             # Test API endpoints
+npm run dev               # Start backend in another terminal
+```
+
+**Then test API endpoints**:
+```bash
+./test-api.sh             # Test all API endpoints with curl
 curl http://localhost:3000/api/health  # Quick health check
 ```
 
@@ -112,65 +129,134 @@ curl http://localhost:3000/api/health  # Quick health check
 
 ## How to Run the System
 
-### Mobile App (Frontend)
+**Important**: The mobile app requires the backend to function. Choose one of the two modes below:
 
-```bash
-cd go-buddy
-npx expo start                  # Start Expo dev server
-# Then press: 'i' for iOS, 'a' for Android, 'w' for web
-```
+---
 
-### Backend API
+### Option 1: Real App Mode (For Development)
 
-```bash
-cd backend
-npm run dev               # Development mode with hot-reload
-```
+Use this for **real development** and testing with your **own Google account**.
 
-**Backend runs at**: http://localhost:3000/api
+**⚠️ Do NOT run `npm run seed` for this mode**
 
-**Health check**: http://localhost:3000/api/health
+**Steps**:
 
-### Running Both Together
+1. **Start backend**:
+   ```bash
+   cd backend
+   npm run dev                  # Start backend WITHOUT seeding
+   ```
 
-Open two terminal windows:
-- **Terminal 1**: `cd backend && npm run dev`
-- **Terminal 2**: `cd go-buddy && npm start`
+2. **Start mobile app** (in a new terminal):
+   ```bash
+   cd go-buddy
+   npm start                    # Start Expo dev server
+   # Press 'i' for iOS, 'a' for Android, 'w' for web
+   ```
 
-**Stop servers**: Press `Ctrl + C` in each terminal
+3. **On the mobile app**:
+   - Click **"Sign in with Google"**
+   - Use your **@uw.edu email**
+   - Your account will be created automatically
+   - Start with a clean profile that you can customize
 
-## Working with Mock Data
+**What you get**: Real Google authentication, your own account, empty database to build from scratch
 
-The backend includes a seed script to populate the database with demo data for testing and development.
+---
 
-### Running with Mock Data
+### Option 2: Demo Mode (For Showcase/Testing)
 
-1. **Start backend with mock data**:
-```bash
-cd backend
-npm run seed                 # Populate database with demo users and activities
-npm run dev                  # Start backend server
-```
+Use this to **showcase features** with pre-populated users and activities.
 
-2. **Start mobile app**:
-```bash
-cd go-buddy
-npx expo start               # Start Expo dev server
-```
+**⚠️ You MUST run `npm run seed` FIRST for this mode**
 
-3. **On mobile app**:
-Click "Skip to Demo (for showcase)" to view the demo data
+**Steps**:
 
-### Clear Mock Data
+1. **Seed the database** (run this FIRST):
+   ```bash
+   cd backend
+   npm run seed                 # Populates 20+ users and 15+ activities
+   ```
 
-To remove all seeded data and start fresh:
+2. **Start backend**:
+   ```bash
+   npm run dev                  # Start backend server
+   ```
+
+3. **Start mobile app** (in a new terminal):
+   ```bash
+   cd go-buddy
+   npm start                    # Start Expo dev server
+   # Press 'i' for iOS, 'a' for Android, 'w' for web
+   ```
+
+4. **On the mobile app**:
+   - Click **"Skip to Demo (for showcase)"**
+   - Logs in as **Demo User** (demo@uw.edu)
+   - Instantly see populated Browse, Activities, and Connections screens
+
+**What you get**: Pre-configured demo account, sample activities to join, mock users to connect with
+
+**Note**: If you use both Google login and Demo mode, both accounts will exist in the database. This is normal - each user can see the other in Browse, demonstrating multi-user functionality.
+
+---
+
+### Stopping the App
+
+Press `Ctrl + C` in each terminal window to stop the servers.
+
+---
+
+### Physical Device Testing
+
+**For testing on a physical phone** (not simulator/emulator):
+
+1. **Find your computer's IP address**:
+   ```bash
+   ipconfig getifaddr en0      # macOS
+   ipconfig                     # Windows (look for IPv4)
+   ```
+
+2. **Update API URL** in `go-buddy/src/services/api.ts`:
+   ```typescript
+   const API_BASE_URL = 'http://YOUR_IP_HERE:3000/api';
+   // Example: 'http://10.0.0.90:3000/api'
+   ```
+
+3. **Ensure same WiFi**: Phone and computer must be on the same network
+
+4. **Restart the app**: Press `r` in Expo terminal to reload
+
+---
+
+### Clear All Data (Complete Database Reset)
+
+**⚠️ WARNING**: This deletes **ALL data** from the database, including:
+- Seeded demo users and activities
+- **Your Google login account**
+- **All activities you created**
+- All connections and requests
+
+To completely reset the database:
 
 ```bash
 cd backend
 psql -d gobuddy -f clear-seed.sql
 ```
 
-**Note**: The mobile app will show empty states when no data exists in the database. This is normal and expected for a clean installation.
+After running this, the database will be completely empty. You'll need to:
+- Re-run `npm run seed` if you want demo mode
+- Re-login with Google to recreate your account
+
+## Operational Use Cases
+Operational:
+- Create new activity inten,
+- Create Profile,
+- Keyword-based activity search,
+- Group Activity Formation,
+- Exchange Contact Info
+
+*The specific descriptions of use cases can be found in the living document.
 
 ## Technical Processes
 
@@ -192,7 +278,7 @@ psql -d gobuddy -f clear-seed.sql
 
 ### Testing Infrastructure
 - **Framework**: Jest + React Testing Library
-- **Coverage**: ≥80% statements, ≥70% branches (enforced in CI)
+- **Coverage**: Minimum 5% threshold (configured in `go-buddy/package.json`)
 - **Commands**: `npm test`, `npm run test:coverage`
 - **Detailed guide**: [TESTING.md](TESTING.md)
 
