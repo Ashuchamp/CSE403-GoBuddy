@@ -145,12 +145,12 @@ export default function App() {
     const activity = activityIntents.find((a) => a.id === activityId);
     if (!activity || !currentUser) return;
 
-    // Check if already requested
+    // Check if already requested (allow re-request if previously declined)
     const existingRequest = activityRequests.find(
       (r) => r.activityId === activityId && r.userId === currentUser.id,
     );
-    if (existingRequest) {
-      return; // Already requested
+    if (existingRequest && existingRequest.status !== 'declined') {
+      return; // Already requested or approved
     }
 
     if (!backendConnected) {

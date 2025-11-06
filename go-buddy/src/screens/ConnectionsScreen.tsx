@@ -12,13 +12,14 @@ import {
   addConnectedUser,
   getConnectedUsers,
 } from '../services/connectionStore';
+import api from '../services/api';
 
 type ConnectionRequest = {
   id: string;
   from: User;
   to?: User; // For sent requests
   message?: string;
-  timestamp: Date;
+  timestamp: Date | string; // Date from local store, string from API
   status: 'pending' | 'accepted' | 'declined';
 };
 
@@ -44,42 +45,104 @@ export function ConnectionsScreen({currentUser}: ConnectionsScreenProps) {
   const [activeSection, setActiveSection] = React.useState<SectionType>('received');
   const [selectedUser, setSelectedUser] = React.useState<User | null>(null);
   const [profileVisible, setProfileVisible] = React.useState(false);
+  const [useBackend, setUseBackend] = React.useState(true);
 
-  // No local seeding here; AppNavigator seeds demo data in the shared store
-
+  // Try to fetch connection data from backend
   React.useEffect(() => {
-    const unsubscribe = subscribeToSentRequests((r) => {
-      setSentRequests((prev) => [
-        {
+    if (currentUser?.id) {
+      fetchConnectionData();
+    }
+  }, [currentUser?.id]);
+
+  const fetchConnectionData = async () => {
+    try {
+      const [received, sent, connected] = await Promise.all([
+        api.connections.getReceivedRequests(currentUser.id),
+        api.connections.getSentRequests(currentUser.id),
+        api.connections.getConnectedUsers(currentUser.id),
+      ]);
+
+      setReceivedRequests(received);
+      setSentRequests(sent);
+      setConnectedUsers(connected);
+      setUseBackend(true);
+    } catch (error) {
+      console.error('Failed to fetch connection data from backend, using local store:', error);
+      setUseBackend(false);
+      // Fall back to local store data
+      setSentRequests(
+        getSentRequests().map((r) => ({
           id: r.id,
           from: r.from,
           to: r.to,
           message: r.message,
           timestamp: r.timestamp,
           status: r.status,
-        },
-        ...prev,
-      ]);
-    });
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+        })),
+      );
+      setConnectedUsers(getConnectedUsers());
+    }
+  };
 
-  const handleAccept = (requestId: string) => {
+  React.useEffect(() => {
+    // Subscribe to local store updates if not using backend
+    if (!useBackend) {
+      const unsubscribe = subscribeToSentRequests((r) => {
+        setSentRequests((prev) => [
+          {
+            id: r.id,
+            from: r.from,
+            to: r.to,
+            message: r.message,
+            timestamp: r.timestamp,
+            status: r.status,
+          },
+          ...prev,
+        ]);
+      });
+      return () => {
+        unsubscribe();
+      };
+    }
+  }, [useBackend]);
+
+  const handleAccept = async (requestId: string) => {
     const request = receivedRequests.find((req) => req.id === requestId);
-    if (request) {
-      // Move user from pending to connected
+    if (!request) return;
+
+    if (useBackend) {
+      // Use API if connected to backend
+      try {
+        await api.connections.acceptRequest(requestId);
+        // Refresh connection data
+        await fetchConnectionData();
+        Alert.alert('Success', 'Connection request accepted!');
+      } catch (error) {
+        Alert.alert('Error', 'Failed to accept connection request');
+      }
+    } else {
+      // Use local store if not connected
       setConnectedUsers([request.from, ...connectedUsers]);
       addConnectedUser(request.from, true);
-      // Remove from pending requests
       setReceivedRequests(receivedRequests.filter((req) => req.id !== requestId));
       Alert.alert('Success', 'Connection request accepted!');
     }
   };
 
-  const handleDecline = (requestId: string) => {
-    setReceivedRequests(receivedRequests.filter((req) => req.id !== requestId));
+  const handleDecline = async (requestId: string) => {
+    if (useBackend) {
+      // Use API if connected to backend
+      try {
+        await api.connections.declineRequest(requestId);
+        // Refresh connection data
+        await fetchConnectionData();
+      } catch (error) {
+        Alert.alert('Error', 'Failed to decline connection request');
+      }
+    } else {
+      // Use local store if not connected
+      setReceivedRequests(receivedRequests.filter((req) => req.id !== requestId));
+    }
   };
 
   const handleViewProfile = (user: User) => {
@@ -284,9 +347,16 @@ export function ConnectionsScreen({currentUser}: ConnectionsScreenProps) {
   );
 }
 
-function formatTimestamp(date: Date): string {
+function formatTimestamp(date: Date | string): string {
   const now = new Date();
-  const diff = now.getTime() - date.getTime();
+  const timestamp = typeof date === 'string' ? new Date(date) : date;
+
+  // Handle invalid dates
+  if (isNaN(timestamp.getTime())) {
+    return 'Recently';
+  }
+
+  const diff = now.getTime() - timestamp.getTime();
   const hours = Math.floor(diff / (1000 * 60 * 60));
 
   if (hours < 1) {

@@ -13,7 +13,8 @@ type UserCardProps = {
   onPress?: () => void;
   onConnectRequest?: () => void;
   showContactInfo?: boolean;
-  requested?: boolean;
+  requested?: boolean; // User sent a request to this person
+  received?: boolean; // This person sent a request to user
   connected?: boolean;
 };
 
@@ -24,6 +25,7 @@ export function UserCard({
   onConnectRequest,
   showContactInfo = false,
   requested,
+  received,
   connected,
 }: UserCardProps) {
   const [requestSent, setRequestSent] = useState(false);
@@ -35,6 +37,7 @@ export function UserCard({
 
   const isConnected = connected === true;
   const isRequested = requested ?? requestSent;
+  const isReceived = received === true;
 
   const buttonStyle: ViewStyle = isConnected
     ? {
@@ -46,7 +49,12 @@ export function UserCard({
           ...styles.connectButton,
           backgroundColor: colors.primary,
         }
-      : styles.connectButton;
+      : isReceived
+        ? {
+            ...styles.connectButton,
+            backgroundColor: colors.warning,
+          }
+        : styles.connectButton;
 
   return (
     <Card style={styles.card}>
@@ -109,38 +117,36 @@ export function UserCard({
             </View>
           </View>
         )}
-
-        {/* Skills */}
-        {user.skills.length > 0 && (
-          <View style={styles.skillsContainer}>
-            <Text style={styles.skillsLabel}>Skills & Experience</Text>
-            <View style={styles.skillsWrapper}>
-              {user.skills.slice(0, 3).map((skill, index) => (
-                <Badge key={index} variant="outline" style={styles.skill}>
-                  {skill}
-                </Badge>
-              ))}
-            </View>
-          </View>
-        )}
       </TouchableOpacity>
 
       {/* Action Button */}
       <Button
         onPress={handleConnect}
-        disabled={isRequested || isConnected}
+        disabled={isRequested || isConnected || isReceived}
         style={buttonStyle}
         fullWidth
       >
         <View style={styles.buttonContent}>
           <Ionicons
-            name={isConnected ? 'checkmark-circle-outline' : 'person-add-outline'}
+            name={
+              isConnected
+                ? 'checkmark-circle-outline'
+                : isReceived
+                  ? 'mail-outline'
+                  : 'person-add-outline'
+            }
             size={16}
             color="#fff"
             style={styles.buttonIcon}
           />
           <Text style={styles.buttonText}>
-            {isConnected ? 'Connected' : isRequested ? 'Request Sent' : 'Request to Connect'}
+            {isConnected
+              ? 'Connected'
+              : isRequested
+                ? 'Request Sent'
+                : isReceived
+                  ? 'Request Received'
+                  : 'Request to Connect'}
           </Text>
         </View>
       </Button>
@@ -190,25 +196,6 @@ const styles = StyleSheet.create({
     ...typography.bodySmall,
     color: colors.textSecondary,
     marginLeft: spacing.sm,
-  },
-  skillsContainer: {
-    paddingTop: spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    marginBottom: spacing.md,
-  },
-  skillsLabel: {
-    ...typography.caption,
-    color: colors.textMuted,
-    marginBottom: spacing.sm,
-  },
-  skillsWrapper: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xs,
-  },
-  skill: {
-    marginRight: spacing.xs,
   },
   contactContainer: {
     paddingTop: spacing.md,

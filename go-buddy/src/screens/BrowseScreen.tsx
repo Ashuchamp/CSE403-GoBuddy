@@ -52,66 +52,86 @@ export function BrowseScreen({
   const [pendingConnectUser, setPendingConnectUser] = useState<User | null>(null);
   const [connectNote, setConnectNote] = useState('');
   const [sentToUserIds, setSentToUserIds] = useState<Set<string>>(new Set());
+  const [receivedFromUserIds, setReceivedFromUserIds] = useState<Set<string>>(new Set());
   const [connectedUserIds, setConnectedUserIds] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [users, setUsers] = useState<User[]>([]);
+  const [useBackend, setUseBackend] = useState(true);
 
-  // Fetch users from API
+  // Fetch users and connection data from API
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchData = async () => {
       try {
         const allUsers = await api.users.getAll();
         setUsers(allUsers);
+
+        // Fetch connection data from backend
+        const [sentRequests, receivedRequests, connectedUsers] = await Promise.all([
+          api.connections.getSentRequests(currentUser.id),
+          api.connections.getReceivedRequests(currentUser.id),
+          api.connections.getConnectedUsers(currentUser.id),
+        ]);
+
+        // Update connection status sets
+        const sentIds = sentRequests
+          .map((r: {to?: {id: string}}) => r.to?.id)
+          .filter((id): id is string => !!id);
+        setSentToUserIds(new Set(sentIds));
+
+        const receivedIds = receivedRequests
+          .map((r: {from?: {id: string}}) => r.from?.id)
+          .filter((id): id is string => !!id);
+        setReceivedFromUserIds(new Set(receivedIds));
+        setConnectedUserIds(new Set(connectedUsers.map((u: User) => u.id)));
+        setUseBackend(true);
       } catch (error) {
-        // Failed to fetch users
+        console.error('Failed to fetch data from backend, using local store:', error);
+        setUseBackend(false);
+        // Fallback to local store
         setUsers([]);
+        setSentToUserIds(new Set(getSentRequests().map((r) => r.to.id)));
+        setConnectedUserIds(new Set(getConnectedUsers().map((u) => u.id)));
       }
     };
 
-    fetchUsers();
-  }, []);
+    fetchData();
+  }, [currentUser.id]);
 
+  // Subscribe to local store updates if not using backend
   React.useEffect(() => {
-    const initial = new Set(getSentRequests().map((r) => r.to.id));
-    setSentToUserIds(initial);
-    const unsubscribe = subscribeToSentRequests((r) => {
-      setSentToUserIds((prev) => new Set(prev).add(r.to.id));
-    });
-    return () => {
-      unsubscribe();
-    };
-  }, []);
-
-  React.useEffect(() => {
-    const initial = new Set(getConnectedUsers().map((u) => u.id));
-    setConnectedUserIds(initial);
-    const unsubscribe = subscribeToConnectedUsers((u) => {
-      setConnectedUserIds((prev) => new Set(prev).add(u.id));
-    });
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+    if (!useBackend) {
+      const unsubscribe1 = subscribeToSentRequests((r) => {
+        setSentToUserIds((prev) => new Set(prev).add(r.to.id));
+      });
+      const unsubscribe2 = subscribeToConnectedUsers((u) => {
+        setConnectedUserIds((prev) => new Set(prev).add(u.id));
+      });
+      return () => {
+        unsubscribe1();
+        unsubscribe2();
+      };
+    }
+  }, [useBackend]);
 
   // Filter users
   const filteredUsers = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    return users
-      .filter((user) => user.id !== currentUser.id)
-      .filter((user) => {
-        if (!q) return true;
-        const haystack = [
-          user.name,
-          user.bio,
-          user.campusLocation ?? '',
-          ...user.skills,
-          ...user.activityTags,
-        ]
-          .join(' ')
-          .toLowerCase();
-        return haystack.includes(q);
-      });
-  }, [currentUser.id, searchQuery, users]);
+    return (
+      users
+        .filter((user) => user.id !== currentUser.id)
+        // Exclude users already connected, with pending requests sent, or who sent you requests
+        .filter((user) => !connectedUserIds.has(user.id))
+        .filter((user) => !sentToUserIds.has(user.id))
+        .filter((user) => !receivedFromUserIds.has(user.id))
+        .filter((user) => {
+          if (!q) return true;
+          const haystack = [user.name, user.bio, user.campusLocation ?? '', ...user.activityTags]
+            .join(' ')
+            .toLowerCase();
+          return haystack.includes(q);
+        })
+    );
+  }, [currentUser.id, searchQuery, users, connectedUserIds, sentToUserIds, receivedFromUserIds]);
 
   // User's participating requests (mocked for demo)
   const myRequestsByActivity = useMemo(() => {
@@ -127,22 +147,29 @@ export function BrowseScreen({
   // Filter activities
   const filteredIntents = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    return activityIntents
-      .filter((intent) => intent.userId !== currentUser.id)
-      .filter((intent) => {
-        if (!q) return true;
-        const haystack = [
-          intent.title,
-          intent.description,
-          intent.userName,
-          intent.campusLocation ?? '',
-          ...(intent.scheduledTimes ?? []),
-        ]
-          .join(' ')
-          .toLowerCase();
-        return haystack.includes(q);
-      });
-  }, [currentUser.id, activityIntents, searchQuery]);
+    return (
+      activityIntents
+        .filter((intent) => intent.userId !== currentUser.id)
+        // Exclude activities where user has pending or approved requests
+        .filter((intent) => {
+          const req = myRequestsByActivity.get(intent.id);
+          return !req || req.status === 'declined';
+        })
+        .filter((intent) => {
+          if (!q) return true;
+          const haystack = [
+            intent.title,
+            intent.description,
+            intent.userName,
+            intent.campusLocation ?? '',
+            ...(intent.scheduledTimes ?? []),
+          ]
+            .join(' ')
+            .toLowerCase();
+          return haystack.includes(q);
+        })
+    );
+  }, [currentUser.id, activityIntents, searchQuery, myRequestsByActivity]);
 
   const openConnectModal = (user: User) => {
     setPendingConnectUser(user);
@@ -150,16 +177,34 @@ export function BrowseScreen({
     setConnectModalVisible(true);
   };
 
-  const submitConnectRequest = () => {
+  const submitConnectRequest = async () => {
     if (!pendingConnectUser) return;
-    addSentRequest({
-      id: `sent_${Date.now()}`,
-      from: currentUser,
-      to: pendingConnectUser,
-      message: connectNote.trim(),
-      timestamp: new Date(),
-      status: 'pending',
-    });
+
+    if (useBackend) {
+      // Use backend API
+      try {
+        await api.connections.sendRequest(
+          currentUser.id,
+          pendingConnectUser.id,
+          connectNote.trim(),
+        );
+        // Update local state
+        setSentToUserIds((prev) => new Set(prev).add(pendingConnectUser.id));
+      } catch (error) {
+        console.error('Failed to send connection request:', error);
+      }
+    } else {
+      // Use local store
+      addSentRequest({
+        id: `sent_${Date.now()}`,
+        from: currentUser,
+        to: pendingConnectUser,
+        message: connectNote.trim(),
+        timestamp: new Date(),
+        status: 'pending',
+      });
+    }
+
     setConnectModalVisible(false);
     setPendingConnectUser(null);
     setConnectNote('');
@@ -171,6 +216,7 @@ export function BrowseScreen({
       currentUser={currentUser}
       onPress={() => setSelectedUser(item)}
       requested={sentToUserIds.has(item.id)}
+      received={receivedFromUserIds.has(item.id)}
       connected={connectedUserIds.has(item.id)}
       onConnectRequest={() => openConnectModal(item)}
       showContactInfo={false}
@@ -179,14 +225,9 @@ export function BrowseScreen({
 
   const renderActivityCard = ({item}: {item: ActivityIntent}) => {
     const req = myRequestsByActivity.get(item.id);
+    // Treat declined requests as if they don't exist (allow re-request)
     const status =
-      req?.status === 'approved'
-        ? 'joined'
-        : req?.status === 'pending'
-          ? 'sent'
-          : req?.status === 'declined'
-            ? 'declined'
-            : undefined;
+      req?.status === 'approved' ? 'joined' : req?.status === 'pending' ? 'sent' : undefined;
     return (
       <ActivityCard
         intent={item}
@@ -266,7 +307,7 @@ export function BrowseScreen({
           onChangeText={setSearchQuery}
           placeholder={
             browseCategory === 'students'
-              ? 'Search students by name, skills, tags, location'
+              ? 'Search students by name, tags, location'
               : 'Search activities by title, description, host, location'
           }
           placeholderTextColor={colors.textMuted}

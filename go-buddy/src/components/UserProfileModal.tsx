@@ -100,20 +100,6 @@ export function UserProfileModal({
               </View>
             )}
 
-            {/* Skills & Experience */}
-            {user.skills.length > 0 && (
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Skills & Experience</Text>
-                <View style={styles.skillsContainer}>
-                  {user.skills.map((skill, index) => (
-                    <Badge key={index} variant="outline" style={styles.skill}>
-                      {skill}
-                    </Badge>
-                  ))}
-                </View>
-              </View>
-            )}
-
             {/* Contact Info - Only show if showContactInfo is true or it's own profile */}
             {(showContactInfo || isOwnProfile) &&
               (user.phone || user.instagram || user.contactEmail) && (
