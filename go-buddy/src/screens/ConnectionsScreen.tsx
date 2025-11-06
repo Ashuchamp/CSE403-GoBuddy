@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {View, Text, StyleSheet, FlatList, Alert, TouchableOpacity} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {User} from '../types';
@@ -238,12 +238,26 @@ export function ConnectionsScreen({currentUser}: ConnectionsScreenProps) {
     </View>
   );
 
+  // Filter out current user from all lists
+  const filteredReceivedRequests = useMemo(
+    () => receivedRequests.filter((req) => req.from.id !== currentUser.id),
+    [receivedRequests, currentUser.id],
+  );
+  const filteredSentRequests = useMemo(
+    () => sentRequests.filter((req) => req.to && req.to.id !== currentUser.id),
+    [sentRequests, currentUser.id],
+  );
+  const filteredConnectedUsers = useMemo(
+    () => connectedUsers.filter((user) => user.id !== currentUser.id),
+    [connectedUsers, currentUser.id],
+  );
+
   const renderList = () => {
     switch (activeSection) {
       case 'received':
         return (
           <FlatList
-            data={receivedRequests}
+            data={filteredReceivedRequests}
             renderItem={renderReceivedRequest}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContent}
@@ -256,7 +270,7 @@ export function ConnectionsScreen({currentUser}: ConnectionsScreenProps) {
       case 'sent':
         return (
           <FlatList
-            data={sentRequests}
+            data={filteredSentRequests}
             renderItem={renderSentRequest}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContent}
@@ -269,7 +283,7 @@ export function ConnectionsScreen({currentUser}: ConnectionsScreenProps) {
       case 'connected':
         return (
           <FlatList
-            data={connectedUsers}
+            data={filteredConnectedUsers}
             renderItem={renderConnectedUser}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContent}
@@ -298,9 +312,9 @@ export function ConnectionsScreen({currentUser}: ConnectionsScreenProps) {
           <Text style={[styles.tabText, activeSection === 'received' && styles.activeTabText]}>
             Received
           </Text>
-          {receivedRequests.length > 0 && (
+          {filteredReceivedRequests.length > 0 && (
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>{receivedRequests.length}</Text>
+              <Text style={styles.badgeText}>{filteredReceivedRequests.length}</Text>
             </View>
           )}
         </TouchableOpacity>
@@ -312,9 +326,9 @@ export function ConnectionsScreen({currentUser}: ConnectionsScreenProps) {
           <Text style={[styles.tabText, activeSection === 'sent' && styles.activeTabText]}>
             Sent
           </Text>
-          {sentRequests.length > 0 && (
+          {filteredSentRequests.length > 0 && (
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>{sentRequests.length}</Text>
+              <Text style={styles.badgeText}>{filteredSentRequests.length}</Text>
             </View>
           )}
         </TouchableOpacity>
@@ -326,9 +340,9 @@ export function ConnectionsScreen({currentUser}: ConnectionsScreenProps) {
           <Text style={[styles.tabText, activeSection === 'connected' && styles.activeTabText]}>
             Connected
           </Text>
-          {connectedUsers.length > 0 && (
+          {filteredConnectedUsers.length > 0 && (
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>{connectedUsers.length}</Text>
+              <Text style={styles.badgeText}>{filteredConnectedUsers.length}</Text>
             </View>
           )}
         </TouchableOpacity>

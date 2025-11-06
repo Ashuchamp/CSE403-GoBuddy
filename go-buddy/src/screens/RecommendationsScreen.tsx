@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
+import React, {useState, useMemo} from 'react';
 import {View, Text, StyleSheet, FlatList} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
-import {User, ActivityIntent} from '../types';
+import {User, ActivityIntent, ActivityRequest} from '../types';
 import {ActivityCard} from '../components/ActivityCard';
 import {ActivityDetailModal} from '../components/ActivityDetailModal';
 import {colors, spacing, typography} from '../theme';
@@ -9,20 +9,45 @@ import {colors, spacing, typography} from '../theme';
 type RecommendationsScreenProps = {
   currentUser: User;
   activityIntents: ActivityIntent[];
+  activityRequests?: ActivityRequest[];
   onJoinActivity?: (intentId: string) => void;
 };
 
 export function RecommendationsScreen({
   currentUser,
   activityIntents,
+  activityRequests = [],
   onJoinActivity,
 }: RecommendationsScreenProps) {
   const [selectedActivity, setSelectedActivity] = useState<ActivityIntent | null>(null);
-  // Simple recommendation: show all activities except user's own
-  const recommendations = activityIntents.filter((intent) => {
-    if (intent.userId === currentUser.id) return false;
-    return intent.status !== 'completed' && intent.status !== 'cancelled';
-  });
+
+  // Map of user's requests by activity ID
+  const myRequestsByActivity = useMemo(() => {
+    const map = new Map<string, ActivityRequest>();
+    activityRequests
+      .filter((r) => r.userId === currentUser.id)
+      .forEach((r) => {
+        map.set(r.activityId, r);
+      });
+    return map;
+  }, [activityRequests, currentUser.id]);
+
+  // Recommendation: show activities except user's own and exclude joined/pending requests
+  const recommendations = useMemo(() => {
+    return activityIntents.filter((intent) => {
+      // Exclude user's own activities
+      if (intent.userId === currentUser.id) return false;
+
+      // Exclude completed/cancelled activities
+      if (intent.status === 'completed' || intent.status === 'cancelled') return false;
+
+      // Exclude activities where user has pending or approved requests
+      const req = myRequestsByActivity.get(intent.id);
+      if (req && (req.status === 'pending' || req.status === 'approved')) return false;
+
+      return true;
+    });
+  }, [activityIntents, currentUser.id, myRequestsByActivity]);
 
   const renderActivityCard = ({item}: {item: ActivityIntent}) => (
     <ActivityCard intent={item} onJoin={onJoinActivity} onPress={setSelectedActivity} />

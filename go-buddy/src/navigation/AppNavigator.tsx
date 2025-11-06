@@ -110,6 +110,7 @@ export function AppNavigator({
           <RecommendationsScreen
             currentUser={currentUser}
             activityIntents={activityIntents}
+            activityRequests={activityRequests}
             onJoinActivity={handleJoinActivity}
           />
         )}

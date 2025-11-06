@@ -115,6 +115,8 @@ export function BrowseScreen({
 
   // Filter users
   const filteredUsers = useMemo(() => {
+    if (!currentUser?.id) return [];
+
     const q = searchQuery.trim().toLowerCase();
     return (
       users
@@ -131,7 +133,7 @@ export function BrowseScreen({
           return haystack.includes(q);
         })
     );
-  }, [currentUser.id, searchQuery, users, connectedUserIds, sentToUserIds, receivedFromUserIds]);
+  }, [currentUser, searchQuery, users, connectedUserIds, sentToUserIds, receivedFromUserIds]);
 
   // User's participating requests (mocked for demo)
   const myRequestsByActivity = useMemo(() => {
@@ -146,6 +148,8 @@ export function BrowseScreen({
 
   // Filter activities
   const filteredIntents = useMemo(() => {
+    if (!currentUser?.id) return [];
+
     const q = searchQuery.trim().toLowerCase();
     return (
       activityIntents
@@ -169,7 +173,7 @@ export function BrowseScreen({
           return haystack.includes(q);
         })
     );
-  }, [currentUser.id, activityIntents, searchQuery, myRequestsByActivity]);
+  }, [currentUser, activityIntents, searchQuery, myRequestsByActivity]);
 
   const openConnectModal = (user: User) => {
     setPendingConnectUser(user);

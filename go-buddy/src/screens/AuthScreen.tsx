@@ -121,7 +121,11 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
       }
     } catch (error) {
       console.error('Demo login error:', error);
-      Alert.alert('Error', 'Make sure backend is running with seeded data (npm run seed)');
+      Alert.alert(
+        'Backend Not Available',
+        'Could not connect to backend. Make sure it is running:\n\ncd backend\nnpm run dev',
+        [{text: 'OK'}],
+      );
     } finally {
       setLoading(false);
     }

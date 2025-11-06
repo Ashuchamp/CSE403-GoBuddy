@@ -55,9 +55,16 @@ export default function App() {
 
         setActivityRequests(allRequests);
 
-        console.log(
-          `✅ Loaded ${activities.length} activities and ${allRequests.length} requests`,
-        );
+        console.log(`✅ Loaded ${activities.length} activities and ${allRequests.length} requests`);
+
+        // Check if database is empty and show helpful message
+        if (activities.length === 0 && currentUser.email === 'demo@uw.edu') {
+          Alert.alert(
+            'No Demo Data Found',
+            'The database is empty. To see demo activities and users, run:\n\ncd backend\nnpm run seed\n\nThen refresh the app.',
+            [{text: 'OK'}],
+          );
+        }
 
         // Loaded activities and requests successfully
       } catch (error) {
