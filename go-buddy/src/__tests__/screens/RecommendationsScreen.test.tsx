@@ -1,7 +1,18 @@
 import React from 'react';
-import {render} from '@testing-library/react-native';
+import {render, waitFor} from '@testing-library/react-native';
 import {RecommendationsScreen} from '../../screens/RecommendationsScreen';
 import {User, ActivityIntent} from '../../types';
+import api from '../../services/api';
+
+// Mock the api module
+jest.mock('../../services/api', () => ({
+  __esModule: true,
+  default: {
+    activities: {
+      getRecommendations: jest.fn(),
+    },
+  },
+}));
 
 const mockCurrentUser: User = {
   id: '1',
@@ -44,30 +55,48 @@ const mockActivityIntents: ActivityIntent[] = [
 ];
 
 describe('RecommendationsScreen', () => {
-  it('should render the header and subtitle', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should render the header and subtitle', async () => {
+    (api.activities.getRecommendations as jest.Mock).mockResolvedValue([mockActivityIntents[0]]);
+
     const {getByText} = render(
       <RecommendationsScreen currentUser={mockCurrentUser} activityIntents={mockActivityIntents} />,
     );
 
     expect(getByText('For You')).toBeTruthy();
-    expect(getByText('Activities matched to your interests')).toBeTruthy();
+
+    await waitFor(() => {
+      expect(getByText('AI-powered recommendations based on your interests')).toBeTruthy();
+    });
   });
 
-  it("should filter out user's own activities", () => {
-    const {queryByText} = render(
+  it("should filter out user's own activities when API fails", async () => {
+    (api.activities.getRecommendations as jest.Mock).mockRejectedValue(new Error('API Error'));
+
+    const {queryByText, findByText} = render(
       <RecommendationsScreen currentUser={mockCurrentUser} activityIntents={mockActivityIntents} />,
     );
 
-    expect(queryByText('Evening Run')).toBeTruthy();
+    // Wait for the fallback activity to appear
+    await findByText('Evening Run', {}, {timeout: 3000});
+
+    // Should show fallback filtered activities
     expect(queryByText('Study Group')).toBeNull();
   });
 
-  it('should render empty state when there are no recommendations', () => {
+  it('should render empty state when there are no recommendations', async () => {
+    (api.activities.getRecommendations as jest.Mock).mockResolvedValue([]);
+
     const {getByText} = render(
       <RecommendationsScreen currentUser={mockCurrentUser} activityIntents={[]} />,
     );
 
-    expect(getByText('No recommendations yet')).toBeTruthy();
-    expect(getByText('Update your profile to see personalized recommendations')).toBeTruthy();
+    await waitFor(() => {
+      expect(getByText('No recommendations yet')).toBeTruthy();
+      expect(getByText('Update your profile to see personalized recommendations')).toBeTruthy();
+    });
   });
 });
