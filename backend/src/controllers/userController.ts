@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { User } from '../models';
 import { v4 as uuidv4 } from 'uuid';
+import { validateUserInput } from '../utils/profanityFilter';
 
 export const userController = {
   // Get all users
@@ -41,6 +42,17 @@ export const userController = {
     try {
       const { email, name, bio, skills, preferredTimes, activityTags, phone, instagram, campusLocation, googleId, profilePicture } = req.body;
 
+      // Check for profanity in user input
+      const profanityCheck = validateUserInput({ name, bio, skills, activityTags, instagram, campusLocation });
+      if (!profanityCheck.isValid) {
+        res.status(400).json({ 
+          success: false, 
+          error: 'Inappropriate content detected', 
+          violatingFields: profanityCheck.violatingFields 
+        });
+        return;
+      }
+
       // Check if user already exists
       const existingUser = await User.findOne({ where: { email } });
       if (existingUser) {
@@ -75,6 +87,24 @@ export const userController = {
     try {
       const { id } = req.params;
       const updates = req.body;
+
+      // Check for profanity in update fields
+      const profanityCheck = validateUserInput({
+        name: updates.name,
+        bio: updates.bio,
+        skills: updates.skills,
+        activityTags: updates.activityTags,
+        instagram: updates.instagram,
+        campusLocation: updates.campusLocation,
+      });
+      if (!profanityCheck.isValid) {
+        res.status(400).json({ 
+          success: false, 
+          error: 'Inappropriate content detected', 
+          violatingFields: profanityCheck.violatingFields 
+        });
+        return;
+      }
 
       const user = await User.findByPk(id);
       if (!user) {

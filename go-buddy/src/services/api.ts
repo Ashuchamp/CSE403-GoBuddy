@@ -15,11 +15,11 @@ import {User, ActivityIntent, ActivityRequest} from '../types';
 //   return API_URL;
 // };
 
-// For iOS Simulator: use localhost
+// For iOS Simulator: use localhost or your machine's IP
 // For Android Emulator: use 10.0.2.2
 // For Physical Device: use your computer's actual IP (run: ipconfig getifaddr en0)
-const API_BASE_URL = 'http://localhost:3000/api';
-// Change to your machine's IP if testing on physical device
+const API_BASE_URL = 'http://10.19.58.68:3000/api';
+// Your current machine IP: 10.19.58.68
 
 interface ApiResponse<T> {
   success: boolean;
@@ -263,6 +263,18 @@ class ApiService {
       } catch (error) {
         // Failed to delete activity
         return false;
+      }
+    },
+
+    getRecommendations: async (userId: string, limit: number = 10): Promise<ActivityIntent[]> => {
+      try {
+        const response = await this.request<ApiResponse<ActivityIntent[]>>(
+          `/activities/recommendations/${userId}?limit=${limit}`
+        );
+        return response.data || [];
+      } catch (error) {
+        console.error('Failed to get activity recommendations:', error);
+        return [];
       }
     },
   };

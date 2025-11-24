@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { Activity, User } from '../models';
 import { v4 as uuidv4 } from 'uuid';
 import { Op } from 'sequelize';
+import { validateActivityInput } from '../utils/profanityFilter';
+import { recommendationEngine } from '../utils/recommendationEngine';
 
 export const activityController = {
   // Get all activities
@@ -79,6 +81,17 @@ export const activityController = {
         return;
       }
 
+      // Check for profanity in activity content
+      const profanityCheck = validateActivityInput({ title, description, userName, campusLocation });
+      if (!profanityCheck.isValid) {
+        res.status(400).json({ 
+          success: false, 
+          error: 'Inappropriate content detected', 
+          violatingFields: profanityCheck.violatingFields 
+        });
+        return;
+      }
+
       // Verify user exists
       const user = await User.findByPk(userId);
       if (!user) {
@@ -111,6 +124,22 @@ export const activityController = {
     try {
       const { id } = req.params;
       const updates = req.body;
+
+      // Check for profanity in update fields
+      const profanityCheck = validateActivityInput({
+        title: updates.title,
+        description: updates.description,
+        userName: updates.userName,
+        campusLocation: updates.campusLocation,
+      });
+      if (!profanityCheck.isValid) {
+        res.status(400).json({ 
+          success: false, 
+          error: 'Inappropriate content detected', 
+          violatingFields: profanityCheck.violatingFields 
+        });
+        return;
+      }
 
       const activity = await Activity.findByPk(id);
       if (!activity) {
@@ -189,6 +218,37 @@ export const activityController = {
     } catch (error) {
       console.error('Error fetching user activities:', error);
       res.status(500).json({ success: false, error: 'Failed to fetch user activities' });
+    }
+  },
+
+  // Get recommended activities for a user (ML-powered)
+  getRecommendations: async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { userId } = req.params;
+      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 10;
+
+      // Validate user exists
+      const user = await User.findByPk(userId);
+      if (!user) {
+        res.status(404).json({ success: false, error: 'User not found' });
+        return;
+      }
+
+      // Get recommendations using ML engine
+      const recommendations = await recommendationEngine.getRecommendations(userId, limit);
+
+      res.json({
+        success: true,
+        data: recommendations,
+        message: `Found ${recommendations.length} personalized recommendations`
+      });
+    } catch (error) {
+      console.error('Error getting activity recommendations:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get activity recommendations',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   },
 };

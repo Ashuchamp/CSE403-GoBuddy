@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { ConnectionRequest, Connection, User } from '../models';
 import { Op } from 'sequelize';
+import { validateConnectionMessage } from '../utils/profanityFilter';
 
 /**
  * Get all connection requests received by a user
@@ -112,6 +113,16 @@ export const getConnectedUsers = async (req: Request, res: Response): Promise<vo
 export const sendConnectionRequest = async (req: Request, res: Response): Promise<void> => {
   try {
     const { fromUserId, toUserId, message } = req.body;
+
+    // Check for profanity in connection message
+    const profanityCheck = validateConnectionMessage(message);
+    if (!profanityCheck.isValid) {
+      res.status(400).json({ 
+        error: 'Inappropriate content detected in message', 
+        violatingFields: profanityCheck.violatingFields 
+      });
+      return;
+    }
 
     // Check if request already exists
     const existingRequest = await ConnectionRequest.findOne({
