@@ -286,6 +286,7 @@ async function seedDatabase() {
       const creator = emailToUser.get(activityData.creatorEmail);
       if (!creator) continue;
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { creatorEmail, ...activityFields } = activityData;
       const activity = await Activity.create({
         ...activityFields,

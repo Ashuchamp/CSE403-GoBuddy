@@ -1,0 +1,5 @@
+node_modules/
+backend/dist/
+backend/example-api-service.ts
+go-buddy/node_modules/
+Go Buddy App Features/

@@ -1,4 +1,4 @@
-import React, {useState, useMemo, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, Text, StyleSheet, FlatList, ActivityIndicator} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {User, ActivityIntent, ActivityRequest} from '../types';
@@ -40,7 +40,9 @@ export function RecommendationsScreen({
         const fallbackRecs = activityIntents.filter((intent) => {
           if (intent.userId === currentUser.id) return false;
           if (intent.status === 'completed' || intent.status === 'cancelled') return false;
-          const req = activityRequests.find(r => r.activityId === intent.id && r.userId === currentUser.id);
+          const req = activityRequests.find(
+            (r) => r.activityId === intent.id && r.userId === currentUser.id,
+          );
           if (req && (req.status === 'pending' || req.status === 'approved')) return false;
           return true;
         });

@@ -269,7 +269,7 @@ class ApiService {
     getRecommendations: async (userId: string, limit: number = 10): Promise<ActivityIntent[]> => {
       try {
         const response = await this.request<ApiResponse<ActivityIntent[]>>(
-          `/activities/recommendations/${userId}?limit=${limit}`
+          `/activities/recommendations/${userId}?limit=${limit}`,
         );
         return response.data || [];
       } catch (error) {
