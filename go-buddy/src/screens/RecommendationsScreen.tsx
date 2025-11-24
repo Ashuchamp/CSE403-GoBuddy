@@ -1,10 +1,11 @@
-import React, {useState, useMemo} from 'react';
-import {View, Text, StyleSheet, FlatList} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {View, Text, StyleSheet, FlatList, ActivityIndicator} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {User, ActivityIntent, ActivityRequest} from '../types';
 import {ActivityCard} from '../components/ActivityCard';
 import {ActivityDetailModal} from '../components/ActivityDetailModal';
 import {colors, spacing, typography} from '../theme';
+import api from '../services/api';
 
 type RecommendationsScreenProps = {
   currentUser: User;
@@ -20,34 +21,39 @@ export function RecommendationsScreen({
   onJoinActivity,
 }: RecommendationsScreenProps) {
   const [selectedActivity, setSelectedActivity] = useState<ActivityIntent | null>(null);
+  const [recommendations, setRecommendations] = useState<ActivityIntent[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Map of user's requests by activity ID
-  const myRequestsByActivity = useMemo(() => {
-    const map = new Map<string, ActivityRequest>();
-    activityRequests
-      .filter((r) => r.userId === currentUser.id)
-      .forEach((r) => {
-        map.set(r.activityId, r);
-      });
-    return map;
-  }, [activityRequests, currentUser.id]);
+  // Fetch ML-powered recommendations when component mounts or user changes
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const recs = await api.activities.getRecommendations(currentUser.id, 10);
+        setRecommendations(recs);
+      } catch (err) {
+        console.error('Error fetching recommendations:', err);
+        setError('Failed to load recommendations');
+        // Fallback to local filtering if API fails
+        const fallbackRecs = activityIntents.filter((intent) => {
+          if (intent.userId === currentUser.id) return false;
+          if (intent.status === 'completed' || intent.status === 'cancelled') return false;
+          const req = activityRequests.find(
+            (r) => r.activityId === intent.id && r.userId === currentUser.id,
+          );
+          if (req && (req.status === 'pending' || req.status === 'approved')) return false;
+          return true;
+        });
+        setRecommendations(fallbackRecs);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Recommendation: show activities except user's own and exclude joined/pending requests
-  const recommendations = useMemo(() => {
-    return activityIntents.filter((intent) => {
-      // Exclude user's own activities
-      if (intent.userId === currentUser.id) return false;
-
-      // Exclude completed/cancelled activities
-      if (intent.status === 'completed' || intent.status === 'cancelled') return false;
-
-      // Exclude activities where user has pending or approved requests
-      const req = myRequestsByActivity.get(intent.id);
-      if (req && (req.status === 'pending' || req.status === 'approved')) return false;
-
-      return true;
-    });
-  }, [activityIntents, currentUser.id, myRequestsByActivity]);
+    fetchRecommendations();
+  }, [currentUser.id, activityIntents, activityRequests]);
 
   const renderActivityCard = ({item}: {item: ActivityIntent}) => (
     <ActivityCard intent={item} onJoin={onJoinActivity} onPress={setSelectedActivity} />
@@ -57,25 +63,36 @@ export function RecommendationsScreen({
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>For You</Text>
-        <Text style={styles.subtitle}>Activities matched to your interests</Text>
+        <Text style={styles.subtitle}>
+          {loading
+            ? 'Finding personalized activities...'
+            : 'AI-powered recommendations based on your interests'}
+        </Text>
       </View>
 
-      <FlatList
-        data={recommendations}
-        renderItem={renderActivityCard}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Ionicons name="sparkles-outline" size={64} color={colors.textMuted} />
-            <Text style={styles.emptyText}>No recommendations yet</Text>
-            <Text style={styles.emptySubtext}>
-              Update your profile to see personalized recommendations
-            </Text>
-          </View>
-        }
-      />
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={styles.loadingText}>Finding the best activities for you...</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={recommendations}
+          renderItem={renderActivityCard}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <Ionicons name="sparkles-outline" size={64} color={colors.textMuted} />
+              <Text style={styles.emptyText}>No recommendations yet</Text>
+              <Text style={styles.emptySubtext}>
+                {error || 'Update your profile to see personalized recommendations'}
+              </Text>
+            </View>
+          }
+        />
+      )}
 
       {/* Activity Detail Modal */}
       <ActivityDetailModal
@@ -107,6 +124,18 @@ const styles = StyleSheet.create({
   subtitle: {
     ...typography.body,
     color: colors.textSecondary,
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.xl,
+  },
+  loadingText: {
+    ...typography.body,
+    color: colors.textSecondary,
+    marginTop: spacing.md,
+    textAlign: 'center',
   },
   listContent: {
     padding: spacing.md,

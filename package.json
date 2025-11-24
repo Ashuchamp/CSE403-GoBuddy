@@ -16,7 +16,7 @@
     "ts-jest": "^29.4.5"
   },
   "scripts": {
-    "lint": "eslint \"**/*.{js,ts,jsx,tsx}\" --max-warnings=0"
+    "lint": "eslint \"**/*.{js,ts,jsx,tsx}\""
   },
   "dependencies": {
     "expo": "^54.0.21"

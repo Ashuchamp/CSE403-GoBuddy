@@ -16,6 +16,7 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json}\"",
     "type-check": "tsc --noEmit",
+    "ci-check": "npm run type-check && npm run lint && npm run format:check && npm run test:ci",
     "verify-google-auth": "./scripts/verify-google-auth.sh"
   },
   "dependencies": {
