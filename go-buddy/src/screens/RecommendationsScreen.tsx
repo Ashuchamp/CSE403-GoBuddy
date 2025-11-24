@@ -64,7 +64,9 @@ export function RecommendationsScreen({
       <View style={styles.header}>
         <Text style={styles.title}>For You</Text>
         <Text style={styles.subtitle}>
-          {loading ? 'Finding personalized activities...' : 'AI-powered recommendations based on your interests'}
+          {loading
+            ? 'Finding personalized activities...'
+            : 'AI-powered recommendations based on your interests'}
         </Text>
       </View>
 
