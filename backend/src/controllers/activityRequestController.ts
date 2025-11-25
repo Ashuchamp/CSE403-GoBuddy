@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { ActivityRequest, Activity, User } from '../models';
 import { v4 as uuidv4 } from 'uuid';
+import { validateUserInput } from '../utils/profanityFilter';
 
 export const activityRequestController = {
   // Get all requests for an activity
@@ -61,6 +62,21 @@ export const activityRequestController = {
         return;
       }
 
+      // Check for profanity in user-provided content
+      const profanityCheck = validateUserInput({ 
+        name: userName, 
+        bio: userBio, 
+        skills: userSkills 
+      });
+      if (!profanityCheck.isValid) {
+        res.status(400).json({ 
+          success: false, 
+          error: 'Inappropriate content detected', 
+          violatingFields: profanityCheck.violatingFields 
+        });
+        return;
+      }
+
       // Check if activity exists
       const activity = await Activity.findByPk(activityId);
       if (!activity) {
@@ -82,6 +98,21 @@ export const activityRequestController = {
       if (existingRequest) {
         // If the existing request was declined, allow re-request by updating it to pending
         if (existingRequest.status === 'declined') {
+          // Check for profanity in updated content
+          const profanityCheck = validateUserInput({ 
+            name: userName, 
+            bio: userBio, 
+            skills: userSkills 
+          });
+          if (!profanityCheck.isValid) {
+            res.status(400).json({ 
+              success: false, 
+              error: 'Inappropriate content detected', 
+              violatingFields: profanityCheck.violatingFields 
+            });
+            return;
+          }
+
           await existingRequest.update({
             userName,
             userBio: userBio || '',
