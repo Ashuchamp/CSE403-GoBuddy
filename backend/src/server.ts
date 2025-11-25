@@ -17,6 +17,8 @@ app.use(helmet());
 app.use(cors({
   origin: process.env.CORS_ORIGIN?.split(',') || '*',
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 app.use(morgan('dev'));
 app.use(express.json());
@@ -65,11 +67,12 @@ const startServer = async () => {
     // Sync database models
     await syncDatabase();
     
-    // Start listening
-    app.listen(PORT, () => {
+    // Start listening on all interfaces (0.0.0.0) to allow mobile app connections
+    app.listen(Number(PORT), '0.0.0.0', () => {
       console.log(`🚀 Server is running on port ${PORT}`);
       console.log(`📝 API Documentation: http://localhost:${PORT}/`);
       console.log(`🏥 Health Check: http://localhost:${PORT}/api/health`);
+      console.log(`📱 Network Access: http://0.0.0.0:${PORT}/api`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);

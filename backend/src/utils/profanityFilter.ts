@@ -4,7 +4,7 @@
  * Uses the 'leo-profanity' package to avoid hardcoding profanity lists
  */
 
-import * as LeoProfanity from 'leo-profanity';
+import LeoProfanity from 'leo-profanity';
 
 // Optionally add custom words specific to your platform
 // LeoProfanity.add(['customword1', 'customword2']);

@@ -18,7 +18,7 @@ import {User, ActivityIntent, ActivityRequest} from '../types';
 // For iOS Simulator: use localhost or your machine's IP
 // For Android Emulator: use 10.0.2.2
 // For Physical Device: use your computer's actual IP (run: ipconfig getifaddr en0)
-const API_BASE_URL = 'http://10.19.58.68:3000/api';
+const API_BASE_URL = 'http://localhost:3000/api';
 // Your current machine IP: 10.19.58.68
 
 interface ApiResponse<T> {
@@ -63,10 +63,26 @@ class ApiService {
       });
       clearTimeout(timeoutId);
 
-      const data = await response.json();
-
+      // Check if response is ok before parsing JSON
       if (!response.ok) {
-        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // If JSON parsing fails, use status text
+          errorMessage = response.statusText || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
+
+      // Parse JSON only if response is ok
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        console.error('Failed to parse JSON response:', parseError);
+        throw new Error('Invalid response from server');
       }
 
       // API Response successful
@@ -76,6 +92,11 @@ class ApiService {
       if (error instanceof Error && error.name === 'AbortError') {
         console.error('API request timed out:', url);
         throw new Error('Request timed out. Please check if the backend is running.');
+      }
+      // Handle network errors (backend not running, connection refused, etc.)
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        console.error('Network error - backend may not be running:', url);
+        throw new Error('Cannot connect to backend server. Please ensure the server is running on port 3000.');
       }
       console.error('API request failed:', error);
       throw error;
@@ -271,10 +292,12 @@ class ApiService {
         const response = await this.request<ApiResponse<ActivityIntent[]>>(
           `/activities/recommendations/${userId}?limit=${limit}`,
         );
+        console.log(`✅ Got ${response.data?.length || 0} AI recommendations for user ${userId}`);
         return response.data || [];
       } catch (error) {
-        console.error('Failed to get activity recommendations:', error);
-        return [];
+        console.error('❌ Failed to get activity recommendations:', error);
+        // Re-throw error so RecommendationsScreen can handle fallback
+        throw error;
       }
     },
   };
