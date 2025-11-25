@@ -32,11 +32,18 @@ export function RecommendationsScreen({
       setError(null);
       try {
         const recs = await api.activities.getRecommendations(currentUser.id, 10);
+        console.log(`✅ Loaded ${recs.length} AI-powered recommendations for ${currentUser.name}`);
+        if (recs.length > 0) {
+          console.log(
+            `📊 Top recommendation: ${recs[0].title} (Score: ${recs[0].recommendationScore?.toFixed(1) || 'N/A'})`,
+          );
+        }
         setRecommendations(recs);
       } catch (err) {
-        console.error('Error fetching recommendations:', err);
-        setError('Failed to load recommendations');
+        console.error('❌ Error fetching AI recommendations:', err);
+        setError('Failed to load AI recommendations');
         // Fallback to local filtering if API fails
+        console.log('⚠️ Falling back to local activity filtering');
         const fallbackRecs = activityIntents.filter((intent) => {
           if (intent.userId === currentUser.id) return false;
           if (intent.status === 'completed' || intent.status === 'cancelled') return false;

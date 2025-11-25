@@ -26,6 +26,8 @@ export type ActivityIntent = {
   createdAt: string;
   campusLocation?: string;
   status?: 'active' | 'completed' | 'cancelled';
+  recommendationScore?: number; // ML recommendation score (0-1)
+  recommendationReasons?: string[]; // Reasons why this was recommended
 };
 
 // Join request status

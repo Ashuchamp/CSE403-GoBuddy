@@ -4,7 +4,7 @@
  * Uses the 'leo-profanity' package to avoid hardcoding profanity lists
  */
 
-import * as LeoProfanity from 'leo-profanity';
+import LeoProfanity from 'leo-profanity';
 
 // Optionally add custom words specific to your platform
 // LeoProfanity.add(['customword1', 'customword2']);
@@ -32,7 +32,7 @@ export const containsProfanity = (text: string): boolean => {
  * @param fields - Object with field names and their values
  * @returns Array of field names that contain profanity
  */
-export const checkFieldsForProfanity = (fields: Record<string, any>): string[] => {
+export const checkFieldsForProfanity = (fields: Record<string, string | string[] | undefined>): string[] => {
   const violatingFields: string[] = [];
   
   for (const [fieldName, value] of Object.entries(fields)) {
@@ -65,7 +65,7 @@ export const validateUserInput = (data: {
   instagram?: string;
   campusLocation?: string;
 }): { isValid: boolean; violatingFields: string[] } => {
-  const fieldsToCheck: Record<string, any> = {};
+  const fieldsToCheck: Record<string, string | string[]> = {};
   
   if (data.name) fieldsToCheck.name = data.name;
   if (data.bio) fieldsToCheck.bio = data.bio;
@@ -93,7 +93,7 @@ export const validateActivityInput = (data: {
   userName?: string;
   campusLocation?: string;
 }): { isValid: boolean; violatingFields: string[] } => {
-  const fieldsToCheck: Record<string, any> = {};
+  const fieldsToCheck: Record<string, string> = {};
   
   if (data.title) fieldsToCheck.title = data.title;
   if (data.description) fieldsToCheck.description = data.description;
