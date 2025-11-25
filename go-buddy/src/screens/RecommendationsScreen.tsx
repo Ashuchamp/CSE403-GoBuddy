@@ -34,7 +34,9 @@ export function RecommendationsScreen({
         const recs = await api.activities.getRecommendations(currentUser.id, 10);
         console.log(`✅ Loaded ${recs.length} AI-powered recommendations for ${currentUser.name}`);
         if (recs.length > 0) {
-          console.log(`📊 Top recommendation: ${recs[0].title} (Score: ${recs[0].recommendationScore?.toFixed(1) || 'N/A'})`);
+          console.log(
+            `📊 Top recommendation: ${recs[0].title} (Score: ${recs[0].recommendationScore?.toFixed(1) || 'N/A'})`,
+          );
         }
         setRecommendations(recs);
       } catch (err) {

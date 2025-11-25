@@ -96,7 +96,9 @@ class ApiService {
       // Handle network errors (backend not running, connection refused, etc.)
       if (error instanceof TypeError && error.message.includes('fetch')) {
         console.error('Network error - backend may not be running:', url);
-        throw new Error('Cannot connect to backend server. Please ensure the server is running on port 3000.');
+        throw new Error(
+          'Cannot connect to backend server. Please ensure the server is running on port 3000.',
+        );
       }
       console.error('API request failed:', error);
       throw error;

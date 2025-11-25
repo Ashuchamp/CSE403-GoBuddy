@@ -37,7 +37,9 @@ describe('Profanity Filter', () => {
 
     it('should handle empty or null input', () => {
       expect(containsProfanity('')).toBe(false);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(containsProfanity(null as any)).toBe(false);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(containsProfanity(undefined as any)).toBe(false);
     });
 

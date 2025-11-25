@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Activity, User } from '../models';
 import { v4 as uuidv4 } from 'uuid';
-import { Op } from 'sequelize';
+import { Op, WhereOptions } from 'sequelize';
 import { validateActivityInput } from '../utils/profanityFilter';
 import { recommendationEngine } from '../utils/recommendationEngine';
 
@@ -11,7 +11,7 @@ export const activityController = {
     try {
       const { status, userId, location, search } = req.query;
       
-      const where: any = {};
+      const where: WhereOptions<Activity> = {};
       
       if (status) {
         where.status = status;

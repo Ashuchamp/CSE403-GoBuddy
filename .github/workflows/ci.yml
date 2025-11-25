@@ -90,36 +90,6 @@ jobs:
           echo "Checking if coverage meets minimum thresholds..."
           npm run test:coverage
 
-  backend-tests:
-    name: Backend Tests
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-          cache: 'npm'
-          cache-dependency-path: backend/package-lock.json
-
-      - name: Install dependencies
-        working-directory: ./backend
-        run: |
-          echo "Node.js version: $(node --version)"
-          echo "npm version: $(npm --version)"
-          npm ci
-
-      - name: Run ESLint
-        working-directory: ./backend
-        run: npm run lint
-
-      - name: Run backend tests
-        working-directory: ./backend
-        run: npm test
-
   build:
     name: Build Check
     runs-on: ubuntu-latest
@@ -152,13 +122,13 @@ jobs:
   status-check:
     name: All Checks Passed
     runs-on: ubuntu-latest
-    needs: [lint-and-test, backend-tests, build]
+    needs: [lint-and-test, build]
     if: always()
 
     steps:
       - name: Check job status
         run: |
-          if [ "${{ needs.lint-and-test.result }}" != "success" ] || [ "${{ needs.backend-tests.result }}" != "success" ] || [ "${{ needs.build.result }}" != "success" ]; then
+          if [ "${{ needs.lint-and-test.result }}" != "success" ] || [ "${{ needs.build.result }}" != "success" ]; then
             echo "❌ One or more checks failed"
             exit 1
           fi

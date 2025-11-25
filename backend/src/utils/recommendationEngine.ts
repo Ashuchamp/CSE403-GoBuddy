@@ -6,7 +6,7 @@ const TfIdf = natural.TfIdf;
 const tokenizer = new natural.WordTokenizer();
 
 interface ScoredActivity {
-  activity: any;
+  activity: Activity;
   score: number;
   reasons: string[];
 }
@@ -26,7 +26,7 @@ export class RecommendationEngine {
    * @param limit - Maximum number of recommendations to return (default: 10)
    * @returns Array of recommended activities with scores
    */
-  async getRecommendations(userId: string, limit: number = 10): Promise<any[]> {
+  async getRecommendations(userId: string, limit: number = 10): Promise<Array<Activity & { recommendationScore: number; recommendationReasons: string[] }>> {
     // Get user data
     const user = await User.findByPk(userId);
     if (!user) {
@@ -105,10 +105,10 @@ export class RecommendationEngine {
    * Combines multiple ML and heuristic signals
    */
   private async calculateActivityScore(
-    user: any,
-    activity: any,
+    user: User,
+    activity: Activity,
     connectedUserIds: Set<string>,
-    allApprovedRequests: any[]
+    allApprovedRequests: ActivityRequest[]
   ): Promise<ScoredActivity> {
     let totalScore = 0;
     const reasons: string[] = [];
@@ -174,7 +174,7 @@ export class RecommendationEngine {
    * Calculate content similarity using TF-IDF
    * Compares user's activity tags with activity title and description
    */
-  private calculateContentSimilarity(user: any, activity: any): number {
+  private calculateContentSimilarity(user: User, activity: Activity): number {
     const tfidf = new TfIdf();
 
     // Create documents for TF-IDF
@@ -223,9 +223,9 @@ export class RecommendationEngine {
    * Users with similar activity tags who joined this activity
    */
   private async calculateCollaborativeScore(
-    user: any,
-    activity: any,
-    allApprovedRequests: any[]
+    user: User,
+    activity: Activity,
+    allApprovedRequests: ActivityRequest[]
   ): Promise<number> {
     // Find users who joined this activity
     const activityParticipants = allApprovedRequests.filter(
@@ -256,7 +256,7 @@ export class RecommendationEngine {
    * Calculate similarity between two users based on their activity tags
    * Uses Jaccard similarity coefficient
    */
-  private calculateUserSimilarity(user1: any, user2: any): number {
+  private calculateUserSimilarity(user1: User, user2: User): number {
     const tags1 = new Set((user1.activityTags || []).map((t: string) => t.toLowerCase()));
     const tags2 = new Set((user2.activityTags || []).map((t: string) => t.toLowerCase()));
 
@@ -275,7 +275,7 @@ export class RecommendationEngine {
    * Calculate time preference matching
    * Simple overlap check between user's preferred times and activity scheduled times
    */
-  private calculateTimeMatch(user: any, activity: any): number {
+  private calculateTimeMatch(user: User, activity: Activity): number {
     const userTimes: Set<string> = new Set((user.preferredTimes || []).map((t: string) => t.toLowerCase()));
     const activityTimes: string[] = (activity.scheduledTimes || []).map((t: string) => t.toLowerCase());
 
@@ -298,7 +298,7 @@ export class RecommendationEngine {
    * Calculate recency score
    * Prefer newer activities (created within last week get full score)
    */
-  private calculateRecencyScore(activity: any): number {
+  private calculateRecencyScore(activity: Activity): number {
     const now = new Date();
     const createdAt = new Date(activity.createdAt);
     const daysSinceCreation = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
