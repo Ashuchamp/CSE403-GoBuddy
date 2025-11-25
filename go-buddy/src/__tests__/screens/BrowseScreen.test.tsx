@@ -1,7 +1,11 @@
 import React from 'react';
-import {render} from '@testing-library/react-native';
+import {render, waitFor} from '@testing-library/react-native';
 import {BrowseScreen} from '../../screens/BrowseScreen';
 import {User, ActivityIntent} from '../../types';
+import api from '../../services/api';
+
+// Mock the entire api module
+jest.mock('../../services/api');
 
 const mockCurrentUser: User = {
   id: '1',
@@ -31,20 +35,43 @@ const mockActivityIntents: ActivityIntent[] = [
 ];
 
 describe('BrowseScreen', () => {
-  it('should render the browse screen with header', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Set up default mock implementations
+    (api as any).users = {
+      getAll: jest.fn().mockResolvedValue([]),
+    };
+    (api as any).connections = {
+      getSentRequests: jest.fn().mockResolvedValue([]),
+      getReceivedRequests: jest.fn().mockResolvedValue([]),
+      getConnectedUsers: jest.fn().mockResolvedValue([]),
+    };
+  });
+
+  it('should render the browse screen with header', async () => {
     const {getByText} = render(
       <BrowseScreen currentUser={mockCurrentUser} activityIntents={mockActivityIntents} />,
     );
 
     expect(getByText('Browse')).toBeTruthy();
+
+    // Wait for async operations to complete
+    await waitFor(() => {
+      expect(api.users.getAll).toHaveBeenCalled();
+    });
   });
 
-  it('should render category toggle buttons', () => {
+  it('should render category toggle buttons', async () => {
     const {getByText} = render(
       <BrowseScreen currentUser={mockCurrentUser} activityIntents={mockActivityIntents} />,
     );
 
     expect(getByText('Students')).toBeTruthy();
     expect(getByText('Activities')).toBeTruthy();
+
+    // Wait for async operations to complete
+    await waitFor(() => {
+      expect(api.users.getAll).toHaveBeenCalled();
+    });
   });
 });
