@@ -59,7 +59,7 @@ export function EditProfileModal({visible, onClose, user, onSave}: EditProfileMo
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // Validate phone number before saving
     if (formData.phone && !isValidPhoneNumber(formData.phone)) {
       Alert.alert('Invalid Phone Number', 'Please enter a valid 10-digit US phone number.');
@@ -77,8 +77,14 @@ export function EditProfileModal({visible, onClose, user, onSave}: EditProfileMo
       activityTags,
       preferredTimes,
     };
-    onSave(updatedUser);
-    onClose();
+
+    try {
+      await onSave(updatedUser);
+      // Only close modal if save was successful
+      onClose();
+    } catch (error) {
+      // Error is already handled in App.tsx, just don't close the modal
+    }
   };
 
   const addTag = () => {

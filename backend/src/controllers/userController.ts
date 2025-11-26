@@ -43,7 +43,16 @@ export const userController = {
       const { email, name, bio, skills, preferredTimes, activityTags, phone, instagram, campusLocation, googleId, profilePicture } = req.body;
 
       // Check for profanity in user input
-      const profanityCheck = validateUserInput({ name, bio, skills, activityTags, instagram, campusLocation });
+      const profanityCheck = validateUserInput({ 
+        name, 
+        bio, 
+        skills, 
+        activityTags, 
+        instagram, 
+        campusLocation,
+        contactEmail: req.body.contactEmail,
+        preferredTimes,
+      });
       if (!profanityCheck.isValid) {
         res.status(400).json({ 
           success: false, 
@@ -96,6 +105,8 @@ export const userController = {
         activityTags: updates.activityTags,
         instagram: updates.instagram,
         campusLocation: updates.campusLocation,
+        contactEmail: updates.contactEmail,
+        preferredTimes: updates.preferredTimes,
       });
       if (!profanityCheck.isValid) {
         res.status(400).json({ 

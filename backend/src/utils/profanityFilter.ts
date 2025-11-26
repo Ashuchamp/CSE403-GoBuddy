@@ -64,6 +64,8 @@ export const validateUserInput = (data: {
   activityTags?: string[];
   instagram?: string;
   campusLocation?: string;
+  contactEmail?: string;
+  preferredTimes?: string[];
 }): { isValid: boolean; violatingFields: string[] } => {
   const fieldsToCheck: Record<string, string | string[]> = {};
   
@@ -73,6 +75,8 @@ export const validateUserInput = (data: {
   if (data.activityTags) fieldsToCheck.activityTags = data.activityTags;
   if (data.instagram) fieldsToCheck.instagram = data.instagram;
   if (data.campusLocation) fieldsToCheck.campusLocation = data.campusLocation;
+  if (data.contactEmail) fieldsToCheck.contactEmail = data.contactEmail;
+  if (data.preferredTimes) fieldsToCheck.preferredTimes = data.preferredTimes;
   
   const violatingFields = checkFieldsForProfanity(fieldsToCheck);
   

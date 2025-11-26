@@ -66,14 +66,27 @@ class ApiService {
       // Check if response is ok before parsing JSON
       if (!response.ok) {
         let errorMessage = `HTTP error! status: ${response.status}`;
+        let errorDetails: {error?: string; violatingFields?: string[]} = {};
         try {
           const errorData = await response.json();
           errorMessage = errorData.error || errorMessage;
+          errorDetails = errorData;
         } catch {
           // If JSON parsing fails, use status text
           errorMessage = response.statusText || errorMessage;
         }
-        throw new Error(errorMessage);
+        const error = new Error(errorMessage) as Error & {violatingFields?: string[]};
+        if (errorDetails.violatingFields) {
+          error.violatingFields = errorDetails.violatingFields;
+        }
+
+        // Don't log validation errors (400) as console errors - they're expected user input issues
+        // Only log actual system errors (500+) to console
+        if (response.status >= 500) {
+          console.error(`API server error (${response.status}):`, errorMessage);
+        }
+
+        throw error;
       }
 
       // Parse JSON only if response is ok
@@ -94,13 +107,22 @@ class ApiService {
         throw new Error('Request timed out. Please check if the backend is running.');
       }
       // Handle network errors (backend not running, connection refused, etc.)
+      if (error instanceof Error && error.name === 'AbortError') {
+        // Timeout errors are already logged above, don't log again
+        throw error;
+      }
       if (error instanceof TypeError && error.message.includes('fetch')) {
         console.error('Network error - backend may not be running:', url);
         throw new Error(
           'Cannot connect to backend server. Please ensure the server is running on port 3000.',
         );
       }
-      console.error('API request failed:', error);
+      // Only log unexpected errors (not validation errors which are expected user input issues)
+      // Validation errors (400 status) like profanity detection are expected
+      // They're already shown to the user via Alert popups
+      if (!(error instanceof Error && error.message.includes('Inappropriate content'))) {
+        console.error('API request failed:', error);
+      }
       throw error;
     }
   }

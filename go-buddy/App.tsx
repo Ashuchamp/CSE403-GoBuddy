@@ -83,8 +83,36 @@ export default function App() {
     setCurrentUser(null);
   };
 
-  const handleUpdateProfile = (updatedUser: User) => {
-    setCurrentUser(updatedUser);
+  const handleUpdateProfile = async (updatedUser: User) => {
+    if (!currentUser || !backendConnected) {
+      Alert.alert('Error', 'Backend is not connected. Please ensure the server is running.');
+      return;
+    }
+
+    try {
+      const updated = await api.users.update(currentUser.id, updatedUser);
+      if (updated) {
+        setCurrentUser(updated);
+        Alert.alert('Success', 'Profile updated successfully!');
+      }
+    } catch (error) {
+      // Failed to update profile
+      let errorMessage = 'Failed to update profile. Please try again.';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        // If there are violating fields (profanity detected), show them
+        if ((error as Error & { violatingFields?: string[] }).violatingFields) {
+          const fields = (error as Error & { violatingFields?: string[] }).violatingFields;
+          errorMessage = `${error.message}\n\nViolating fields: ${fields?.join(', ')}`;
+          // Profanity detection is validation, not a system error - don't log to console
+        } else {
+          // Only log actual system errors (not validation failures)
+          console.error('Failed to update profile:', error);
+        }
+      }
+      Alert.alert('Error', errorMessage);
+      throw error; // Re-throw so calling code knows it failed
+    }
   };
 
   const handleCreateActivity = async (
@@ -109,7 +137,22 @@ export default function App() {
       }
     } catch (error) {
       // Failed to create activity
-      Alert.alert('Error', 'Failed to create activity. Please try again.');
+      let errorMessage = 'Failed to create activity. Please try again.';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        // If there are violating fields (profanity detected), show them
+        if ((error as Error & { violatingFields?: string[] }).violatingFields) {
+          const fields = (error as Error & { violatingFields?: string[] }).violatingFields;
+          errorMessage = `${error.message}\n\nViolating fields: ${fields?.join(', ')}`;
+          // Profanity detection is validation, not a system error - don't log to console
+          // Just show user-friendly message via Alert
+        } else {
+          // Only log actual system errors (not validation failures)
+          console.error('Failed to create activity:', error);
+        }
+      }
+      Alert.alert('Error', errorMessage);
+      throw error; // Re-throw so calling code knows it failed
     }
   };
 
@@ -128,7 +171,21 @@ export default function App() {
       }
     } catch (error) {
       // Failed to update activity
-      Alert.alert('Error', 'Failed to update activity. Please try again.');
+      let errorMessage = 'Failed to update activity. Please try again.';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        // If there are violating fields (profanity detected), show them
+        if ((error as Error & { violatingFields?: string[] }).violatingFields) {
+          const fields = (error as Error & { violatingFields?: string[] }).violatingFields;
+          errorMessage = `${error.message}\n\nViolating fields: ${fields?.join(', ')}`;
+          // Profanity detection is validation, not a system error - don't log to console
+        } else {
+          // Only log actual system errors (not validation failures)
+          console.error('Failed to update activity:', error);
+        }
+      }
+      Alert.alert('Error', errorMessage);
+      throw error; // Re-throw so calling code knows it failed
     }
   };
 

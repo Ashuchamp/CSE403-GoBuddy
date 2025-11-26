@@ -102,7 +102,7 @@ export function MyActivitiesScreen({
       );
   };
 
-  const handleCreateActivity = () => {
+  const handleCreateActivity = async () => {
     // Validation
     if (!title.trim()) {
       Alert.alert('Error', 'Please enter an activity title');
@@ -125,19 +125,23 @@ export function MyActivitiesScreen({
       status: 'active' as const,
     };
 
-    onCreateActivity(newActivity);
+    try {
+      await onCreateActivity(newActivity);
+      // Only show success if activity was created successfully
+      Alert.alert('Success', 'Activity created successfully!');
 
-    Alert.alert('Success', 'Activity created successfully!');
+      // Reset form
+      setTitle('');
+      setDescription('');
+      setMaxPeople('');
+      setScheduledTimes([]);
+      setLocation('');
 
-    // Reset form
-    setTitle('');
-    setDescription('');
-    setMaxPeople('');
-    setScheduledTimes([]);
-    setLocation('');
-
-    // Switch to organizing tab
-    setViewMode('organizing');
+      // Switch to organizing tab
+      setViewMode('organizing');
+    } catch (error) {
+      // Error is already handled in App.tsx, just don't show success or reset form
+    }
   };
 
   const renderOrganizingActivityCard = ({item}: {item: ActivityIntent}) => {
