@@ -14,21 +14,23 @@ export const activityController = {
       const where: WhereOptions<Activity> = {};
       
       if (status) {
-        where.status = status;
+        where.status = status as 'active' | 'completed' | 'cancelled';
       }
       
       if (userId) {
-        where.userId = userId;
+        where.userId = userId as string;
       }
       
       if (location) {
-        where.campusLocation = location;
+        where.campusLocation = location as string;
       }
       
       if (search) {
-        where[Op.or] = [
-          { title: { [Op.iLike]: `%${search}%` } },
-          { description: { [Op.iLike]: `%${search}%` } },
+        const searchStr = search as string;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (where as any)[Op.or] = [
+          { title: { [Op.iLike]: `%${searchStr}%` } },
+          { description: { [Op.iLike]: `%${searchStr}%` } },
         ];
       }
 
