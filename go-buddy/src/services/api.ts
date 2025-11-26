@@ -18,7 +18,7 @@ import {User, ActivityIntent, ActivityRequest} from '../types';
 // For iOS Simulator: use localhost or your machine's IP
 // For Android Emulator: use 10.0.2.2
 // For Physical Device: use your computer's actual IP (run: ipconfig getifaddr en0)
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'http://192.168.1.100:3000/api';
 // Your current machine IP: 10.19.58.68
 
 interface ApiResponse<T> {

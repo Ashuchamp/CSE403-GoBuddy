@@ -45,7 +45,7 @@ export function ConnectionsScreen({currentUser}: ConnectionsScreenProps) {
   const [activeSection, setActiveSection] = React.useState<SectionType>('received');
   const [selectedUser, setSelectedUser] = React.useState<User | null>(null);
   const [profileVisible, setProfileVisible] = React.useState(false);
-  const [useBackend, setUseBackend] = React.useState(true);
+  const [useBackend, setUseBackend] = React.useState(false);
 
   // Try to fetch connection data from backend
   React.useEffect(() => {

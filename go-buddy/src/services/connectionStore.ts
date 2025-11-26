@@ -45,7 +45,6 @@ const demoConnectedUsers: User[] = [
   },
 ];
 
-
 // Load demo users into store
 demoConnectedUsers.forEach((u) => {
   connectedUsersById.set(u.id, u);
