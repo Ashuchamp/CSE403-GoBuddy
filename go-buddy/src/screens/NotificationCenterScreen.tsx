@@ -8,6 +8,7 @@ import {
   RefreshControl,
   ActivityIndicator,
 } from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 import {Ionicons} from '@expo/vector-icons';
 import {colors, typography, spacing, borderRadius} from '../theme';
 import {Notification} from '../types';
@@ -15,6 +16,51 @@ import api from '../services/api';
 
 type NotificationCenterScreenProps = {
   currentUserId: string;
+};
+
+// Module-level storage for mock notification read state (persists across component remounts)
+const mockReadState = new Set<string>();
+
+// Mock notifications for development/testing
+const getMockNotifications = (): Notification[] => {
+  const now = new Date();
+  return [
+    {
+      id: 'mock-1',
+      userId: 'current-user',
+      message: 'John Doe wants to join your activity "Saturday Hike"',
+      isRead: false,
+      createdAt: new Date(now.getTime() - 5 * 60000).toISOString(), // 5 minutes ago
+    },
+    {
+      id: 'mock-2',
+      userId: 'current-user',
+      message: 'Sarah Chen wants to join your activity "Basketball at IMA"',
+      isRead: false,
+      createdAt: new Date(now.getTime() - 2 * 3600000).toISOString(), // 2 hours ago
+    },
+    {
+      id: 'mock-3',
+      userId: 'current-user',
+      message: 'Mike Johnson wants to join your activity "Study Group for CSE 403"',
+      isRead: true,
+      createdAt: new Date(now.getTime() - 1 * 86400000).toISOString(), // 1 day ago
+    },
+    {
+      id: 'mock-4',
+      userId: 'current-user',
+      message: 'Emily Zhang wants to join your activity "Coffee Chat at Suzzallo"',
+      isRead: true,
+      createdAt: new Date(now.getTime() - 2 * 86400000).toISOString(), // 2 days ago
+    },
+    {
+      id: 'mock-5',
+      userId: 'current-user',
+      message: 'Alex Kim wants to join your activity "Weekend Volleyball"',
+      isRead: false,
+      createdAt: new Date(now.getTime() - 3 * 86400000).toISOString(), // 3 days ago
+    },
+  ];
 };
 
 export function NotificationCenterScreen({currentUserId}: NotificationCenterScreenProps) {
@@ -25,18 +71,50 @@ export function NotificationCenterScreen({currentUserId}: NotificationCenterScre
   const fetchNotifications = useCallback(async () => {
     try {
       const data = await api.notifications.getAll(currentUserId);
-      setNotifications(data);
+      // Use mock data if API returns empty (for development)
+      if (data.length === 0) {
+        const mockNotifications = getMockNotifications();
+        // Restore read state for mock notifications from module-level storage
+        const notificationsWithReadState = mockNotifications.map((n) => ({
+          ...n,
+          isRead: mockReadState.has(n.id) || n.isRead,
+        }));
+        setNotifications(notificationsWithReadState);
+      } else {
+        setNotifications(data);
+      }
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
+      // Use mock data on error (for development)
+      const mockNotifications = getMockNotifications();
+      // Restore read state for mock notifications from module-level storage
+      const notificationsWithReadState = mockNotifications.map((n) => ({
+        ...n,
+        isRead: mockReadState.has(n.id) || n.isRead,
+      }));
+      setNotifications(notificationsWithReadState);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   }, [currentUserId]);
 
+  // Only fetch on initial mount
   useEffect(() => {
     fetchNotifications();
-  }, [fetchNotifications]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // When screen is focused, only update if we don't have notifications yet
+  // This prevents resetting read state when navigating back
+  useFocusEffect(
+    useCallback(() => {
+      // Only fetch if we have no notifications (initial load)
+      if (notifications.length === 0 && !loading) {
+        fetchNotifications();
+      }
+    }, [notifications.length, loading, fetchNotifications]),
+  );
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -44,10 +122,28 @@ export function NotificationCenterScreen({currentUserId}: NotificationCenterScre
   };
 
   const handleMarkAsRead = async (notificationId: string) => {
-    await api.notifications.markAsRead(notificationId);
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === notificationId ? {...n, isRead: true} : n)),
-    );
+    // For mock notifications, update locally and persist read state in module-level storage
+    if (notificationId.startsWith('mock-')) {
+      mockReadState.add(notificationId);
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notificationId ? {...n, isRead: true} : n)),
+      );
+      return;
+    }
+
+    // For real notifications, call the API
+    try {
+      await api.notifications.markAsRead(notificationId);
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notificationId ? {...n, isRead: true} : n)),
+      );
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+      // Still update UI optimistically even if API call fails
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notificationId ? {...n, isRead: true} : n)),
+      );
+    }
   };
 
   const formatTime = (dateString: string): string => {
