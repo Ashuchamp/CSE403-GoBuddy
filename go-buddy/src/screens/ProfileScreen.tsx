@@ -12,9 +12,15 @@ type ProfileScreenProps = {
   user: User;
   isCurrentUser?: boolean;
   onUpdateProfile?: (updatedUser: User) => void;
+  onLogout?: () => void;
 };
 
-export function ProfileScreen({user, isCurrentUser = false, onUpdateProfile}: ProfileScreenProps) {
+export function ProfileScreen({
+  user,
+  isCurrentUser = false,
+  onUpdateProfile,
+  onLogout,
+}: ProfileScreenProps) {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -111,6 +117,18 @@ export function ProfileScreen({user, isCurrentUser = false, onUpdateProfile}: Pr
                 <Text style={styles.contactText}>{user.instagram}</Text>
               </View>
             )}
+          </Card>
+        )}
+
+        {/* Logout Button */}
+        {isCurrentUser && onLogout && (
+          <Card style={styles.section}>
+            <Button onPress={onLogout} variant="outline" style={styles.logoutButton} fullWidth>
+              <View style={styles.buttonContent}>
+                <Ionicons name="log-out-outline" size={16} color={colors.error} />
+                <Text style={styles.logoutButtonText}>Log Out</Text>
+              </View>
+            </Button>
           </Card>
         )}
       </View>
@@ -233,5 +251,13 @@ const styles = StyleSheet.create({
   contactText: {
     ...typography.body,
     color: colors.textSecondary,
+  },
+  logoutButton: {
+    borderColor: colors.error,
+  },
+  logoutButtonText: {
+    ...typography.body,
+    color: colors.error,
+    fontWeight: '600',
   },
 });

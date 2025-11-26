@@ -1,5 +1,7 @@
 import React from 'react';
+import {TouchableOpacity} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {Ionicons} from '@expo/vector-icons';
 import {User, ActivityIntent, ActivityRequest} from '../types';
 import {BrowseScreen} from '../screens/BrowseScreen';
@@ -7,10 +9,12 @@ import {RecommendationsScreen} from '../screens/RecommendationsScreen';
 import {MyActivitiesScreen} from '../screens/MyActivitiesScreen';
 import {ConnectionsScreen} from '../screens/ConnectionsScreen';
 import {ProfileScreen} from '../screens/ProfileScreen';
+import {NotificationCenterScreen} from '../screens/NotificationCenterScreen';
+import {NotificationButton} from '../components/NotificationButton';
 import {colors} from '../theme';
-import {TouchableOpacity} from 'react-native';
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
 export type AppNavigatorProps = {
   currentUser: User;
@@ -27,9 +31,10 @@ export type AppNavigatorProps = {
   onApproveRequest: (requestId: string) => void;
   onDeclineRequest: (requestId: string) => void;
   onConnectRequest?: (userId: string) => void;
+  unreadNotificationCount?: number;
 };
 
-export function AppNavigator({
+function TabNavigator({
   currentUser,
   activityIntents,
   activityRequests,
@@ -42,10 +47,16 @@ export function AppNavigator({
   onApproveRequest,
   onDeclineRequest,
   onConnectRequest,
-}: AppNavigatorProps) {
+  unreadNotificationCount = 0,
+  navigation,
+}: AppNavigatorProps & {navigation: any}) {
   const handleJoinActivity = (intentId: string) => {
     onJoinActivity(intentId);
     // No popup needed as button provides visual feedback
+  };
+
+  const handleOpenNotifications = () => {
+    navigation.navigate('Notifications');
   };
 
   return (
@@ -84,11 +95,12 @@ export function AppNavigator({
           fontWeight: '700',
         },
         headerRight:
-          route.name === 'Browse'
+          route.name !== 'Profile'
             ? () => (
-                <TouchableOpacity onPress={onLogout} style={{marginRight: 16}}>
-                  <Ionicons name="log-out-outline" size={24} color={colors.textSecondary} />
-                </TouchableOpacity>
+                <NotificationButton
+                  unreadCount={unreadNotificationCount}
+                  onPress={handleOpenNotifications}
+                />
               )
             : undefined,
       })}
@@ -141,9 +153,51 @@ export function AppNavigator({
             user={currentUser}
             isCurrentUser={true}
             onUpdateProfile={onUpdateProfile}
+            onLogout={onLogout}
           />
         )}
       </Tab.Screen>
     </Tab.Navigator>
+  );
+}
+
+export function AppNavigator(props: AppNavigatorProps) {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        headerBackTitle: '',
+        headerTintColor: colors.primary,
+      }}
+    >
+      <Stack.Screen name="MainTabs">
+        {({navigation}) => <TabNavigator {...props} navigation={navigation} />}
+      </Stack.Screen>
+      <Stack.Screen
+        name="Notifications"
+        options={({navigation}) => ({
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: colors.card,
+          },
+          headerShadowVisible: true,
+          headerTitleStyle: {
+            color: colors.primary,
+            fontSize: 20,
+            fontWeight: '700',
+          },
+          headerTintColor: colors.primary,
+          headerBackTitle: '',
+          headerTitle: 'Notifications',
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.goBack()} style={{marginLeft: 16}}>
+              <Ionicons name="arrow-back" size={24} color={colors.primary} />
+            </TouchableOpacity>
+          ),
+        })}
+      >
+        {() => <NotificationCenterScreen currentUserId={props.currentUser.id} />}
+      </Stack.Screen>
+    </Stack.Navigator>
   );
 }

@@ -53,3 +53,12 @@ export type FilterState = {
   timeWindow: string;
   location: string;
 };
+
+// Notification type
+export type Notification = {
+  id: string;
+  userId: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+};
