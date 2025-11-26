@@ -26,7 +26,7 @@ export class RecommendationEngine {
    * @param limit - Maximum number of recommendations to return (default: 10)
    * @returns Array of recommended activities with scores
    */
-  async getRecommendations(userId: string, limit: number = 10): Promise<Array<Activity & { recommendationScore: number; recommendationReasons: string[] }>> {
+  async getRecommendations(userId: string, limit: number = 10): Promise<Array<Record<string, unknown> & { recommendationScore: number; recommendationReasons: string[] }>> {
     // Get user data
     const user = await User.findByPk(userId);
     if (!user) {
