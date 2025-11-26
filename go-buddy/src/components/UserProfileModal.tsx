@@ -5,6 +5,7 @@ import {User} from '../types';
 import {Card} from './Card';
 import {Badge} from './Badge';
 import {colors, spacing, typography, borderRadius} from '../theme';
+import * as Linking from 'expo-linking';
 
 type UserProfileModalProps = {
   user: User | null;
@@ -119,10 +120,27 @@ export function UserProfileModal({
                       </View>
                     )}
                     {user.instagram && (
-                      <View style={styles.contactItem}>
+                      <TouchableOpacity
+                        style={styles.contactItem}
+                        onPress={async () => {
+                          const instagram = user.instagram;
+                          if (!instagram) return;
+
+                          const username = instagram.replace('@', '');
+                          const appUrl = `instagram://user?username=${username}`;
+                          const webUrl = `https://www.instagram.com/${username}`;
+
+                          try {
+                            const supported = await Linking.canOpenURL(appUrl);
+                            await Linking.openURL(supported ? appUrl : webUrl);
+                          } catch (error) {
+                            await Linking.openURL(webUrl);
+                          }
+                        }}
+                      >
                         <Ionicons name="logo-instagram" size={16} color={colors.textSecondary} />
                         <Text style={styles.contactText}>{user.instagram}</Text>
-                      </View>
+                      </TouchableOpacity>
                     )}
                   </View>
                 </View>
