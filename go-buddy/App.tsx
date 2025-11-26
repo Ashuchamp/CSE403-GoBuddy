@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {StatusBar} from 'expo-status-bar';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {NavigationContainer} from '@react-navigation/native';
@@ -15,6 +15,8 @@ export default function App() {
   const [activityRequests, setActivityRequests] = useState<ActivityRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [backendConnected, setBackendConnected] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const notificationIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Check backend connection and load initial data
   useEffect(() => {
@@ -78,6 +80,47 @@ export default function App() {
 
     fetchData();
   }, [currentUser, backendConnected]);
+
+  // Poll for notifications
+  useEffect(() => {
+    if (!currentUser || !backendConnected) {
+      if (notificationIntervalRef.current) {
+        clearInterval(notificationIntervalRef.current);
+        notificationIntervalRef.current = null;
+      }
+      return;
+    }
+
+    const fetchUnreadCount = async () => {
+      try {
+        const count = await api.notifications.getUnreadCount(currentUser.id);
+        setUnreadCount(count);
+      } catch (error) {
+        // Silently fail - don't spam console
+      }
+    };
+
+    // Fetch immediately
+    fetchUnreadCount();
+
+    // Poll every 30 seconds
+    notificationIntervalRef.current = setInterval(fetchUnreadCount, 30000);
+
+    return () => {
+      if (notificationIntervalRef.current) {
+        clearInterval(notificationIntervalRef.current);
+        notificationIntervalRef.current = null;
+      }
+    };
+  }, [currentUser, backendConnected]);
+
+  // Also check notifications after actions that might create them
+  useEffect(() => {
+    if (currentUser && backendConnected && activityRequests.length > 0) {
+      // Refresh unread count when requests change
+      api.notifications.getUnreadCount(currentUser.id).then(setUnreadCount).catch(() => {});
+    }
+  }, [activityRequests, currentUser, backendConnected]);
 
   const handleLogout = () => {
     setCurrentUser(null);
@@ -320,6 +363,7 @@ export default function App() {
             onApproveRequest={handleApproveRequest}
             onDeclineRequest={handleDeclineRequest}
             onConnectRequest={handleConnectRequest}
+            unreadNotificationCount={unreadCount}
           />
         )}
       </NavigationContainer>

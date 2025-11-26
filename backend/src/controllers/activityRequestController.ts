@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ActivityRequest, Activity, User } from '../models';
+import { ActivityRequest, Activity, User, Notification } from '../models';
 import { v4 as uuidv4 } from 'uuid';
 import { validateUserInput } from '../utils/profanityFilter';
 
@@ -119,6 +119,18 @@ export const activityRequestController = {
             userSkills: userSkills || [],
             status: 'pending',
           });
+
+          // Create notification for activity owner
+          const activity = await Activity.findByPk(activityId);
+          if (activity) {
+            await Notification.create({
+              id: uuidv4(),
+              userId: activity.userId,
+              message: `${userName} wants to join your activity "${activity.title}"`,
+              isRead: false,
+            });
+          }
+
           res.status(200).json({ success: true, data: existingRequest });
           return;
         }
@@ -135,6 +147,14 @@ export const activityRequestController = {
         userBio: userBio || '',
         userSkills: userSkills || [],
         status: 'pending',
+      });
+
+      // Create notification for activity owner
+      await Notification.create({
+        id: uuidv4(),
+        userId: activity.userId,
+        message: `${userName} wants to join your activity "${activity.title}"`,
+        isRead: false,
       });
 
       res.status(201).json({ success: true, data: request });
