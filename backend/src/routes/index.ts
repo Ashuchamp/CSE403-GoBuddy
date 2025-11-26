@@ -3,6 +3,7 @@ import userRoutes from './userRoutes';
 import activityRoutes from './activityRoutes';
 import activityRequestRoutes from './activityRequestRoutes';
 import connectionRoutes from './connectionRoutes';
+import notificationRoutes from './notificationRoutes';
 
 const router = Router();
 
@@ -10,6 +11,7 @@ router.use('/users', userRoutes);
 router.use('/activities', activityRoutes);
 router.use('/requests', activityRequestRoutes);
 router.use('/connections', connectionRoutes);
+router.use('/notifications', notificationRoutes);
 
 // Health check endpoint
 router.get('/health', (_req, res) => {

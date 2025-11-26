@@ -483,6 +483,43 @@ class ApiService {
       }
     },
   };
+
+  // Notification endpoints
+  notifications = {
+    getAll: async (userId: string): Promise<any[]> => {
+      try {
+        const response = await this.request<ApiResponse<any[]>>(`/notifications/${userId}`);
+        return response.data || [];
+      } catch (error) {
+        console.error('Failed to get notifications:', error);
+        return [];
+      }
+    },
+
+    getUnreadCount: async (userId: string): Promise<number> => {
+      try {
+        const response = await this.request<ApiResponse<{unreadCount: number}>>(
+          `/notifications/${userId}/unread`,
+        );
+        return response.data?.unreadCount || 0;
+      } catch (error) {
+        console.error('Failed to get unread count:', error);
+        return 0;
+      }
+    },
+
+    markAsRead: async (notificationId: string): Promise<boolean> => {
+      try {
+        await this.request<ApiResponse<any>>(`/notifications/${notificationId}/read`, {
+          method: 'PATCH',
+        });
+        return true;
+      } catch (error) {
+        console.error('Failed to mark notification as read:', error);
+        return false;
+      }
+    },
+  };
 }
 
 // Export singleton instance
