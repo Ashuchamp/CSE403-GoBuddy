@@ -44,7 +44,7 @@ export function CreateActivityScreen({
     (intent) => intent.currentPeople >= intent.maxPeople,
   );
 
-  const handleCreateActivity = () => {
+  const handleCreateActivity = async () => {
     // Validation
     if (!title.trim()) {
       Alert.alert('Error', 'Please enter an activity title');
@@ -76,20 +76,24 @@ export function CreateActivityScreen({
       campusLocation: location.trim() || undefined,
     };
 
-    onCreateActivity(newActivity);
+    try {
+      await onCreateActivity(newActivity);
+      // Only show success if activity was created successfully
+      Alert.alert('Success', 'Activity created successfully!');
 
-    Alert.alert('Success', 'Activity created successfully!');
+      // Switch to Active tab to show the newly created activity
+      setViewMode('active');
 
-    // Switch to Active tab to show the newly created activity
-    setViewMode('active');
-
-    // Reset form
-    setTitle('');
-    setDescription('');
-    setMaxPeople('4');
-    setScheduledTime('');
-    setLocation('');
-    setTags('');
+      // Reset form
+      setTitle('');
+      setDescription('');
+      setMaxPeople('4');
+      setScheduledTime('');
+      setLocation('');
+      setTags('');
+    } catch (error) {
+      // Error is already handled in App.tsx, just don't show success or reset form
+    }
   };
 
   const renderActivityCard = ({item}: {item: ActivityIntent}) => (

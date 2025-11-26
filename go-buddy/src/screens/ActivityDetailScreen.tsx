@@ -113,7 +113,7 @@ export function ActivityDetailScreen({
     setMaxPeopleLocal(activity.maxPeople);
   }, [activity.maxPeople]);
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     // Validate Title - cannot be blank
     if (!editedTitle.trim()) {
       Alert.alert('Error', 'Title is required and cannot be blank');
@@ -141,16 +141,20 @@ export function ActivityDetailScreen({
       return;
     }
 
-    onUpdateActivity(activity.id, {
-      title: editedTitle.trim(),
-      description: editedDescription.trim(),
-      maxPeople,
-      scheduledTimes: editedScheduledTimes,
-      campusLocation: editedLocation.trim() || undefined,
-    });
-
-    setIsEditing(false);
-    Alert.alert('Success', 'Activity updated successfully!');
+    try {
+      await onUpdateActivity(activity.id, {
+        title: editedTitle.trim(),
+        description: editedDescription.trim(),
+        maxPeople,
+        scheduledTimes: editedScheduledTimes,
+        campusLocation: editedLocation.trim() || undefined,
+      });
+      // Only show success and exit edit mode if update was successful
+      setIsEditing(false);
+      Alert.alert('Success', 'Activity updated successfully!');
+    } catch (error) {
+      // Error is already handled in App.tsx, just don't show success or exit edit mode
+    }
   };
 
   const handleMarkComplete = () => {
@@ -161,20 +165,25 @@ export function ActivityDetailScreen({
         {text: 'Cancel', style: 'cancel'},
         {
           text: 'Complete',
-          onPress: () => {
-            // Decline all remaining pending requests
-            pendingRequests.forEach((r) => onDeclineRequest(r.id));
-            // Send full payload so app can insert/update without losing details
-            onUpdateActivity(activity.id, {
-              status: 'completed',
-              title: activity.title,
-              description: activity.description,
-              maxPeople: activity.maxPeople,
-              scheduledTimes: activity.scheduledTimes,
-              campusLocation: activity.campusLocation,
-            });
-            Alert.alert('Success', 'Activity marked as complete!');
-            onClose();
+          onPress: async () => {
+            try {
+              // Decline all remaining pending requests
+              pendingRequests.forEach((r) => onDeclineRequest(r.id));
+              // Send full payload so app can insert/update without losing details
+              await onUpdateActivity(activity.id, {
+                status: 'completed',
+                title: activity.title,
+                description: activity.description,
+                maxPeople: activity.maxPeople,
+                scheduledTimes: activity.scheduledTimes,
+                campusLocation: activity.campusLocation,
+              });
+              // Only show success and close if update was successful
+              Alert.alert('Success', 'Activity marked as complete!');
+              onClose();
+            } catch (error) {
+              // Error is already handled in App.tsx, just don't show success or close
+            }
           },
         },
       ],
@@ -190,20 +199,25 @@ export function ActivityDetailScreen({
         {
           text: 'Yes, Cancel',
           style: 'destructive',
-          onPress: () => {
-            // Decline all remaining pending requests
-            pendingRequests.forEach((r) => onDeclineRequest(r.id));
-            // Send full payload so app can insert/update without losing details
-            onUpdateActivity(activity.id, {
-              status: 'cancelled',
-              title: activity.title,
-              description: activity.description,
-              maxPeople: activity.maxPeople,
-              scheduledTimes: activity.scheduledTimes,
-              campusLocation: activity.campusLocation,
-            });
-            Alert.alert('Activity Cancelled', 'The activity has been cancelled.');
-            onClose();
+          onPress: async () => {
+            try {
+              // Decline all remaining pending requests
+              pendingRequests.forEach((r) => onDeclineRequest(r.id));
+              // Send full payload so app can insert/update without losing details
+              await onUpdateActivity(activity.id, {
+                status: 'cancelled',
+                title: activity.title,
+                description: activity.description,
+                maxPeople: activity.maxPeople,
+                scheduledTimes: activity.scheduledTimes,
+                campusLocation: activity.campusLocation,
+              });
+              // Only show success and close if update was successful
+              Alert.alert('Activity Cancelled', 'The activity has been cancelled.');
+              onClose();
+            } catch (error) {
+              // Error is already handled in App.tsx, just don't show success or close
+            }
           },
         },
       ],
