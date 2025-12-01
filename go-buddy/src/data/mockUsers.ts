@@ -10,7 +10,7 @@ export const mockUsers: User[] = [
     preferredTimes: ['Weekday Evenings', 'Weekend Afternoons'],
     activityTags: ['Soccer', 'Hiking', 'BIO 180', 'Study Groups', 'Coffee'],
     phone: '206-555-0124',
-    instagram: '@sarahj_uw',
+    instagram: '@dubs_uw',
     campusLocation: 'South Campus',
   },
   {
