@@ -1,11 +1,11 @@
-import React from 'react';
-import {View, Text, StyleSheet, Modal, ScrollView, TouchableOpacity} from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, Modal, ScrollView, TouchableOpacity, ActionSheetIOS, Linking, } from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {User} from '../types';
 import {Card} from './Card';
 import {Badge} from './Badge';
 import {colors, spacing, typography, borderRadius} from '../theme';
-import * as Linking from 'expo-linking';
+// import * as Linking from 'expo-linking';
 
 type UserProfileModalProps = {
   user: User | null;
@@ -26,133 +26,172 @@ export function UserProfileModal({
 
   const isOwnProfile = currentUserId === user.id;
 
+  const openMessage = (phone: string) => {
+    const url = `sms:${phone}`;
+    Linking.openURL(url);
+  };
+
+  const startCall = (phone: string) => {
+    const url = `tel:${phone}`;
+    Linking.openURL(url);
+  };
+
+  const handlePhonePress = (phone: string) => {
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        options: ['Cancel', 'Message', 'Call'], // 下标：0,1,2
+        cancelButtonIndex: 0,
+      },
+      buttonIndex => {
+        if (buttonIndex === 1) {
+          openMessage(phone);
+        } else if (buttonIndex === 2) {
+          startCall(phone);
+        }
+      },
+    );
+  };
+
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      presentationStyle="pageSheet"
-      onRequestClose={onClose}
-    >
-      <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Ionicons name="close" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Profile</Text>
-          <View style={styles.placeholder} />
-        </View>
+    <>
+      <Modal
+        visible={visible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={onClose}
+      >
+        <View style={styles.container}>
+          {/* Header */}
+          <View style={styles.header}>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Ionicons name="close" size={24} color={colors.text} />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Profile</Text>
+            <View style={styles.placeholder} />
+          </View>
 
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {/* Profile Card */}
-          <Card style={styles.profileCard}>
-            {/* Title and Bio */}
-            <View style={styles.titleSection}>
-              <Text style={styles.title}>{user.name}</Text>
-            </View>
-
-            {/* Status Badge - Show user type */}
-            <View style={[styles.statusBadge, {backgroundColor: `${colors.primary}20`}]}>
-              <Ionicons name="person-outline" size={16} color={colors.primary} />
-              <Text style={[styles.statusText, {color: colors.primary}]}>
-                {isOwnProfile ? 'Your Profile' : 'Student Profile'}
-              </Text>
-            </View>
-
-            {/* Description */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>About</Text>
-              <Text style={styles.description}>{user.bio || 'No bio provided'}</Text>
-            </View>
-
-            {/* Activity Interests */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Activity Interests</Text>
-              <View style={styles.tagsContainer}>
-                {user.activityTags.map((tag, index) => (
-                  <Badge key={index} variant="secondary" style={styles.tag}>
-                    {tag}
-                  </Badge>
-                ))}
+          <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+            {/* Profile Card */}
+            <Card style={styles.profileCard}>
+              {/* Title and Bio */}
+              <View style={styles.titleSection}>
+                <Text style={styles.title}>{user.name}</Text>
               </View>
-            </View>
 
-            {/* Preferred Times */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Preferred Times</Text>
-              <View style={styles.timesContainer}>
-                {user.preferredTimes.map((time, index) => (
-                  <Badge key={index} variant="outline" style={styles.timeBadge}>
-                    <Ionicons name="time-outline" size={14} color={colors.textSecondary} />
-                    <Text style={styles.timeText}>{time}</Text>
-                  </Badge>
-                ))}
+              {/* Status Badge - Show user type */}
+              <View style={[styles.statusBadge, {backgroundColor: `${colors.primary}20`}]}>
+                <Ionicons name="person-outline" size={16} color={colors.primary} />
+                <Text style={[styles.statusText, {color: colors.primary}]}>
+                  {isOwnProfile ? 'Your Profile' : 'Student Profile'}
+                </Text>
               </View>
-            </View>
 
-            {/* Campus Location */}
-            {user.campusLocation && (
+              {/* Description */}
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Campus Location</Text>
-                <View style={styles.locationContainer}>
-                  <Ionicons name="location-outline" size={16} color={colors.textSecondary} />
-                  <Text style={styles.locationText}>{user.campusLocation}</Text>
+                <Text style={styles.sectionTitle}>About</Text>
+                <Text style={styles.description}>{user.bio || 'No bio provided'}</Text>
+              </View>
+
+              {/* Activity Interests */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Activity Interests</Text>
+                <View style={styles.tagsContainer}>
+                  {user.activityTags.map((tag, index) => (
+                    <Badge key={index} variant="secondary" style={styles.tag}>
+                      {tag}
+                    </Badge>
+                  ))}
                 </View>
               </View>
-            )}
 
-            {/* Contact Info - Only show if showContactInfo is true or it's own profile */}
-            {(showContactInfo || isOwnProfile) &&
-              (user.phone || user.instagram || user.contactEmail) && (
+              {/* Preferred Times */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Preferred Times</Text>
+                <View style={styles.timesContainer}>
+                  {user.preferredTimes.map((time, index) => (
+                    <Badge key={index} variant="outline" style={styles.timeBadge}>
+                      <Ionicons name="time-outline" size={14} color={colors.textSecondary} />
+                      <Text style={styles.timeText}>{time}</Text>
+                    </Badge>
+                  ))}
+                </View>
+              </View>
+
+              {/* Campus Location */}
+              {user.campusLocation && (
                 <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Contact Info</Text>
-                  <View style={styles.contactContainer}>
-                    {user.contactEmail && (
-                      <View style={styles.contactItem}>
-                        <Ionicons name="mail-outline" size={16} color={colors.textSecondary} />
-                        <Text style={styles.contactText}>{user.contactEmail}</Text>
-                      </View>
-                    )}
-                    {user.phone && (
-                      <View style={styles.contactItem}>
-                        <Ionicons name="call-outline" size={16} color={colors.textSecondary} />
-                        <Text style={styles.contactText}>{user.phone}</Text>
-                      </View>
-                    )}
-                    {user.instagram && (
-                      <TouchableOpacity
-                        style={styles.contactItem}
-                        onPress={async () => {
-                          const instagram = user.instagram;
-                          if (!instagram) return;
-
-                          const username = instagram.replace('@', '');
-                          const appUrl = `instagram://user?username=${username}`;
-                          const webUrl = `https://www.instagram.com/${username}`;
-
-                          try {
-                            const supported = await Linking.canOpenURL(appUrl);
-                            await Linking.openURL(supported ? appUrl : webUrl);
-                          } catch (error) {
-                            await Linking.openURL(webUrl);
-                          }
-                        }}
-                      >
-                        <Ionicons name="logo-instagram" size={16} color={colors.textSecondary} />
-                        <Text style={styles.contactText}>{user.instagram}</Text>
-                      </TouchableOpacity>
-                    )}
+                  <Text style={styles.sectionTitle}>Campus Location</Text>
+                  <View style={styles.locationContainer}>
+                    <Ionicons name="location-outline" size={16} color={colors.textSecondary} />
+                    <Text style={styles.locationText}>{user.campusLocation}</Text>
                   </View>
                 </View>
               )}
-          </Card>
-        </ScrollView>
-      </View>
-    </Modal>
+
+              {/* Contact Info - Only show if showContactInfo is true or it's own profile */}
+              {(showContactInfo || isOwnProfile) &&
+                (user.phone || user.instagram || user.contactEmail) && (
+                  <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Contact Info</Text>
+                    <View style={styles.contactContainer}>
+                      {user.contactEmail && (
+                        <View style={styles.contactItem}>
+                          <Ionicons name="mail-outline" size={16} color={colors.textSecondary} />
+                          <Text style={styles.contactText}>{user.contactEmail}</Text>
+                        </View>
+                      )}
+                      {user.phone && (
+                        <TouchableOpacity
+                          style={styles.contactItem}
+                          onPress={() => handlePhonePress(user.phone!)}
+                        >
+                          <Ionicons name="call-outline" size={16} color={colors.textSecondary} />
+                          <Text style={styles.contactText}>{user.phone}</Text>
+                        </TouchableOpacity>
+                      )}
+                      {user.instagram && (
+                        <TouchableOpacity
+                          style={styles.contactItem}
+                          onPress={async () => {
+                            const instagram = user.instagram;
+                            if (!instagram) return;
+
+                            const username = instagram.replace('@', '');
+                            const appUrl = `instagram://user?username=${username}`;
+                            const webUrl = `https://www.instagram.com/${username}`;
+
+                            try {
+                              const supported = await Linking.canOpenURL(appUrl);
+                              await Linking.openURL(supported ? appUrl : webUrl);
+                            } catch (error) {
+                              await Linking.openURL(webUrl);
+                            }
+                          }}
+                        >
+                          <Ionicons name="logo-instagram" size={16} color={colors.textSecondary} />
+                          <Text style={styles.contactText}>{user.instagram}</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  </View>
+                )}
+            </Card>
+          </ScrollView>
+        </View>
+      </Modal>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
+  sheetText: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  cancelItem: {
+    borderBottomWidth: 0,
+    paddingTop: 20,
+  },
   container: {
     flex: 1,
     backgroundColor: colors.background,
