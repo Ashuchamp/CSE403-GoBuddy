@@ -1,5 +1,14 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, Modal, ScrollView, TouchableOpacity, ActionSheetIOS, Linking, } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Modal,
+  ScrollView,
+  TouchableOpacity,
+  ActionSheetIOS,
+  Linking,
+} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {User} from '../types';
 import {Card} from './Card';
@@ -42,7 +51,7 @@ export function UserProfileModal({
         options: ['Cancel', 'Message', 'Call'], // 下标：0,1,2
         cancelButtonIndex: 0,
       },
-      buttonIndex => {
+      (buttonIndex) => {
         if (buttonIndex === 1) {
           openMessage(phone);
         } else if (buttonIndex === 2) {
