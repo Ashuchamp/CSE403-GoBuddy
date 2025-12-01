@@ -14,7 +14,6 @@ import {User} from '../types';
 import {Card} from './Card';
 import {Badge} from './Badge';
 import {colors, spacing, typography, borderRadius} from '../theme';
-// import * as Linking from 'expo-linking';
 
 type UserProfileModalProps = {
   user: User | null;
@@ -48,7 +47,7 @@ export function UserProfileModal({
   const handlePhonePress = (phone: string) => {
     ActionSheetIOS.showActionSheetWithOptions(
       {
-        options: ['Cancel', 'Message', 'Call'], // 下标：0,1,2
+        options: ['Cancel', 'Message', 'Call'],
         cancelButtonIndex: 0,
       },
       (buttonIndex) => {
@@ -59,6 +58,11 @@ export function UserProfileModal({
         }
       },
     );
+  };
+
+  const handleEmailPress = (email: string) => {
+    const url = `mailto:${email}`;
+    Linking.openURL(url);
   };
 
   return (
@@ -144,10 +148,13 @@ export function UserProfileModal({
                     <Text style={styles.sectionTitle}>Contact Info</Text>
                     <View style={styles.contactContainer}>
                       {user.contactEmail && (
-                        <View style={styles.contactItem}>
+                        <TouchableOpacity
+                          style={styles.contactItem}
+                          onPress={() => handleEmailPress(user.contactEmail!)}
+                        >
                           <Ionicons name="mail-outline" size={16} color={colors.textSecondary} />
                           <Text style={styles.contactText}>{user.contactEmail}</Text>
-                        </View>
+                        </TouchableOpacity>
                       )}
                       {user.phone && (
                         <TouchableOpacity
