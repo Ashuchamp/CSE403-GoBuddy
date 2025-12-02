@@ -530,7 +530,7 @@ async function seed() {
       {
         title: 'Study Group - Data Structures',
         description: 'Working through CSE 373 problem sets. Looking for study partners!',
-        maxPeople: 4,
+        maxPeople: 6,
         currentPeople: 1,
         scheduledTimes: ['Mon 5-7pm', 'Wed 5-7pm'],
         campusLocation: 'Allen Library',
@@ -540,10 +540,20 @@ async function seed() {
       {
         title: 'Morning Gym Buddy Needed',
         description: 'Regular gym sessions at the IMA. Looking for workout buddies!',
-        maxPeople: 3,
+        maxPeople: 5,
         currentPeople: 1,
         scheduledTimes: ['Mon-Fri 7-8am'],
         campusLocation: 'IMA',
+        userId: createdDemoUser.id,
+        userName: createdDemoUser.name,
+      },
+      {
+        title: 'Weekend Coffee & Study Session',
+        description: 'Looking for study partners for weekend coffee meetups. We can work on assignments together!',
+        maxPeople: 4,
+        currentPeople: 1,
+        scheduledTimes: ['Sat 10am-12pm', 'Sun 2-4pm'],
+        campusLocation: 'Suzzallo Library Cafe',
         userId: createdDemoUser.id,
         userName: createdDemoUser.name,
       },
@@ -564,53 +574,116 @@ async function seed() {
 
     // === Requests TO Demo User's activities (for "Organizing" tab) ===
     
+    // Activity 1: Study Group - Data Structures (6 max people)
     // Sarah Johnson wants to join Demo User's study group - PENDING
     requests.push({
-      activityId: createdDemoActivities[0].id, // demo-activity-1
+      activityId: createdDemoActivities[0].id,
       userId: createdMockUsers[0].id, // Sarah Johnson
       userName: createdMockUsers[0].name,
       userBio: createdMockUsers[0].bio,
-      userSkills: [],
+      userSkills: ['BIO 180', 'Study Groups'],
       status: 'pending' as const,
     });
 
     // Mike Chen wants to join Demo User's study group - PENDING
     requests.push({
-      activityId: createdDemoActivities[0].id, // demo-activity-1
+      activityId: createdDemoActivities[0].id,
       userId: createdMockUsers[1].id, // Mike Chen
       userName: createdMockUsers[1].name,
       userBio: createdMockUsers[1].bio,
-      userSkills: [],
+      userSkills: ['CSE 373', 'Coding Projects'],
       status: 'pending' as const,
     });
 
     // Emily Park wants to join Demo User's study group - APPROVED
     requests.push({
-      activityId: createdDemoActivities[0].id, // demo-activity-1
+      activityId: createdDemoActivities[0].id,
       userId: createdMockUsers[2].id, // Emily Park
       userName: createdMockUsers[2].name,
       userBio: createdMockUsers[2].bio,
-      userSkills: [],
+      userSkills: ['PSYCH 210', 'Study Groups'],
       status: 'approved' as const,
     });
 
+    // David Nguyen wants to join Demo User's study group - PENDING
+    requests.push({
+      activityId: createdDemoActivities[0].id,
+      userId: createdMockUsers[5].id, // David Nguyen
+      userName: createdMockUsers[5].name,
+      userBio: createdMockUsers[5].bio,
+      userSkills: ['CHEM 238', 'Study Groups'],
+      status: 'pending' as const,
+    });
+
+    // Nathan Brooks wants to join Demo User's study group - PENDING
+    requests.push({
+      activityId: createdDemoActivities[0].id,
+      userId: createdMockUsers[11].id, // Nathan Brooks
+      userName: createdMockUsers[11].name,
+      userBio: createdMockUsers[11].bio,
+      userSkills: ['Coding', 'ACM', 'Study Groups'],
+      status: 'pending' as const,
+    });
+
+    // Activity 2: Morning Gym Buddy Needed (5 max people)
     // Alex Rodriguez wants to join Demo User's gym - PENDING
     requests.push({
-      activityId: createdDemoActivities[1].id, // demo-activity-2
+      activityId: createdDemoActivities[1].id,
       userId: createdMockUsers[3].id, // Alex Rodriguez
       userName: createdMockUsers[3].name,
       userBio: createdMockUsers[3].bio,
-      userSkills: [],
+      userSkills: ['Gym', 'Tennis'],
       status: 'pending' as const,
     });
 
     // Jessica Kim wants to join Demo User's gym - PENDING
     requests.push({
-      activityId: createdDemoActivities[1].id, // demo-activity-2
+      activityId: createdDemoActivities[1].id,
       userId: createdMockUsers[4].id, // Jessica Kim
       userName: createdMockUsers[4].name,
       userBio: createdMockUsers[4].bio,
-      userSkills: [],
+      userSkills: ['Yoga', 'Art'],
+      status: 'pending' as const,
+    });
+
+    // Ryan Patel wants to join Demo User's gym - PENDING
+    requests.push({
+      activityId: createdDemoActivities[1].id,
+      userId: createdMockUsers[15].id, // Ryan Patel
+      userName: createdMockUsers[15].name,
+      userBio: createdMockUsers[15].bio,
+      userSkills: ['Gym', 'Powerlifting'],
+      status: 'pending' as const,
+    });
+
+    // Activity 3: Weekend Coffee & Study Session (4 max people)
+    // Rachel Brown wants to join Demo User's coffee study - PENDING
+    requests.push({
+      activityId: createdDemoActivities[2].id,
+      userId: createdMockUsers[6].id, // Rachel Brown
+      userName: createdMockUsers[6].name,
+      userBio: createdMockUsers[6].bio,
+      userSkills: ['Coffee', 'Music'],
+      status: 'pending' as const,
+    });
+
+    // Sophia Martinez wants to join Demo User's coffee study - PENDING
+    requests.push({
+      activityId: createdDemoActivities[2].id,
+      userId: createdMockUsers[10].id, // Sophia Martinez
+      userName: createdMockUsers[10].name,
+      userBio: createdMockUsers[10].bio,
+      userSkills: ['Running', 'Study Groups', 'Coffee'],
+      status: 'pending' as const,
+    });
+
+    // Amanda Taylor wants to join Demo User's coffee study - PENDING
+    requests.push({
+      activityId: createdDemoActivities[2].id,
+      userId: createdMockUsers[14].id, // Amanda Taylor
+      userName: createdMockUsers[14].name,
+      userBio: createdMockUsers[14].bio,
+      userSkills: ['Writing', 'Photography', 'Coffee'],
       status: 'pending' as const,
     });
 
@@ -752,8 +825,9 @@ async function seed() {
     console.log('\n🎉 Database seeded successfully!');
     console.log('\n📊 Summary:');
     console.log(`   Demo User: demo@uw.edu`);
-    console.log(`     - 2 activities created (for MyActivities "Organizing")`);
-    console.log(`     - 5 requests to their activities (3 pending, 1 approved, 1 declined)`);
+    console.log(`     - ${createdDemoActivities.length} activities created (for MyActivities "Organizing")`);
+    console.log(`     - ${requests.filter(r => r.status === 'pending').length} pending requests to approve/decline`);
+    console.log(`     - ${requests.filter(r => r.status === 'approved').length} approved requests`);
     console.log(`     - 3 requests from them to join activities (for MyActivities "Participating")`);
     console.log(`     - 3 connection requests received (pending)`);
     console.log(`     - 2 connection requests sent (pending)`);
@@ -769,7 +843,9 @@ async function seed() {
     console.log(`     - CSE 143 Study Group, Basketball, Photography Walk,`);
     console.log(`     - Chemistry Lab, Ultimate Frisbee, Guitar Jam`);
     console.log(`   Demo User Activities: ${createdDemoActivities.length}`);
-    console.log(`     - Study Group - Data Structures, Morning Gym Buddy Needed`);
+    console.log(`     - Study Group - Data Structures (${requests.filter(r => r.activityId === createdDemoActivities[0].id && r.status === 'pending').length} pending)`);
+    console.log(`     - Morning Gym Buddy Needed (${requests.filter(r => r.activityId === createdDemoActivities[1].id && r.status === 'pending').length} pending)`);
+    console.log(`     - Weekend Coffee & Study Session (${requests.filter(r => r.activityId === createdDemoActivities[2].id && r.status === 'pending').length} pending)`);
     console.log(`   Total Activity Requests: ${createdRequests.length}`);
     console.log(`   Total Connection Requests: ${createdConnectionRequests.length}`);
     console.log(`   Total Connections: ${createdConnections.length / 2} (bidirectional)`);
