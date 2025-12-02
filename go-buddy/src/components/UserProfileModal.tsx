@@ -9,11 +9,13 @@ import {
   ActionSheetIOS,
   Linking,
 } from 'react-native';
-import {Ionicons} from '@expo/vector-icons';
+import {Ionicons, Feather} from '@expo/vector-icons';
 import {User} from '../types';
 import {Card} from './Card';
 import {Badge} from './Badge';
 import {colors, spacing, typography, borderRadius} from '../theme';
+import * as Clipboard from 'expo-clipboard';
+import {Alert} from 'react-native';
 
 type UserProfileModalProps = {
   user: User | null;
@@ -37,6 +39,11 @@ export function UserProfileModal({
   const openMessage = (phone: string) => {
     const url = `sms:${phone}`;
     Linking.openURL(url);
+  };
+
+  const copyToClipboard = async (text: string) => {
+    await Clipboard.setStringAsync(text);
+    Alert.alert('Copied', `${text}`);
   };
 
   const startCall = (phone: string) => {
@@ -148,45 +155,69 @@ export function UserProfileModal({
                     <Text style={styles.sectionTitle}>Contact Info</Text>
                     <View style={styles.contactContainer}>
                       {user.contactEmail && (
-                        <TouchableOpacity
-                          style={styles.contactItem}
-                          onPress={() => handleEmailPress(user.contactEmail!)}
-                        >
-                          <Ionicons name="mail-outline" size={16} color={colors.textSecondary} />
-                          <Text style={styles.contactText}>{user.contactEmail}</Text>
-                        </TouchableOpacity>
+                        <View style={styles.contactItem}>
+                          <TouchableOpacity
+                            style={{flexDirection: 'row', alignItems: 'center', flex: 1, gap: spacing.sm}}
+                            onPress={() => handleEmailPress(user.contactEmail!)}
+                          >
+                            <Ionicons name="mail-outline" size={16} color="#DB4437" />
+                            <Text style={[styles.contactText, {textDecorationLine: 'underline'}]}>
+                              {user.contactEmail}
+                            </Text>
+                            <Feather name="arrow-up-right" size={16} color="#8E8E93" />
+                          </TouchableOpacity>
+
+                          {/* Copy */}
+                          <TouchableOpacity onPress={() => copyToClipboard(user.contactEmail!)}>
+                            <Feather name="copy" size={16} color="#8E8E93" />
+                          </TouchableOpacity>
+                        </View>
                       )}
                       {user.phone && (
-                        <TouchableOpacity
-                          style={styles.contactItem}
-                          onPress={() => handlePhonePress(user.phone!)}
-                        >
-                          <Ionicons name="call-outline" size={16} color={colors.textSecondary} />
-                          <Text style={styles.contactText}>{user.phone}</Text>
-                        </TouchableOpacity>
+                        <View style={styles.contactItem}>
+                          <TouchableOpacity
+                            style={{flexDirection: 'row', alignItems: 'center', flex: 1}}
+                            onPress={() => handlePhonePress(user.phone!)}
+                          >
+                            <Ionicons name="call-outline" size={16} color="#34C759" />
+                            <Text style={[styles.contactText, {marginLeft: 6, textDecorationLine: 'underline'}]}>
+                              {user.phone}
+                            </Text>
+                            <Feather name="arrow-up-right" size={16} color="#8E8E93" style={{marginLeft: 6}} />
+                          </TouchableOpacity>
+
+                          <TouchableOpacity onPress={() => copyToClipboard(user.phone!)}>
+                            <Feather name="copy" size={16} color="#8E8E93" />
+                          </TouchableOpacity>
+                        </View>
                       )}
                       {user.instagram && (
-                        <TouchableOpacity
-                          style={styles.contactItem}
-                          onPress={async () => {
-                            const instagram = user.instagram;
-                            if (!instagram) return;
+                        <View style={styles.contactItem}>
+                          <TouchableOpacity
+                            style={{flexDirection: 'row', alignItems: 'center', flex: 1}}
+                            onPress={async () => {
+                              const username = user.instagram!.replace('@', '');
+                              const appUrl = `instagram://user?username=${username}`;
+                              const webUrl = `https://www.instagram.com/${username}`;
+                              try {
+                                const supported = await Linking.canOpenURL(appUrl);
+                                await Linking.openURL(supported ? appUrl : webUrl);
+                              } catch {
+                                await Linking.openURL(webUrl);
+                              }
+                            }}
+                          >
+                            <Ionicons name="logo-instagram" size={16} color="#C13584" />
+                            <Text style={[styles.contactText, {marginLeft: 6, textDecorationLine: 'underline'}]}>
+                              {user.instagram}
+                            </Text>
+                            <Feather name="arrow-up-right" size={16} color="#8E8E93" style={{marginLeft: 6}} />
+                          </TouchableOpacity>
 
-                            const username = instagram.replace('@', '');
-                            const appUrl = `instagram://user?username=${username}`;
-                            const webUrl = `https://www.instagram.com/${username}`;
-
-                            try {
-                              const supported = await Linking.canOpenURL(appUrl);
-                              await Linking.openURL(supported ? appUrl : webUrl);
-                            } catch (error) {
-                              await Linking.openURL(webUrl);
-                            }
-                          }}
-                        >
-                          <Ionicons name="logo-instagram" size={16} color={colors.textSecondary} />
-                          <Text style={styles.contactText}>{user.instagram}</Text>
-                        </TouchableOpacity>
+                          <TouchableOpacity onPress={() => copyToClipboard(user.instagram!)}>
+                            <Feather name="copy" size={16} color="#8E8E93" />
+                          </TouchableOpacity>
+                        </View>
                       )}
                     </View>
                   </View>
