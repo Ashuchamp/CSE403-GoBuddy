@@ -157,7 +157,12 @@ export function UserProfileModal({
                       {user.contactEmail && (
                         <View style={styles.contactItem}>
                           <TouchableOpacity
-                            style={{flexDirection: 'row', alignItems: 'center', flex: 1, gap: spacing.sm}}
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              flex: 1,
+                              gap: spacing.sm,
+                            }}
                             onPress={() => handleEmailPress(user.contactEmail!)}
                           >
                             <Ionicons name="mail-outline" size={16} color="#DB4437" />
@@ -180,10 +185,20 @@ export function UserProfileModal({
                             onPress={() => handlePhonePress(user.phone!)}
                           >
                             <Ionicons name="call-outline" size={16} color="#34C759" />
-                            <Text style={[styles.contactText, {marginLeft: 6, textDecorationLine: 'underline'}]}>
+                            <Text
+                              style={[
+                                styles.contactText,
+                                {marginLeft: 6, textDecorationLine: 'underline'},
+                              ]}
+                            >
                               {user.phone}
                             </Text>
-                            <Feather name="arrow-up-right" size={16} color="#8E8E93" style={{marginLeft: 6}} />
+                            <Feather
+                              name="arrow-up-right"
+                              size={16}
+                              color="#8E8E93"
+                              style={{marginLeft: 6}}
+                            />
                           </TouchableOpacity>
 
                           <TouchableOpacity onPress={() => copyToClipboard(user.phone!)}>
@@ -208,10 +223,20 @@ export function UserProfileModal({
                             }}
                           >
                             <Ionicons name="logo-instagram" size={16} color="#C13584" />
-                            <Text style={[styles.contactText, {marginLeft: 6, textDecorationLine: 'underline'}]}>
+                            <Text
+                              style={[
+                                styles.contactText,
+                                {marginLeft: 6, textDecorationLine: 'underline'},
+                              ]}
+                            >
                               {user.instagram}
                             </Text>
-                            <Feather name="arrow-up-right" size={16} color="#8E8E93" style={{marginLeft: 6}} />
+                            <Feather
+                              name="arrow-up-right"
+                              size={16}
+                              color="#8E8E93"
+                              style={{marginLeft: 6}}
+                            />
                           </TouchableOpacity>
 
                           <TouchableOpacity onPress={() => copyToClipboard(user.instagram!)}>
