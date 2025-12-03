@@ -23,14 +23,14 @@ const demoUser = {
 // ALL Mock Users (exactly from mockUsers.ts - IDs 2-12)
 const mockUsers = [
   {
-    email: 'sarah.j@uw.edu',
-    name: 'Sarah Johnson',
+    email: 'dubs_cute@uw.edu',
+    name: 'Dubs',
     bio: 'Senior studying Biology. Love hiking, study groups, and playing soccer on weekends!',
     preferredTimes: ['Weekday Evenings', 'Weekend Afternoons'],
     activityTags: ['Soccer', 'Hiking', 'BIO 180', 'Study Groups', 'Coffee'],
     phone: '206-555-0124',
     instagram: '@dubs_uw',
-    contactEmail: 'sarah.johnson.bio@gmail.com',
+    contactEmail: 'dubs_so_cute@gmail.com',
     campusLocation: 'South Campus',
   },
   {
@@ -575,10 +575,10 @@ async function seed() {
     // === Requests TO Demo User's activities (for "Organizing" tab) ===
     
     // Activity 1: Study Group - Data Structures (6 max people)
-    // Sarah Johnson wants to join Demo User's study group - PENDING
+    // Dubs wants to join Demo User's study group - PENDING
     requests.push({
       activityId: createdDemoActivities[0].id,
-      userId: createdMockUsers[0].id, // Sarah Johnson
+      userId: createdMockUsers[0].id, // Dubs
       userName: createdMockUsers[0].name,
       userBio: createdMockUsers[0].bio,
       userSkills: ['BIO 180', 'Study Groups'],
@@ -771,11 +771,11 @@ async function seed() {
     // Create established connections (bidirectional)
     const connections = [];
     
-    // Demo User is connected with Sarah Johnson
+    // Demo User is connected with Dubs
     connections.push(
       {
         userId: createdDemoUser.id,
-        connectedUserId: createdMockUsers[0].id, // Sarah Johnson
+        connectedUserId: createdMockUsers[0].id, // Dubs
       },
       {
         userId: createdMockUsers[0].id,
@@ -833,7 +833,7 @@ async function seed() {
     console.log(`     - 2 connection requests sent (pending)`);
     console.log(`     - 4 established connections`);
     console.log(`   Mock Users: ${createdMockUsers.length}`);
-    console.log(`     - Sarah Johnson, Mike Chen, Emily Park, Alex Rodriguez,`);
+    console.log(`     - Dubs, Mike Chen, Emily Park, Alex Rodriguez,`);
     console.log(`     - Jessica Kim, David Nguyen, Rachel Brown, James Lee,`);
     console.log(`     - Olivia White, Chris Davis, Sophia Martinez`);
     console.log(`   Activity Creators: ${createdCreators.length}`);
