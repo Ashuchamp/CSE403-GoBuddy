@@ -25,6 +25,7 @@ import {
   getConnectedUsers,
   subscribeToConnectedUsers,
 } from '../services/connectionStore';
+import {isSeedUser, isDemoMode} from '../utils/seedData';
 
 type BrowseScreenProps = {
   currentUser: User;
@@ -58,6 +59,9 @@ export function BrowseScreen({
   const [users, setUsers] = useState<User[]>([]);
   const [useBackend, setUseBackend] = useState(true);
 
+  // Check if user is in demo mode
+  const isInDemoMode = isDemoMode(currentUser.email);
+
   // Fetch users and connection data from API
   useEffect(() => {
     const fetchData = async () => {
@@ -85,17 +89,27 @@ export function BrowseScreen({
         setConnectedUserIds(new Set(connectedUsers.map((u: User) => u.id)));
         setUseBackend(true);
       } catch (error) {
-        console.error('Failed to fetch data from backend, using local store:', error);
-        setUseBackend(false);
-        // Fallback to local store
-        setUsers([]);
-        setSentToUserIds(new Set(getSentRequests().map((r) => r.to.id)));
-        setConnectedUserIds(new Set(getConnectedUsers().map((u) => u.id)));
+        console.error('Failed to fetch data from backend:', error);
+        // Only use local store fallback in demo mode
+        if (isInDemoMode) {
+          console.log('Demo mode: Using local store fallback');
+          setUseBackend(false);
+          setUsers([]);
+          setSentToUserIds(new Set(getSentRequests().map((r) => r.to.id)));
+          setConnectedUserIds(new Set(getConnectedUsers().map((u) => u.id)));
+        } else {
+          // Normal mode: show empty state
+          setUsers([]);
+          setSentToUserIds(new Set());
+          setReceivedFromUserIds(new Set());
+          setConnectedUserIds(new Set());
+          setUseBackend(true);
+        }
       }
     };
 
     fetchData();
-  }, [currentUser.id]);
+  }, [currentUser.id, isInDemoMode]);
 
   // Subscribe to local store updates if not using backend
   React.useEffect(() => {
@@ -121,6 +135,8 @@ export function BrowseScreen({
     return (
       users
         .filter((user) => user.id !== currentUser.id)
+        // In normal mode, filter out seed users; in demo mode, show all
+        .filter((user) => isInDemoMode || !isSeedUser(user.email))
         // Exclude users already connected, with pending requests sent, or who sent you requests
         .filter((user) => !connectedUserIds.has(user.id))
         .filter((user) => !sentToUserIds.has(user.id))
@@ -133,9 +149,17 @@ export function BrowseScreen({
           return haystack.includes(q);
         })
     );
-  }, [currentUser, searchQuery, users, connectedUserIds, sentToUserIds, receivedFromUserIds]);
+  }, [
+    currentUser,
+    searchQuery,
+    users,
+    connectedUserIds,
+    sentToUserIds,
+    receivedFromUserIds,
+    isInDemoMode,
+  ]);
 
-  // User's participating requests (mocked for demo)
+  // User's participating requests
   const myRequestsByActivity = useMemo(() => {
     const map = new Map<string, ActivityRequest>();
     activityRequests
@@ -154,6 +178,17 @@ export function BrowseScreen({
     return (
       activityIntents
         .filter((intent) => intent.userId !== currentUser.id)
+        // In normal mode, filter out activities created by seed users; in demo mode, show all
+        .filter((intent) => {
+          // We need to check if the activity creator is a seed user
+          // Since we don't have the creator's email directly, we'll need to find the user
+          // For now, we'll filter based on userName matching seed user patterns
+          // A better approach would be to have userId -> email mapping, but for now
+          // we'll check if we can find the user in our users list
+          if (isInDemoMode) return true;
+          const creator = users.find((u) => u.id === intent.userId);
+          return !creator || !isSeedUser(creator.email);
+        })
         // Exclude activities where user has pending or approved requests
         .filter((intent) => {
           const req = myRequestsByActivity.get(intent.id);
@@ -173,7 +208,7 @@ export function BrowseScreen({
           return haystack.includes(q);
         })
     );
-  }, [currentUser, activityIntents, searchQuery, myRequestsByActivity]);
+  }, [currentUser, activityIntents, searchQuery, myRequestsByActivity, users, isInDemoMode]);
 
   const openConnectModal = (user: User) => {
     setPendingConnectUser(user);
@@ -198,15 +233,17 @@ export function BrowseScreen({
         console.error('Failed to send connection request:', error);
       }
     } else {
-      // Use local store
-      addSentRequest({
-        id: `sent_${Date.now()}`,
-        from: currentUser,
-        to: pendingConnectUser,
-        message: connectNote.trim(),
-        timestamp: new Date(),
-        status: 'pending',
-      });
+      // Use local store (only in demo mode)
+      if (isInDemoMode) {
+        addSentRequest({
+          id: `sent_${Date.now()}`,
+          from: currentUser,
+          to: pendingConnectUser,
+          message: connectNote.trim(),
+          timestamp: new Date(),
+          status: 'pending',
+        });
+      }
     }
 
     setConnectModalVisible(false);
