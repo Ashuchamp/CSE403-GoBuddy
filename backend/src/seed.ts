@@ -531,7 +531,7 @@ async function seed() {
         title: 'Study Group - Data Structures',
         description: 'Working through CSE 373 problem sets. Looking for study partners!',
         maxPeople: 6,
-        currentPeople: 1,
+        currentPeople: 4, // Demo User + 3 approved (Emily Park, James Lee, Chris Davis)
         scheduledTimes: ['Mon 5-7pm', 'Wed 5-7pm'],
         campusLocation: 'Allen Library',
         userId: createdDemoUser.id,
@@ -541,7 +541,7 @@ async function seed() {
         title: 'Morning Gym Buddy Needed',
         description: 'Regular gym sessions at the IMA. Looking for workout buddies!',
         maxPeople: 5,
-        currentPeople: 1,
+        currentPeople: 3, // Demo User + 2 approved (David Nguyen, Maria Gonzalez)
         scheduledTimes: ['Mon-Fri 7-8am'],
         campusLocation: 'IMA',
         userId: createdDemoUser.id,
@@ -551,7 +551,7 @@ async function seed() {
         title: 'Weekend Coffee & Study Session',
         description: 'Looking for study partners for weekend coffee meetups. We can work on assignments together!',
         maxPeople: 4,
-        currentPeople: 1,
+        currentPeople: 2, // Demo User + 1 approved (Emily Park)
         scheduledTimes: ['Sat 10am-12pm', 'Sun 2-4pm'],
         campusLocation: 'Suzzallo Library Cafe',
         userId: createdDemoUser.id,
@@ -625,6 +625,46 @@ async function seed() {
       status: 'pending' as const,
     });
 
+    // James Lee wants to join Demo User's study group - APPROVED
+    requests.push({
+      activityId: createdDemoActivities[0].id,
+      userId: createdMockUsers[7].id, // James Lee
+      userName: createdMockUsers[7].name,
+      userBio: createdMockUsers[7].bio,
+      userSkills: ['Business Strategy', 'Marketing', 'Public Speaking'],
+      status: 'approved' as const,
+    });
+
+    // Chris Davis wants to join Demo User's study group - APPROVED
+    requests.push({
+      activityId: createdDemoActivities[0].id,
+      userId: createdMockUsers[9].id, // Chris Davis
+      userName: createdMockUsers[9].name,
+      userBio: createdMockUsers[9].bio,
+      userSkills: ['Calculus', 'Linear Algebra', 'Proof Writing'],
+      status: 'approved' as const,
+    });
+
+    // Kevin Huang wants to join Demo User's study group - PENDING
+    requests.push({
+      activityId: createdDemoActivities[0].id,
+      userId: createdMockUsers[13].id, // Kevin Huang
+      userName: createdMockUsers[13].name,
+      userBio: createdMockUsers[13].bio,
+      userSkills: ['Robotics', 'Engineering', 'Makerspace'],
+      status: 'pending' as const,
+    });
+
+    // Tyler Anderson wants to join Demo User's study group - DECLINED
+    requests.push({
+      activityId: createdDemoActivities[0].id,
+      userId: createdMockUsers[17].id, // Tyler Anderson
+      userName: createdMockUsers[17].name,
+      userBio: createdMockUsers[17].bio,
+      userSkills: ['Debate', 'POL S 201', 'Study Groups'],
+      status: 'declined' as const,
+    });
+
     // Activity 2: Morning Gym Buddy Needed (5 max people)
     // Alex Rodriguez wants to join Demo User's gym - PENDING
     requests.push({
@@ -653,6 +693,36 @@ async function seed() {
       userName: createdMockUsers[15].name,
       userBio: createdMockUsers[15].bio,
       userSkills: ['Gym', 'Powerlifting'],
+      status: 'pending' as const,
+    });
+
+    // David Nguyen wants to join Demo User's gym - APPROVED
+    requests.push({
+      activityId: createdDemoActivities[1].id,
+      userId: createdMockUsers[5].id, // David Nguyen
+      userName: createdMockUsers[5].name,
+      userBio: createdMockUsers[5].bio,
+      userSkills: ['Chemistry', 'Biology', 'MCAT Prep'],
+      status: 'approved' as const,
+    });
+
+    // Maria Gonzalez wants to join Demo User's gym - APPROVED
+    requests.push({
+      activityId: createdDemoActivities[1].id,
+      userId: createdMockUsers[12].id, // Maria Gonzalez
+      userName: createdMockUsers[12].name,
+      userBio: createdMockUsers[12].bio,
+      userSkills: ['BIOC 405', 'Yoga', 'Wellness'],
+      status: 'approved' as const,
+    });
+
+    // Olivia White wants to join Demo User's gym - PENDING
+    requests.push({
+      activityId: createdDemoActivities[1].id,
+      userId: createdMockUsers[8].id, // Olivia White
+      userName: createdMockUsers[8].name,
+      userBio: createdMockUsers[8].bio,
+      userSkills: ['GIS', 'Field Research', 'Environmental Policy'],
       status: 'pending' as const,
     });
 
@@ -685,6 +755,36 @@ async function seed() {
       userBio: createdMockUsers[14].bio,
       userSkills: ['Writing', 'Photography', 'Coffee'],
       status: 'pending' as const,
+    });
+
+    // Emily Park wants to join Demo User's coffee study - APPROVED
+    requests.push({
+      activityId: createdDemoActivities[2].id,
+      userId: createdMockUsers[2].id, // Emily Park
+      userName: createdMockUsers[2].name,
+      userBio: createdMockUsers[2].bio,
+      userSkills: ['SPSS', 'Research Methods', 'Data Analysis'],
+      status: 'approved' as const,
+    });
+
+    // Stephanie Wright wants to join Demo User's coffee study - PENDING
+    requests.push({
+      activityId: createdDemoActivities[2].id,
+      userId: createdMockUsers[19].id, // Stephanie Wright
+      userName: createdMockUsers[19].name,
+      userBio: createdMockUsers[19].bio,
+      userSkills: ['Languages', 'LING 200', 'Study Groups'],
+      status: 'pending' as const,
+    });
+
+    // Nicole Santos wants to join Demo User's coffee study - DECLINED
+    requests.push({
+      activityId: createdDemoActivities[2].id,
+      userId: createdMockUsers[18].id, // Nicole Santos
+      userName: createdMockUsers[18].name,
+      userBio: createdMockUsers[18].bio,
+      userSkills: ['Running', 'Neuroscience', 'Research'],
+      status: 'declined' as const,
     });
 
     // === Requests FROM Demo User to join other activities (for "Participating" tab) ===

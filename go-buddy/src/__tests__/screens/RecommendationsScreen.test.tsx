@@ -54,6 +54,9 @@ describe('RecommendationsScreen', () => {
     (api as any).activities = {
       getRecommendations: jest.fn(),
     };
+    (api as any).users = {
+      getAll: jest.fn().mockResolvedValue([]),
+    };
   });
 
   it('should render the header and subtitle', async () => {

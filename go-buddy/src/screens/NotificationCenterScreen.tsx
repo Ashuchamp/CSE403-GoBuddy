@@ -18,51 +18,6 @@ type NotificationCenterScreenProps = {
   currentUserId: string;
 };
 
-// Module-level storage for mock notification read state (persists across component remounts)
-const mockReadState = new Set<string>();
-
-// Mock notifications for development/testing
-const getMockNotifications = (): Notification[] => {
-  const now = new Date();
-  return [
-    {
-      id: 'mock-1',
-      userId: 'current-user',
-      message: 'John Doe wants to join your activity "Saturday Hike"',
-      isRead: false,
-      createdAt: new Date(now.getTime() - 5 * 60000).toISOString(), // 5 minutes ago
-    },
-    {
-      id: 'mock-2',
-      userId: 'current-user',
-      message: 'Sarah Chen wants to join your activity "Basketball at IMA"',
-      isRead: false,
-      createdAt: new Date(now.getTime() - 2 * 3600000).toISOString(), // 2 hours ago
-    },
-    {
-      id: 'mock-3',
-      userId: 'current-user',
-      message: 'Mike Johnson wants to join your activity "Study Group for CSE 403"',
-      isRead: true,
-      createdAt: new Date(now.getTime() - 1 * 86400000).toISOString(), // 1 day ago
-    },
-    {
-      id: 'mock-4',
-      userId: 'current-user',
-      message: 'Emily Zhang wants to join your activity "Coffee Chat at Suzzallo"',
-      isRead: true,
-      createdAt: new Date(now.getTime() - 2 * 86400000).toISOString(), // 2 days ago
-    },
-    {
-      id: 'mock-5',
-      userId: 'current-user',
-      message: 'Alex Kim wants to join your activity "Weekend Volleyball"',
-      isRead: false,
-      createdAt: new Date(now.getTime() - 3 * 86400000).toISOString(), // 3 days ago
-    },
-  ];
-};
-
 export function NotificationCenterScreen({currentUserId}: NotificationCenterScreenProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,28 +26,10 @@ export function NotificationCenterScreen({currentUserId}: NotificationCenterScre
   const fetchNotifications = useCallback(async () => {
     try {
       const data = await api.notifications.getAll(currentUserId);
-      // Use mock data if API returns empty (for development)
-      if (data.length === 0) {
-        const mockNotifications = getMockNotifications();
-        // Restore read state for mock notifications from module-level storage
-        const notificationsWithReadState = mockNotifications.map((n) => ({
-          ...n,
-          isRead: mockReadState.has(n.id) || n.isRead,
-        }));
-        setNotifications(notificationsWithReadState);
-      } else {
-        setNotifications(data);
-      }
+      setNotifications(data);
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
-      // Use mock data on error (for development)
-      const mockNotifications = getMockNotifications();
-      // Restore read state for mock notifications from module-level storage
-      const notificationsWithReadState = mockNotifications.map((n) => ({
-        ...n,
-        isRead: mockReadState.has(n.id) || n.isRead,
-      }));
-      setNotifications(notificationsWithReadState);
+      setNotifications([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -122,16 +59,6 @@ export function NotificationCenterScreen({currentUserId}: NotificationCenterScre
   };
 
   const handleMarkAsRead = async (notificationId: string) => {
-    // For mock notifications, update locally and persist read state in module-level storage
-    if (notificationId.startsWith('mock-')) {
-      mockReadState.add(notificationId);
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === notificationId ? {...n, isRead: true} : n)),
-      );
-      return;
-    }
-
-    // For real notifications, call the API
     try {
       await api.notifications.markAsRead(notificationId);
       setNotifications((prev) =>

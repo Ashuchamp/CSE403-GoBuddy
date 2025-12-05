@@ -6,6 +6,7 @@ import {ActivityCard} from '../components/ActivityCard';
 import {ActivityDetailModal} from '../components/ActivityDetailModal';
 import {colors, spacing, typography} from '../theme';
 import api from '../services/api';
+import {isSeedUser, isDemoMode} from '../utils/seedData';
 
 type RecommendationsScreenProps = {
   currentUser: User;
@@ -24,43 +25,100 @@ export function RecommendationsScreen({
   const [recommendations, setRecommendations] = useState<ActivityIntent[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
+
+  // Check if user is in demo mode
+  const isInDemoMode = isDemoMode(currentUser.email);
+
+  // Fetch users to build userId -> email mapping for filtering
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const allUsers = await api.users.getAll();
+        setUsers(allUsers);
+      } catch (error) {
+        console.error('Failed to fetch users for filtering:', error);
+        // Set empty array on error to prevent infinite loading
+        setUsers([]);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   // Fetch ML-powered recommendations when component mounts or user changes
   useEffect(() => {
+    let isMounted = true;
+
     const fetchRecommendations = async () => {
       setLoading(true);
       setError(null);
       try {
         const recs = await api.activities.getRecommendations(currentUser.id, 10);
+        if (!isMounted) return;
+
         console.log(`✅ Loaded ${recs.length} AI-powered recommendations for ${currentUser.name}`);
+
+        // Set recommendations immediately (filtering will happen in separate effect if needed)
+        setRecommendations(recs);
+
         if (recs.length > 0) {
           console.log(
             `📊 Top recommendation: ${recs[0].title} (Score: ${recs[0].recommendationScore?.toFixed(1) || 'N/A'})`,
           );
         }
-        setRecommendations(recs);
       } catch (err) {
+        if (!isMounted) return;
         console.error('❌ Error fetching AI recommendations:', err);
         setError('Failed to load AI recommendations');
-        // Fallback to local filtering if API fails
-        console.log('⚠️ Falling back to local activity filtering');
-        const fallbackRecs = activityIntents.filter((intent) => {
-          if (intent.userId === currentUser.id) return false;
-          if (intent.status === 'completed' || intent.status === 'cancelled') return false;
-          const req = activityRequests.find(
-            (r) => r.activityId === intent.id && r.userId === currentUser.id,
-          );
-          if (req && (req.status === 'pending' || req.status === 'approved')) return false;
-          return true;
-        });
-        setRecommendations(fallbackRecs);
+        // Only fallback to local filtering in demo mode
+        if (isInDemoMode) {
+          console.log('⚠️ Demo mode: Falling back to local activity filtering');
+          const fallbackRecs = activityIntents.filter((intent) => {
+            if (intent.userId === currentUser.id) return false;
+            if (intent.status === 'completed' || intent.status === 'cancelled') return false;
+            const req = activityRequests.find(
+              (r) => r.activityId === intent.id && r.userId === currentUser.id,
+            );
+            if (req && (req.status === 'pending' || req.status === 'approved')) return false;
+            return true;
+          });
+          setRecommendations(fallbackRecs);
+        } else {
+          // Normal mode: show empty state (no fallback)
+          setRecommendations([]);
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchRecommendations();
-  }, [currentUser.id, activityIntents, activityRequests]);
+
+    return () => {
+      isMounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser.id, activityIntents, activityRequests, isInDemoMode]);
+
+  // Filter recommendations when users are loaded (for seed user filtering in normal mode)
+  useEffect(() => {
+    if (isInDemoMode || users.length === 0 || recommendations.length === 0) {
+      return;
+    }
+
+    // Filter out activities created by seed users
+    const filteredRecs = recommendations.filter((rec) => {
+      const creator = users.find((u) => u.id === rec.userId);
+      if (!creator) return true;
+      return !isSeedUser(creator.email);
+    });
+
+    // Only update if filtering actually removed items
+    if (filteredRecs.length !== recommendations.length) {
+      setRecommendations(filteredRecs);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [users, isInDemoMode]);
 
   const renderActivityCard = ({item}: {item: ActivityIntent}) => (
     <ActivityCard intent={item} onJoin={onJoinActivity} onPress={setSelectedActivity} />
