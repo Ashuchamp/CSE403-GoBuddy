@@ -29,8 +29,11 @@ if (process.env.DATABASE_URL) {
     console.error('❌ Failed to parse DATABASE_URL:', error);
   }
   
-  // For Render, always use SSL in production
-  const isProduction = process.env.NODE_ENV === 'production' || process.env.RENDER === 'true';
+  // For Render databases, always use SSL (they require it)
+  const isRenderDatabase = dbUrl.includes('render.com') || process.env.RENDER === 'true';
+  const isProduction = process.env.NODE_ENV === 'production' || isRenderDatabase;
+  
+  console.log(`🔐 SSL Configuration: ${isProduction ? 'ENABLED' : 'DISABLED'} (Render DB: ${isRenderDatabase})`);
   
   sequelizeConfig = {
     url: dbUrl,
@@ -74,10 +77,22 @@ const sequelize = new Sequelize(sequelizeConfig);
 
 export const connectDatabase = async (): Promise<void> => {
   try {
+    console.log('🔄 Attempting to connect to database...');
     await sequelize.authenticate();
     console.log('✅ Database connection established successfully.');
-  } catch (error) {
-    console.error('❌ Unable to connect to the database:', error);
+  } catch (error: any) {
+    console.error('❌ Unable to connect to the database');
+    console.error('   Error type:', error?.name || 'Unknown');
+    console.error('   Error message:', error?.message || 'No message');
+    if (error?.parent) {
+      console.error('   Parent error:', error.parent.message);
+      console.error('   Error code:', error.parent.code);
+    }
+    if (error?.original) {
+      console.error('   Original error:', error.original.message);
+      console.error('   Original code:', error.original.code);
+    }
+    console.error('   Full error:', error);
     process.exit(1);
   }
 };
