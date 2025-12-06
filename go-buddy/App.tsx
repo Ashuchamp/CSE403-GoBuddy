@@ -343,32 +343,47 @@ export default function App() {
     );
   }
 
-  return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <StatusBar style="auto" />
-        {!currentUser ? (
-          <AuthScreen onAuthenticated={setCurrentUser} />
-        ) : (
-          <AppNavigator
-            currentUser={currentUser}
-            activityIntents={activityIntents}
-            activityRequests={activityRequests}
-            onLogout={handleLogout}
-            onUpdateProfile={handleUpdateProfile}
-            onCreateActivity={handleCreateActivity}
-            onUpdateActivity={handleUpdateActivity}
-            onDeleteActivity={handleDeleteActivity}
-            onJoinActivity={handleJoinActivity}
-            onApproveRequest={handleApproveRequest}
-            onDeclineRequest={handleDeclineRequest}
-            onConnectRequest={handleConnectRequest}
-            unreadNotificationCount={unreadCount}
-          />
-        )}
-      </NavigationContainer>
-    </SafeAreaProvider>
-  );
+  try {
+    return (
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <StatusBar style="auto" />
+          {!currentUser ? (
+            <AuthScreen onAuthenticated={setCurrentUser} />
+          ) : (
+            <AppNavigator
+              currentUser={currentUser}
+              activityIntents={activityIntents}
+              activityRequests={activityRequests}
+              onLogout={handleLogout}
+              onUpdateProfile={handleUpdateProfile}
+              onCreateActivity={handleCreateActivity}
+              onUpdateActivity={handleUpdateActivity}
+              onDeleteActivity={handleDeleteActivity}
+              onJoinActivity={handleJoinActivity}
+              onApproveRequest={handleApproveRequest}
+              onDeclineRequest={handleDeclineRequest}
+              onConnectRequest={handleConnectRequest}
+              unreadNotificationCount={unreadCount}
+            />
+          )}
+        </NavigationContainer>
+      </SafeAreaProvider>
+    );
+  } catch (error) {
+    // Catch any initialization errors
+    console.error('App initialization error:', error);
+    return (
+      <SafeAreaProvider>
+        <View style={styles.loadingContainer}>
+          <Text style={[styles.loadingText, {color: colors.error || '#ff0000'}]}>
+            App Error: {error instanceof Error ? error.message : 'Unknown error'}
+          </Text>
+          <Text style={styles.loadingText}>Please restart the app.</Text>
+        </View>
+      </SafeAreaProvider>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
