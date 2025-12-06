@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nodemon src/server.ts",
     "build": "tsc",
+    "build:render": "NODE_ENV=development npm install && npm run build",
     "start": "node dist/server.js",
     "seed": "ts-node src/seed.ts",
     "seed:recommendations": "ts-node src/utils/seedRecommendationDemo.ts",
