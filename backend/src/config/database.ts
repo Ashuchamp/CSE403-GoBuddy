@@ -8,8 +8,13 @@ let sequelizeConfig: any;
 
 if (process.env.DATABASE_URL) {
   // Render provides DATABASE_URL in format: postgresql://user:password@host:port/database
+  const dbUrl = process.env.DATABASE_URL;
+  // Log connection info (without password) for debugging
+  const urlParts = new URL(dbUrl);
+  console.log(`🔌 Connecting to database: ${urlParts.protocol}//${urlParts.username}@${urlParts.hostname}:${urlParts.port}${urlParts.pathname}`);
+  
   sequelizeConfig = {
-    url: process.env.DATABASE_URL,
+    url: dbUrl,
     dialect: 'postgres',
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
     dialectOptions: {
@@ -26,6 +31,8 @@ if (process.env.DATABASE_URL) {
     },
   };
 } else {
+  console.log('⚠️  DATABASE_URL not set, using individual env vars');
+  console.log(`🔌 Connecting to: ${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '5432'}/${process.env.DB_NAME || 'gobuddy'}`);
   // Fallback to individual environment variables for local development
   sequelizeConfig = {
     host: process.env.DB_HOST || 'localhost',
