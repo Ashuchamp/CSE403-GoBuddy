@@ -28,10 +28,10 @@
         <key>CFBundleURLSchemes</key>
         <array>
           <string>com.googleusercontent.apps.353229046135-c1cq6bijclsnk1tdsjf520od87idhgma</string>
-          <string>com.yourcompany.gobuddy</string>
+          <string>kehan.jin.gobuddy</string>
         </array>
         <key>CFBundleURLName</key>
-        <string>com.yourcompany.gobuddy</string>
+        <string>kehan.jin.gobuddy</string>
       </dict>
     </array>
     <key>CFBundleVersion</key>
