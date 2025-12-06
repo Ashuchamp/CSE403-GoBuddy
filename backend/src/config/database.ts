@@ -10,15 +10,34 @@ if (process.env.DATABASE_URL) {
   // Render provides DATABASE_URL in format: postgresql://user:password@host:port/database
   const dbUrl = process.env.DATABASE_URL;
   // Log connection info (without password) for debugging
-  const urlParts = new URL(dbUrl);
-  console.log(`🔌 Connecting to database: ${urlParts.protocol}//${urlParts.username}@${urlParts.hostname}:${urlParts.port}${urlParts.pathname}`);
+  try {
+    const urlParts = new URL(dbUrl);
+    const maskedUrl = dbUrl.replace(/:[^:@]+@/, ':****@'); // Mask password
+    console.log(`🔌 DATABASE_URL format check:`);
+    console.log(`   Full URL (masked): ${maskedUrl}`);
+    console.log(`   Hostname: ${urlParts.hostname}`);
+    console.log(`   Port: ${urlParts.port || 'MISSING!'}`);
+    console.log(`   Database: ${urlParts.pathname.replace('/', '')}`);
+    
+    if (!urlParts.port) {
+      console.error('⚠️  WARNING: DATABASE_URL is missing port number!');
+    }
+    if (!urlParts.hostname.includes('.')) {
+      console.error('⚠️  WARNING: DATABASE_URL hostname appears incomplete (missing domain)!');
+    }
+  } catch (error) {
+    console.error('❌ Failed to parse DATABASE_URL:', error);
+  }
+  
+  // For Render, always use SSL in production
+  const isProduction = process.env.NODE_ENV === 'production' || process.env.RENDER === 'true';
   
   sequelizeConfig = {
     url: dbUrl,
     dialect: 'postgres',
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
     dialectOptions: {
-      ssl: process.env.NODE_ENV === 'production' ? {
+      ssl: isProduction ? {
         require: true,
         rejectUnauthorized: false,
       } : false,
