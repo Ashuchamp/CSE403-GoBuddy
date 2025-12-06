@@ -9,49 +9,50 @@ let sequelizeConfig: any;
 if (process.env.DATABASE_URL) {
   // Render provides DATABASE_URL in format: postgresql://user:password@host:port/database
   const dbUrl = process.env.DATABASE_URL;
-  // Log connection info (without password) for debugging
+  
+  // Parse URL into individual components (more reliable than using url option)
   try {
     const urlParts = new URL(dbUrl);
     const maskedUrl = dbUrl.replace(/:[^:@]+@/, ':****@'); // Mask password
     console.log(`🔌 DATABASE_URL format check:`);
     console.log(`   Full URL (masked): ${maskedUrl}`);
     console.log(`   Hostname: ${urlParts.hostname}`);
-    console.log(`   Port: ${urlParts.port || 'MISSING!'}`);
+    console.log(`   Port: ${urlParts.port || '5432'}`);
     console.log(`   Database: ${urlParts.pathname.replace('/', '')}`);
+    console.log(`   Username: ${urlParts.username}`);
     
-    if (!urlParts.port) {
-      console.error('⚠️  WARNING: DATABASE_URL is missing port number!');
-    }
-    if (!urlParts.hostname.includes('.')) {
-      console.error('⚠️  WARNING: DATABASE_URL hostname appears incomplete (missing domain)!');
-    }
+    // For Render databases, always use SSL (they require it)
+    const isRenderDatabase = dbUrl.includes('render.com') || process.env.RENDER === 'true';
+    const isProduction = process.env.NODE_ENV === 'production' || isRenderDatabase;
+    
+    console.log(`🔐 SSL Configuration: ${isProduction ? 'ENABLED' : 'DISABLED'} (Render DB: ${isRenderDatabase})`);
+    
+    // Parse URL and use individual connection parameters (more reliable)
+    sequelizeConfig = {
+      host: urlParts.hostname,
+      port: parseInt(urlParts.port || '5432'),
+      database: urlParts.pathname.replace('/', ''),
+      username: urlParts.username,
+      password: urlParts.password,
+      dialect: 'postgres',
+      logging: process.env.NODE_ENV === 'development' ? console.log : false,
+      dialectOptions: {
+        ssl: isProduction ? {
+          require: true,
+          rejectUnauthorized: false,
+        } : false,
+      },
+      pool: {
+        max: 5,
+        min: 0,
+        acquire: 30000,
+        idle: 10000,
+      },
+    };
   } catch (error) {
     console.error('❌ Failed to parse DATABASE_URL:', error);
+    throw new Error('Invalid DATABASE_URL format');
   }
-  
-  // For Render databases, always use SSL (they require it)
-  const isRenderDatabase = dbUrl.includes('render.com') || process.env.RENDER === 'true';
-  const isProduction = process.env.NODE_ENV === 'production' || isRenderDatabase;
-  
-  console.log(`🔐 SSL Configuration: ${isProduction ? 'ENABLED' : 'DISABLED'} (Render DB: ${isRenderDatabase})`);
-  
-  sequelizeConfig = {
-    url: dbUrl,
-    dialect: 'postgres',
-    logging: process.env.NODE_ENV === 'development' ? console.log : false,
-    dialectOptions: {
-      ssl: isProduction ? {
-        require: true,
-        rejectUnauthorized: false,
-      } : false,
-    },
-    pool: {
-      max: 5,
-      min: 0,
-      acquire: 30000,
-      idle: 10000,
-    },
-  };
 } else {
   console.log('⚠️  DATABASE_URL not set, using individual env vars');
   console.log(`🔌 Connecting to: ${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '5432'}/${process.env.DB_NAME || 'gobuddy'}`);
