@@ -33,6 +33,9 @@
         "cache": {
           "disabled": true
         }
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://gobuddy-backend-qvci.onrender.com/api"
       }
     }
   },
