@@ -7,7 +7,6 @@ import {
   Platform,
   ScrollView,
   Alert,
-  TouchableOpacity,
 } from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {Button} from '../components/Button';
@@ -105,32 +104,6 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
     }
   };
 
-  const handleSkipToDemo = async () => {
-    setLoading(true);
-    try {
-      // Fetch the demo user from backend
-      const demoUser = await api.users.googleAuth({
-        googleId: 'demo-google-id',
-        email: 'demo@uw.edu',
-        name: 'Demo User',
-      });
-
-      if (demoUser) {
-        console.log('📱 Logged in as Demo User for showcase');
-        onAuthenticated(demoUser);
-      }
-    } catch (error) {
-      console.error('Demo login error:', error);
-      Alert.alert(
-        'Backend Not Available',
-        'Could not connect to backend. Make sure it is running:\n\ncd backend\nnpm run dev',
-        [{text: 'OK'}],
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -163,10 +136,6 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
               </Text>
             </View>
           </Button>
-
-          <TouchableOpacity onPress={handleSkipToDemo} style={styles.skipButton}>
-            <Text style={styles.skipText}>Skip to Demo (for showcase)</Text>
-          </TouchableOpacity>
 
           <Text style={styles.notice}>Only @uw.edu email addresses are allowed.</Text>
         </Card>
@@ -232,17 +201,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
-  },
-  skipButton: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    marginTop: spacing.sm,
-    alignItems: 'center',
-  },
-  skipText: {
-    ...typography.bodySmall,
-    color: colors.primary,
-    textDecorationLine: 'underline',
   },
   notice: {
     ...typography.bodySmall,
