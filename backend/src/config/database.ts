@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Support both DATABASE_URL (Render format) and individual env vars
+// Support both DATABASE_URL (Render format) and individual env vars (local dev)
 let sequelizeConfig: any;
 
 if (process.env.DATABASE_URL) {
