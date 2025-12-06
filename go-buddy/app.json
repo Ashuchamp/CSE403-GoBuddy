@@ -18,7 +18,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourcompany.gobuddy",
+      "bundleIdentifier": "kehan.jin.gobuddy",
       "buildNumber": "1",
       "infoPlist": {
         "NSCameraUsageDescription": "This app uses the camera to upload profile pictures and activity photos.",
