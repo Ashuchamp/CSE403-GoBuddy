@@ -75,7 +75,18 @@ export const activityController = {
   // Create a new activity
   createActivity: async (req: Request, res: Response): Promise<void> => {
     try {
-      const { userId, userName, title, description, maxPeople, scheduledTimes, campusLocation } = req.body;
+      const { 
+        userId, 
+        userName, 
+        title, 
+        description, 
+        maxPeople, 
+        scheduledTimes, 
+        campusLocation,
+        latitude,
+        longitude,
+        locationName
+      } = req.body;
 
       // Validate required fields (only title and maxPeople are required from user)
       if (!userId || !userName || !title || !maxPeople) {
@@ -84,7 +95,12 @@ export const activityController = {
       }
 
       // Check for profanity in activity content
-      const profanityCheck = validateActivityInput({ title, description, userName, campusLocation });
+      const profanityCheck = validateActivityInput({ 
+        title, 
+        description, 
+        userName, 
+        campusLocation: campusLocation || locationName 
+      });
       if (!profanityCheck.isValid) {
         res.status(400).json({ 
           success: false, 
@@ -110,7 +126,10 @@ export const activityController = {
         maxPeople,
         currentPeople: 1,
         scheduledTimes: scheduledTimes || [],
-        campusLocation: campusLocation || undefined,
+        campusLocation: campusLocation || locationName || undefined, // Use locationName if provided
+        latitude: latitude || undefined,
+        longitude: longitude || undefined,
+        locationName: locationName || undefined,
         status: 'active',
       });
 
@@ -132,7 +151,7 @@ export const activityController = {
         title: updates.title,
         description: updates.description,
         userName: updates.userName,
-        campusLocation: updates.campusLocation,
+        campusLocation: updates.campusLocation || updates.locationName,
       });
       if (!profanityCheck.isValid) {
         res.status(400).json({ 
