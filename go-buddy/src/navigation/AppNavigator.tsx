@@ -32,6 +32,7 @@ export type AppNavigatorProps = {
   onDeclineRequest: (requestId: string) => void;
   onConnectRequest?: (userId: string) => void;
   unreadNotificationCount?: number;
+  onNotificationRead?: () => void;
 };
 
 function TabNavigator({
@@ -196,7 +197,12 @@ export function AppNavigator(props: AppNavigatorProps) {
           ),
         })}
       >
-        {() => <NotificationCenterScreen currentUserId={props.currentUser.id} />}
+        {() => (
+          <NotificationCenterScreen
+            currentUserId={props.currentUser.id}
+            onNotificationRead={props.onNotificationRead}
+          />
+        )}
       </Stack.Screen>
     </Stack.Navigator>
   );
