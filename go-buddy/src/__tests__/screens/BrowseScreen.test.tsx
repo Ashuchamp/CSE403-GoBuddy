@@ -1,5 +1,6 @@
 import React from 'react';
 import {render, waitFor} from '@testing-library/react-native';
+import {NavigationContainer} from '@react-navigation/native';
 import {BrowseScreen} from '../../screens/BrowseScreen';
 import {User, ActivityIntent} from '../../types';
 import api from '../../services/api';
@@ -35,6 +36,10 @@ const mockActivityIntents: ActivityIntent[] = [
 ];
 
 describe('BrowseScreen', () => {
+  const renderWithNavigation = (component: React.ReactElement) => {
+    return render(<NavigationContainer>{component}</NavigationContainer>);
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
     // Set up default mock implementations
@@ -49,7 +54,7 @@ describe('BrowseScreen', () => {
   });
 
   it('should render the browse screen with header', async () => {
-    const {getByText} = render(
+    const {getByText} = renderWithNavigation(
       <BrowseScreen currentUser={mockCurrentUser} activityIntents={mockActivityIntents} />,
     );
 
@@ -62,7 +67,7 @@ describe('BrowseScreen', () => {
   });
 
   it('should render category toggle buttons', async () => {
-    const {getByText} = render(
+    const {getByText} = renderWithNavigation(
       <BrowseScreen currentUser={mockCurrentUser} activityIntents={mockActivityIntents} />,
     );
 

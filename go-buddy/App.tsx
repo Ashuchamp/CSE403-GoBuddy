@@ -36,13 +36,16 @@ export default function App() {
     checkBackend();
   }, []);
 
-  // Fetch data from backend when user logs in
+  // Fetch data from backend when user logs in and periodically refresh
   useEffect(() => {
     if (!currentUser || !backendConnected) return;
 
-    const fetchData = async () => {
+    const fetchData = async (isInitial = false) => {
       try {
-        setLoading(true);
+        // Only show loading on initial load
+        if (isInitial) {
+          setLoading(true);
+        }
 
         // Fetch activities
         const activities = await api.activities.getAll();
@@ -57,15 +60,20 @@ export default function App() {
 
         setActivityRequests(allRequests);
 
-        console.log(`✅ Loaded ${activities.length} activities and ${allRequests.length} requests`);
-
-        // Check if database is empty and show helpful message
-        if (activities.length === 0 && currentUser.email === 'demo@uw.edu') {
-          Alert.alert(
-            'No Demo Data Found',
-            'The database is empty. To see demo activities and users, run:\n\ncd backend\nnpm run seed\n\nThen refresh the app.',
-            [{text: 'OK'}],
+        if (isInitial) {
+          // eslint-disable-next-line no-console
+          console.log(
+            `✅ Loaded ${activities.length} activities and ${allRequests.length} requests`,
           );
+
+          // Check if database is empty and show helpful message
+          if (activities.length === 0 && currentUser.email === 'demo@uw.edu') {
+            Alert.alert(
+              'No Demo Data Found',
+              'The database is empty. To see demo activities and users, run:\n\ncd backend\nnpm run seed\n\nThen refresh the app.',
+              [{text: 'OK'}],
+            );
+          }
         }
 
         // Loaded activities and requests successfully
@@ -74,11 +82,21 @@ export default function App() {
         setActivityIntents([]);
         setActivityRequests([]);
       } finally {
-        setLoading(false);
+        if (isInitial) {
+          setLoading(false);
+        }
       }
     };
 
-    fetchData();
+    // Fetch immediately with loading indicator
+    fetchData(true);
+
+    // Poll every 15 seconds to refresh data (without loading indicator)
+    const dataInterval = setInterval(() => fetchData(false), 15000);
+
+    return () => {
+      clearInterval(dataInterval);
+    };
   }, [currentUser, backendConnected]);
 
   // Poll for notifications

@@ -15,6 +15,7 @@ export const colors = {
 
   success: '#10B981', // green-600
   error: '#EF4444', // red-600
+  errorBackground: '#FFEBEE', // red-50 (light red background for error containers)
   warning: '#F59E0B', // yellow-600
 
   badgeBackground: '#F3F4F6',

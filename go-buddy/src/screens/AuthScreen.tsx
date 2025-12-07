@@ -22,6 +22,17 @@ type AuthScreenProps = {
 
 export function AuthScreen({onAuthenticated}: AuthScreenProps) {
   const [loading, setLoading] = useState(false);
+
+  // Check if Google Auth is configured before using the hook
+  const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || '';
+  const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || '';
+  const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || '';
+
+  const hasRequiredClientId =
+    (Platform.OS === 'ios' && iosClientId) ||
+    (Platform.OS === 'android' && androidClientId) ||
+    (Platform.OS === 'web' && webClientId);
+
   const {response, getUserInfo, signIn} = useGoogleAuth();
 
   const handleAuthSuccess = React.useCallback(
@@ -123,21 +134,38 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
           <Text style={styles.cardTitle}>Sign in with Google</Text>
           <Text style={styles.cardSubtitle}>Use your @uw.edu account to continue</Text>
 
-          <Button
-            onPress={handleGoogleSignIn}
-            loading={loading}
-            fullWidth
-            style={styles.googleButton}
-          >
-            <View style={styles.googleButtonContent}>
-              <Ionicons name="logo-google" size={20} color="#fff" style={styles.googleIcon} />
-              <Text style={styles.googleButtonText}>
-                {loading ? 'Signing in...' : 'Sign in with Google'}
+          {!hasRequiredClientId ? (
+            <View style={styles.errorContainer}>
+              <Ionicons name="warning" size={24} color={colors.error || '#ff0000'} />
+              <Text style={styles.errorText}>
+                Google Sign-In is not configured.{'\n'}
+                Please set{' '}
+                {Platform.OS === 'ios'
+                  ? 'EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID'
+                  : Platform.OS === 'android'
+                    ? 'EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID'
+                    : 'EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID'}{' '}
+                in your environment variables.
               </Text>
             </View>
-          </Button>
-
-          <Text style={styles.notice}>Only @uw.edu email addresses are allowed.</Text>
+          ) : (
+            <>
+              <Button
+                onPress={handleGoogleSignIn}
+                loading={loading}
+                fullWidth
+                style={styles.googleButton}
+              >
+                <View style={styles.googleButtonContent}>
+                  <Ionicons name="logo-google" size={20} color="#fff" style={styles.googleIcon} />
+                  <Text style={styles.googleButtonText}>
+                    {loading ? 'Signing in...' : 'Sign in with Google'}
+                  </Text>
+                </View>
+              </Button>
+              <Text style={styles.notice}>Only @uw.edu email addresses are allowed.</Text>
+            </>
+          )}
         </Card>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -207,5 +235,18 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     textAlign: 'center',
     marginTop: spacing.md,
+  },
+  errorContainer: {
+    alignItems: 'center',
+    padding: spacing.md,
+    backgroundColor: colors.errorBackground,
+    borderRadius: 8,
+    marginTop: spacing.md,
+  },
+  errorText: {
+    ...typography.bodySmall,
+    color: colors.error || '#ff0000',
+    textAlign: 'center',
+    marginTop: spacing.sm,
   },
 });
