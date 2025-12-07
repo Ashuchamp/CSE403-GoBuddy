@@ -84,6 +84,15 @@ export const activityRequestController = {
         return;
       }
 
+      // Check if activity is active (cannot join cancelled or completed activities)
+      if (activity.status !== 'active') {
+        res.status(400).json({ 
+          success: false, 
+          error: `Cannot join activity. Activity is ${activity.status}.` 
+        });
+        return;
+      }
+
       // Check if activity is full
       if (activity.currentPeople >= activity.maxPeople) {
         res.status(400).json({ success: false, error: 'Activity is full' });

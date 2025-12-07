@@ -16,9 +16,13 @@ import api from '../services/api';
 
 type NotificationCenterScreenProps = {
   currentUserId: string;
+  onNotificationRead?: () => void;
 };
 
-export function NotificationCenterScreen({currentUserId}: NotificationCenterScreenProps) {
+export function NotificationCenterScreen({
+  currentUserId,
+  onNotificationRead,
+}: NotificationCenterScreenProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -42,15 +46,16 @@ export function NotificationCenterScreen({currentUserId}: NotificationCenterScre
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // When screen is focused, only update if we don't have notifications yet
-  // This prevents resetting read state when navigating back
+  // When screen is focused, refresh data to get latest read status
+  // This ensures that when user marks as read and comes back, they see the updated state
   useFocusEffect(
     useCallback(() => {
-      // Only fetch if we have no notifications (initial load)
-      if (notifications.length === 0 && !loading) {
+      // Refresh notifications when screen comes into focus to get latest read status
+      // This is safe because we do optimistic updates when marking as read
+      if (!loading) {
         fetchNotifications();
       }
-    }, [notifications.length, loading, fetchNotifications]),
+    }, [loading, fetchNotifications]),
   );
 
   const handleRefresh = () => {
@@ -59,17 +64,24 @@ export function NotificationCenterScreen({currentUserId}: NotificationCenterScre
   };
 
   const handleMarkAsRead = async (notificationId: string) => {
+    // Optimistic update - immediately update UI
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === notificationId ? {...n, isRead: true} : n)),
+    );
+
     try {
       await api.notifications.markAsRead(notificationId);
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === notificationId ? {...n, isRead: true} : n)),
-      );
+      // After successful API call, refresh to ensure sync with server
+      const updatedNotifications = await api.notifications.getAll(currentUserId);
+      setNotifications(updatedNotifications);
+      // Immediately update unread count badge in parent component
+      if (onNotificationRead) {
+        onNotificationRead();
+      }
     } catch (error) {
       console.error('Failed to mark notification as read:', error);
-      // Still update UI optimistically even if API call fails
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === notificationId ? {...n, isRead: true} : n)),
-      );
+      // On error, revert optimistic update by refreshing from server
+      fetchNotifications();
     }
   };
 

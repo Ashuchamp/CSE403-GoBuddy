@@ -186,6 +186,8 @@ export function BrowseScreen({
     return (
       activityIntents
         .filter((intent) => intent.userId !== currentUser.id)
+        // Only show active activities (exclude cancelled and completed)
+        .filter((intent) => intent.status === 'active')
         // In normal mode, filter out activities created by seed users; in demo mode, show all
         .filter((intent) => {
           // We need to check if the activity creator is a seed user

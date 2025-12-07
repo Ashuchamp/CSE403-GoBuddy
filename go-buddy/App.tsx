@@ -47,8 +47,8 @@ export default function App() {
           setLoading(true);
         }
 
-        // Fetch activities
-        const activities = await api.activities.getAll();
+        // Fetch only active activities (exclude cancelled and completed)
+        const activities = await api.activities.getAll({status: 'active'});
         setActivityIntents(activities);
 
         // Fetch ALL requests (for activities you created AND requests you made)
@@ -270,6 +270,15 @@ export default function App() {
     const activity = activityIntents.find((a) => a.id === activityId);
     if (!activity || !currentUser) return;
 
+    // Check if activity is active (cannot join cancelled or completed activities)
+    if (activity.status !== 'active') {
+      Alert.alert(
+        'Cannot Join',
+        `This activity is ${activity.status}. You cannot join ${activity.status} activities.`,
+      );
+      return;
+    }
+
     // Check if already requested (allow re-request if previously declined)
     const existingRequest = activityRequests.find(
       (r) => r.activityId === activityId && r.userId === currentUser.id,
@@ -297,7 +306,9 @@ export default function App() {
       }
     } catch (error) {
       // Failed to join activity
-      Alert.alert('Error', 'Failed to join activity. Please try again.');
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to join activity. Please try again.';
+      Alert.alert('Error', errorMessage);
     }
   };
 
@@ -350,6 +361,18 @@ export default function App() {
     // Connection request sent - no popup needed as button provides visual feedback
   };
 
+  const handleNotificationRead = async () => {
+    // Immediately refresh unread count when notification is marked as read
+    if (currentUser && backendConnected) {
+      try {
+        const count = await api.notifications.getUnreadCount(currentUser.id);
+        setUnreadCount(count);
+      } catch (error) {
+        // Silently fail
+      }
+    }
+  };
+
   if (loading && !currentUser) {
     return (
       <SafeAreaProvider>
@@ -383,6 +406,7 @@ export default function App() {
               onDeclineRequest={handleDeclineRequest}
               onConnectRequest={handleConnectRequest}
               unreadNotificationCount={unreadCount}
+              onNotificationRead={handleNotificationRead}
             />
           )}
         </NavigationContainer>
