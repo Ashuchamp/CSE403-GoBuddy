@@ -1,4 +1,4 @@
-import React, {useState, useMemo, useEffect} from 'react';
+import React, {useState, useMemo, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 import {Ionicons} from '@expo/vector-icons';
 import {User, ActivityIntent, ActivityRequest} from '../types';
 import {UserCard} from '../components/UserCard';
@@ -63,53 +64,60 @@ export function BrowseScreen({
   const isInDemoMode = isDemoMode(currentUser.email);
 
   // Fetch users and connection data from API
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const allUsers = await api.users.getAll();
-        setUsers(allUsers);
+  const fetchData = useCallback(async () => {
+    try {
+      const allUsers = await api.users.getAll();
+      setUsers(allUsers);
 
-        // Fetch connection data from backend
-        const [sentRequests, receivedRequests, connectedUsers] = await Promise.all([
-          api.connections.getSentRequests(currentUser.id),
-          api.connections.getReceivedRequests(currentUser.id),
-          api.connections.getConnectedUsers(currentUser.id),
-        ]);
+      // Fetch connection data from backend
+      const [sentRequests, receivedRequests, connectedUsers] = await Promise.all([
+        api.connections.getSentRequests(currentUser.id),
+        api.connections.getReceivedRequests(currentUser.id),
+        api.connections.getConnectedUsers(currentUser.id),
+      ]);
 
-        // Update connection status sets
-        const sentIds = sentRequests
-          .map((r: {to?: {id: string}}) => r.to?.id)
-          .filter((id): id is string => !!id);
-        setSentToUserIds(new Set(sentIds));
+      // Update connection status sets
+      const sentIds = sentRequests
+        .map((r: {to?: {id: string}}) => r.to?.id)
+        .filter((id): id is string => !!id);
+      setSentToUserIds(new Set(sentIds));
 
-        const receivedIds = receivedRequests
-          .map((r: {from?: {id: string}}) => r.from?.id)
-          .filter((id): id is string => !!id);
-        setReceivedFromUserIds(new Set(receivedIds));
-        setConnectedUserIds(new Set(connectedUsers.map((u: User) => u.id)));
+      const receivedIds = receivedRequests
+        .map((r: {from?: {id: string}}) => r.from?.id)
+        .filter((id): id is string => !!id);
+      setReceivedFromUserIds(new Set(receivedIds));
+      setConnectedUserIds(new Set(connectedUsers.map((u: User) => u.id)));
+      setUseBackend(true);
+    } catch (error) {
+      console.error('Failed to fetch data from backend:', error);
+      // Only use local store fallback in demo mode
+      if (isInDemoMode) {
+        console.log('Demo mode: Using local store fallback');
+        setUseBackend(false);
+        setUsers([]);
+        setSentToUserIds(new Set(getSentRequests().map((r) => r.to.id)));
+        setConnectedUserIds(new Set(getConnectedUsers().map((u) => u.id)));
+      } else {
+        // Normal mode: show empty state
+        setUsers([]);
+        setSentToUserIds(new Set());
+        setReceivedFromUserIds(new Set());
+        setConnectedUserIds(new Set());
         setUseBackend(true);
-      } catch (error) {
-        console.error('Failed to fetch data from backend:', error);
-        // Only use local store fallback in demo mode
-        if (isInDemoMode) {
-          console.log('Demo mode: Using local store fallback');
-          setUseBackend(false);
-          setUsers([]);
-          setSentToUserIds(new Set(getSentRequests().map((r) => r.to.id)));
-          setConnectedUserIds(new Set(getConnectedUsers().map((u) => u.id)));
-        } else {
-          // Normal mode: show empty state
-          setUsers([]);
-          setSentToUserIds(new Set());
-          setReceivedFromUserIds(new Set());
-          setConnectedUserIds(new Set());
-          setUseBackend(true);
-        }
       }
-    };
-
-    fetchData();
+    }
   }, [currentUser.id, isInDemoMode]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Refresh data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [fetchData]),
+  );
 
   // Subscribe to local store updates if not using backend
   React.useEffect(() => {

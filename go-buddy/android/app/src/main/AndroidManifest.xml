@@ -24,7 +24,7 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="com.googleusercontent.apps.353229046135-53diq1mhgnlimc4rsqnmqgnmfmgngn9"/>
+        <data android:scheme="com.googleusercontent.apps.923359288576-6jdo5hoeldhmm69td684r5u2nmufu9g8"/>
       </intent-filter>
     </activity>
   </application>

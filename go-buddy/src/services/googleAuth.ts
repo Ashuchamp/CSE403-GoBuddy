@@ -15,25 +15,38 @@ export interface GoogleUserInfo {
 }
 
 export const useGoogleAuth = () => {
-  // Get iOS client ID from environment
+  // Get client IDs from environment
   const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || '';
+  const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || '';
+  const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || '';
+
+  // Check if required client ID is available for current platform
+  const hasRequiredClientId =
+    (Platform.OS === 'ios' && iosClientId) ||
+    (Platform.OS === 'android' && androidClientId) ||
+    (Platform.OS === 'web' && webClientId);
 
   // Create the reversed client ID for iOS URL scheme
   // Format: com.googleusercontent.apps.{CLIENT_ID}
-  // Only create reversedClientId if iosClientId is not empty
-  const reversedClientId = iosClientId ? iosClientId.split('.').reverse().join('.') : '';
+  const iosReversedClientId = iosClientId ? iosClientId.split('.').reverse().join('.') : '';
 
-  // Use the proper redirect URI for iOS
-  // Only set redirectUri if we have a valid reversedClientId
+  // Use the proper redirect URI
+  // For iOS: use reversed client ID scheme
+  // For Android: let expo-auth-session handle it automatically (it uses the AndroidManifest scheme)
   const redirectUri =
-    Platform.OS === 'ios' && reversedClientId
-      ? `${reversedClientId}:/oauth2redirect/google`
-      : undefined; // Let expo-auth-session handle it for other platforms
+    Platform.OS === 'ios' && iosReversedClientId
+      ? `${iosReversedClientId}:/oauth2redirect/google`
+      : undefined; // Let expo-auth-session handle it automatically for Android
 
+  // Call useAuthRequest - we must provide a valid client ID for Android to prevent crash
+  // If missing, provide a placeholder that will fail gracefully during sign-in
+  // Note: expo-auth-session validates androidClientId on Android during hook initialization
   const [request, response, promptAsync] = Google.useAuthRequest({
-    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || undefined,
-    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || undefined,
-    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || undefined,
+    iosClientId: iosClientId || undefined,
+    // For Android, we must provide a value or the hook will crash
+    // Use a placeholder that looks valid but will fail during actual auth
+    androidClientId: androidClientId || (Platform.OS === 'android' ? '123456789-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com' : undefined),
+    webClientId: webClientId || undefined,
     scopes: ['profile', 'email'],
     redirectUri: redirectUri,
   });
@@ -41,9 +54,15 @@ export const useGoogleAuth = () => {
   const signIn = async () => {
     try {
       // Check if Google Auth is properly configured
-      if (Platform.OS === 'ios' && !iosClientId) {
+      if (!hasRequiredClientId) {
+        const platformName = Platform.OS === 'ios' ? 'iOS' : Platform.OS === 'android' ? 'Android' : 'Web';
+        const envVarName = Platform.OS === 'ios' 
+          ? 'EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID'
+          : Platform.OS === 'android'
+          ? 'EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID'
+          : 'EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID';
         throw new Error(
-          'Google Sign-In is not configured. Please set EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID in your environment variables.',
+          `Google Sign-In is not configured for ${platformName}. Please set ${envVarName} in your environment variables.`,
         );
       }
       const result = await promptAsync();

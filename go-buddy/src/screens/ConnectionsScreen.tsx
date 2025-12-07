@@ -1,5 +1,6 @@
-import React, {useMemo} from 'react';
+import React, {useMemo, useCallback} from 'react';
 import {View, Text, StyleSheet, FlatList, Alert, TouchableOpacity} from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 import {Ionicons} from '@expo/vector-icons';
 import {User} from '../types';
 import {Card} from '../components/Card';
@@ -53,6 +54,15 @@ export function ConnectionsScreen({currentUser}: ConnectionsScreenProps) {
       fetchConnectionData();
     }
   }, [currentUser?.id]);
+
+  // Refresh data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      if (currentUser?.id) {
+        fetchConnectionData();
+      }
+    }, [currentUser?.id]),
+  );
 
   const fetchConnectionData = async () => {
     try {
