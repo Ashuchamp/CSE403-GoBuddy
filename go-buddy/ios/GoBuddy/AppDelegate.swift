@@ -1,6 +1,7 @@
 import Expo
 import React
 import ReactAppDependencyProvider
+import GoogleMaps
 
 @UIApplicationMain
 public class AppDelegate: ExpoAppDelegate {
