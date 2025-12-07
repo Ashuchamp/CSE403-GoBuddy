@@ -99,6 +99,27 @@ export const activityRequestController = {
         return;
       }
 
+      // Validate user has complete profile (name and at least one contact method)
+      const user = await User.findByPk(userId);
+      if (!user) {
+        res.status(404).json({ success: false, error: 'User not found' });
+        return;
+      }
+
+      // Check if user has at least one contact method
+      const hasContactInfo = 
+        (user.phone && user.phone.trim() !== '') ||
+        (user.instagram && user.instagram.trim() !== '') ||
+        (user.contactEmail && user.contactEmail.trim() !== '');
+
+      if (!hasContactInfo) {
+        res.status(400).json({ 
+          success: false, 
+          error: 'Profile incomplete. Please add at least one contact method (phone, Instagram, or contact email) before joining activities.' 
+        });
+        return;
+      }
+
       // Check if user already requested
       const existingRequest = await ActivityRequest.findOne({
         where: { activityId, userId },

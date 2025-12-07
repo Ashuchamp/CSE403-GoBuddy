@@ -8,6 +8,7 @@ import {AuthScreen} from './src/screens/AuthScreen';
 import {AppNavigator} from './src/navigation/AppNavigator';
 import api from './src/services/api';
 import {colors, typography, spacing} from './src/theme';
+import {hasCompleteProfile} from './src/utils/userValidation';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -268,7 +269,21 @@ export default function App() {
 
   const handleJoinActivity = async (activityId: string) => {
     const activity = activityIntents.find((a) => a.id === activityId);
-    if (!activity || !currentUser) return;
+    if (!activity || !currentUser) {
+      throw new Error('Activity or user not found');
+    }
+
+    // Check if user has complete profile (name and at least one contact method)
+    if (!hasCompleteProfile(currentUser)) {
+      Alert.alert(
+        'Profile Incomplete',
+        'To join activities, you need to complete your profile with:\n\n• Your name\n• At least one contact method (phone, Instagram, or contact email)\n\nThis allows activity creators to reach you. Please update your profile in the Profile tab.',
+        [
+          {text: 'OK', style: 'default'},
+        ],
+      );
+      throw new Error('Profile incomplete');
+    }
 
     // Check if activity is active (cannot join cancelled or completed activities)
     if (activity.status !== 'active') {
@@ -276,7 +291,7 @@ export default function App() {
         'Cannot Join',
         `This activity is ${activity.status}. You cannot join ${activity.status} activities.`,
       );
-      return;
+      throw new Error('Activity not active');
     }
 
     // Check if already requested (allow re-request if previously declined)
@@ -284,12 +299,12 @@ export default function App() {
       (r) => r.activityId === activityId && r.userId === currentUser.id,
     );
     if (existingRequest && existingRequest.status !== 'declined') {
-      return; // Already requested or approved
+      throw new Error('Already requested or approved'); // Already requested or approved
     }
 
     if (!backendConnected) {
       Alert.alert('Error', 'Backend is not connected. Please ensure the server is running.');
-      return;
+      throw new Error('Backend not connected');
     }
 
     try {
@@ -309,6 +324,8 @@ export default function App() {
       const errorMessage =
         error instanceof Error ? error.message : 'Failed to join activity. Please try again.';
       Alert.alert('Error', errorMessage);
+      // Re-throw the error so the caller (ActivityCard) knows the join failed
+      throw error;
     }
   };
 

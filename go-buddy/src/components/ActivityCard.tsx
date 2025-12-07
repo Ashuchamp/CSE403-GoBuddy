@@ -1,18 +1,20 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity, ActivityIndicator} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
-import {ActivityIntent} from '../types';
+import {ActivityIntent, User} from '../types';
 import {Card} from './Card';
 import {Badge} from './Badge';
 import {Button} from './Button';
 import {colors, spacing, typography, borderRadius} from '../theme';
+import {hasCompleteProfile} from '../utils/userValidation';
 
 type ActivityCardProps = {
   intent: ActivityIntent;
-  onJoin?: (intentId: string) => void;
+  onJoin?: (intentId: string) => void | Promise<void>;
   onPress?: (intent: ActivityIntent) => void;
   showActions?: boolean;
   joinStatus?: 'default' | 'sent' | 'joined';
+  currentUser?: User | null;
 };
 
 export function ActivityCard({
@@ -21,20 +23,82 @@ export function ActivityCard({
   onPress,
   showActions = true,
   joinStatus,
+  currentUser,
 }: ActivityCardProps) {
   const [requestSent, setRequestSent] = useState(false);
+  const [isJoining, setIsJoining] = useState(false);
   const isAlmostFull = intent.currentPeople >= intent.maxPeople * 0.8;
   const isFull = intent.currentPeople >= intent.maxPeople;
 
   const statusColor = isFull ? colors.error : isAlmostFull ? colors.warning : colors.success;
 
-  const computedStatus: 'default' | 'sent' | 'joined' =
-    joinStatus ?? (requestSent ? 'sent' : 'default');
+  // Check if user has complete profile - only show "sent" or "joined" if profile is complete
+  const userHasCompleteProfile = currentUser ? hasCompleteProfile(currentUser) : false;
 
-  const handleJoin = () => {
-    if (computedStatus !== 'default') return;
-    setRequestSent(true);
-    onJoin?.(intent.id);
+  // Reset local state when joinStatus prop changes or intent changes
+  // This ensures local state doesn't persist incorrectly across different activities
+  useEffect(() => {
+    // Always reset when the intent changes (different activity)
+    setRequestSent(false);
+    setIsJoining(false);
+
+    // If joinStatus is provided, it's the source of truth - don't use local state
+    if (joinStatus !== undefined) {
+      setRequestSent(false);
+      setIsJoining(false);
+    }
+  }, [joinStatus, intent.id]);
+
+  // Use joinStatus prop if provided (from parent state), otherwise use local requestSent state
+  // CRITICAL: Only show "sent" or "joined" if user has complete profile
+  // This prevents showing "Request Sent" when user doesn't have contact info
+  const computedStatus: 'default' | 'sent' | 'joined' = (() => {
+    // If user doesn't have complete profile, never show "sent" or "joined"
+    if (!userHasCompleteProfile) {
+      return 'default';
+    }
+
+    // If joinStatus is provided, use it (it's the source of truth from backend)
+    if (joinStatus !== undefined) {
+      return joinStatus;
+    }
+    // Otherwise, only show "sent" if requestSent is true AND we're not currently joining
+    // This prevents showing "sent" during the async operation
+    if (requestSent && !isJoining) {
+      return 'sent';
+    }
+    return 'default';
+  })();
+
+  const handleJoin = async () => {
+    // Prevent action if already in a non-default state or currently joining
+    if (computedStatus !== 'default' || isJoining) return;
+
+    // CRITICAL: Set joining state FIRST and reset requestSent to prevent any UI update
+    // This ensures the button shows "Joining..." instead of "Request Sent"
+    setIsJoining(true);
+    setRequestSent(false);
+
+    // Don't set requestSent optimistically - wait for success
+    // If joinStatus prop is provided, the parent will update it
+    // If not, we only update local state on success
+    try {
+      await onJoin?.(intent.id);
+      // Only set local state if joinStatus prop is not provided
+      // (meaning parent isn't managing the state)
+      // Check joinStatus again in case it was updated by parent during the async call
+      if (joinStatus === undefined) {
+        setRequestSent(true);
+      }
+    } catch (error) {
+      // If onJoin throws an error (e.g., profile incomplete), ensure requestSent stays false
+      setRequestSent(false);
+      // The error is already handled in the parent component (handleJoinActivity)
+      // Don't re-throw as we don't want to show another error
+    } finally {
+      // Always clear joining state when done
+      setIsJoining(false);
+    }
   };
 
   return (
@@ -101,7 +165,9 @@ export function ActivityCard({
         {showActions && (
           <Button
             onPress={handleJoin}
-            disabled={isFull || computedStatus === 'sent' || computedStatus === 'joined'}
+            disabled={
+              isFull || computedStatus === 'sent' || computedStatus === 'joined' || isJoining
+            }
             variant={isFull ? 'outline' : 'default'}
             fullWidth
             style={{
@@ -111,21 +177,30 @@ export function ActivityCard({
             }}
           >
             <View style={styles.buttonContent}>
-              <Ionicons
-                name="checkmark-circle-outline"
-                size={16}
-                color="#fff"
-                style={styles.buttonIcon}
-              />
-              <Text style={styles.buttonText}>
-                {isFull
-                  ? 'Full'
-                  : computedStatus === 'joined'
-                    ? 'Joined'
-                    : computedStatus === 'sent'
-                      ? 'Request Sent'
-                      : 'Join Activity'}
-              </Text>
+              {isJoining ? (
+                <>
+                  <ActivityIndicator size="small" color="#fff" style={styles.buttonIcon} />
+                  <Text style={styles.buttonText}>Joining...</Text>
+                </>
+              ) : (
+                <>
+                  <Ionicons
+                    name="checkmark-circle-outline"
+                    size={16}
+                    color="#fff"
+                    style={styles.buttonIcon}
+                  />
+                  <Text style={styles.buttonText}>
+                    {isFull
+                      ? 'Full'
+                      : computedStatus === 'joined'
+                        ? 'Joined'
+                        : computedStatus === 'sent'
+                          ? 'Request Sent'
+                          : 'Join Activity'}
+                  </Text>
+                </>
+              )}
             </View>
           </Button>
         )}

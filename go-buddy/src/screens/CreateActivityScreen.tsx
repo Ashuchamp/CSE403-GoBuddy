@@ -104,7 +104,7 @@ export function CreateActivityScreen({
   };
 
   const renderActivityCard = ({item}: {item: ActivityIntent}) => (
-    <ActivityCard intent={item} showActions={false} />
+    <ActivityCard intent={item} showActions={false} currentUser={currentUser} />
   );
 
   return (

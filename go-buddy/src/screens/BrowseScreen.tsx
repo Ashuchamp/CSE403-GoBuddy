@@ -9,6 +9,7 @@ import {
   TextInput,
   TouchableWithoutFeedback,
   Keyboard,
+  Alert,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {Ionicons} from '@expo/vector-icons';
@@ -27,6 +28,7 @@ import {
   subscribeToConnectedUsers,
 } from '../services/connectionStore';
 import {isSeedUser, isDemoMode} from '../utils/seedData';
+import {hasCompleteProfile} from '../utils/userValidation';
 
 type BrowseScreenProps = {
   currentUser: User;
@@ -229,6 +231,19 @@ export function BrowseScreen({
   const submitConnectRequest = async () => {
     if (!pendingConnectUser) return;
 
+    // Check if user has complete profile (name and at least one contact method)
+    if (!hasCompleteProfile(currentUser)) {
+      Alert.alert(
+        'Profile Incomplete',
+        'To connect with other users, you need to complete your profile with:\n\n• Your name\n• At least one contact method (phone, Instagram, or contact email)\n\nThis allows others to reach you. Please update your profile in the Profile tab.',
+        [{text: 'OK', style: 'default'}],
+      );
+      setConnectModalVisible(false);
+      setPendingConnectUser(null);
+      setConnectNote('');
+      return;
+    }
+
     if (useBackend) {
       // Use backend API
       try {
@@ -287,6 +302,7 @@ export function BrowseScreen({
           setSelectedActivity(activity);
         }}
         {...(status ? {joinStatus: status} : {})}
+        currentUser={currentUser}
       />
     );
   };

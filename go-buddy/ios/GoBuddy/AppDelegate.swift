@@ -14,12 +14,17 @@ public class AppDelegate: ExpoAppDelegate {
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
-    // Initialize Google Maps SDK
-    // Read API key from Info.plist (set via app.json)
+    // Initialize Google Maps SDK using runtime check to avoid linking issues
     if let apiKey = Bundle.main.object(forInfoDictionaryKey: "GMSApiKey") as? String,
        !apiKey.isEmpty,
        apiKey != "${EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}" {
-      GMSServices.provideAPIKey(apiKey)
+      // Use Objective-C runtime to initialize Google Maps SDK
+      if let gmsServicesClass = NSClassFromString("GMSServices") as? NSObject.Type {
+        let selector = NSSelectorFromString("provideAPIKey:")
+        if gmsServicesClass.responds(to: selector) {
+          gmsServicesClass.perform(selector, with: apiKey)
+        }
+      }
     }
 
     let delegate = ReactNativeDelegate()
