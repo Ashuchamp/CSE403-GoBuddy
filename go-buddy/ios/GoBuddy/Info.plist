@@ -53,6 +53,8 @@
     <string>This app uses your location to show nearby activities and buddies.</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>This app accesses your photo library to select profile pictures and activity photos.</string>
+    <key>GMSApiKey</key>
+    <string>$(EXPO_PUBLIC_GOOGLE_MAPS_API_KEY)</string>
     <key>RCTNewArchEnabled</key>
     <true/>
     <key>UILaunchStoryboardName</key>
