@@ -22,17 +22,17 @@ type AuthScreenProps = {
 
 export function AuthScreen({onAuthenticated}: AuthScreenProps) {
   const [loading, setLoading] = useState(false);
-  
+
   // Check if Google Auth is configured before using the hook
   const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || '';
   const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || '';
   const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || '';
-  
+
   const hasRequiredClientId =
     (Platform.OS === 'ios' && iosClientId) ||
     (Platform.OS === 'android' && androidClientId) ||
     (Platform.OS === 'web' && webClientId);
-  
+
   const {response, getUserInfo, signIn} = useGoogleAuth();
 
   const handleAuthSuccess = React.useCallback(
@@ -139,11 +139,13 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
               <Ionicons name="warning" size={24} color={colors.error || '#ff0000'} />
               <Text style={styles.errorText}>
                 Google Sign-In is not configured.{'\n'}
-                Please set {Platform.OS === 'ios' 
+                Please set{' '}
+                {Platform.OS === 'ios'
                   ? 'EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID'
                   : Platform.OS === 'android'
-                  ? 'EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID'
-                  : 'EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID'} in your environment variables.
+                    ? 'EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID'
+                    : 'EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID'}{' '}
+                in your environment variables.
               </Text>
             </View>
           ) : (
@@ -237,7 +239,7 @@ const styles = StyleSheet.create({
   errorContainer: {
     alignItems: 'center',
     padding: spacing.md,
-    backgroundColor: colors.errorBackground || '#ffebee',
+    backgroundColor: colors.errorBackground,
     borderRadius: 8,
     marginTop: spacing.md,
   },

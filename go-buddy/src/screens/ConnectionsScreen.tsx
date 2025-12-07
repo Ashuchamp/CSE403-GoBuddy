@@ -48,23 +48,7 @@ export function ConnectionsScreen({currentUser}: ConnectionsScreenProps) {
   const [profileVisible, setProfileVisible] = React.useState(false);
   const [useBackend, setUseBackend] = React.useState(true);
 
-  // Try to fetch connection data from backend
-  React.useEffect(() => {
-    if (currentUser?.id) {
-      fetchConnectionData();
-    }
-  }, [currentUser?.id]);
-
-  // Refresh data when screen comes into focus
-  useFocusEffect(
-    useCallback(() => {
-      if (currentUser?.id) {
-        fetchConnectionData();
-      }
-    }, [currentUser?.id]),
-  );
-
-  const fetchConnectionData = async () => {
+  const fetchConnectionData = React.useCallback(async () => {
     try {
       const [received, sent, connected] = await Promise.all([
         api.connections.getReceivedRequests(currentUser.id),
@@ -92,7 +76,23 @@ export function ConnectionsScreen({currentUser}: ConnectionsScreenProps) {
       );
       setConnectedUsers(getConnectedUsers());
     }
-  };
+  }, [currentUser.id]);
+
+  // Try to fetch connection data from backend
+  React.useEffect(() => {
+    if (currentUser?.id) {
+      fetchConnectionData();
+    }
+  }, [currentUser?.id, fetchConnectionData]);
+
+  // Refresh data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      if (currentUser?.id) {
+        fetchConnectionData();
+      }
+    }, [currentUser?.id, fetchConnectionData]),
+  );
 
   React.useEffect(() => {
     // Subscribe to local store updates if not using backend

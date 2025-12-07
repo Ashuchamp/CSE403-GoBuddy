@@ -61,7 +61,10 @@ export default function App() {
         setActivityRequests(allRequests);
 
         if (isInitial) {
-          console.log(`✅ Loaded ${activities.length} activities and ${allRequests.length} requests`);
+          // eslint-disable-next-line no-console
+          console.log(
+            `✅ Loaded ${activities.length} activities and ${allRequests.length} requests`,
+          );
 
           // Check if database is empty and show helpful message
           if (activities.length === 0 && currentUser.email === 'demo@uw.edu') {

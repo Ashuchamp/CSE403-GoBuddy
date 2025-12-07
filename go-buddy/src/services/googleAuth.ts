@@ -45,7 +45,11 @@ export const useGoogleAuth = () => {
     iosClientId: iosClientId || undefined,
     // For Android, we must provide a value or the hook will crash
     // Use a placeholder that looks valid but will fail during actual auth
-    androidClientId: androidClientId || (Platform.OS === 'android' ? '123456789-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com' : undefined),
+    androidClientId:
+      androidClientId ||
+      (Platform.OS === 'android'
+        ? '123456789-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com'
+        : undefined),
     webClientId: webClientId || undefined,
     scopes: ['profile', 'email'],
     redirectUri: redirectUri,
@@ -55,14 +59,17 @@ export const useGoogleAuth = () => {
     try {
       // Check if Google Auth is properly configured
       if (!hasRequiredClientId) {
-        const platformName = Platform.OS === 'ios' ? 'iOS' : Platform.OS === 'android' ? 'Android' : 'Web';
-        const envVarName = Platform.OS === 'ios' 
-          ? 'EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID'
-          : Platform.OS === 'android'
-          ? 'EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID'
-          : 'EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID';
+        const platformName =
+          Platform.OS === 'ios' ? 'iOS' : Platform.OS === 'android' ? 'Android' : 'Web';
+        const envVarName =
+          Platform.OS === 'ios'
+            ? 'EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID'
+            : Platform.OS === 'android'
+              ? 'EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID'
+              : 'EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID';
         throw new Error(
-          `Google Sign-In is not configured for ${platformName}. Please set ${envVarName} in your environment variables.`,
+          `Google Sign-In is not configured for ${platformName}. ` +
+            `Please set ${envVarName} in your environment variables.`,
         );
       }
       const result = await promptAsync();
