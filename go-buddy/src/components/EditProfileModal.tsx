@@ -60,20 +60,28 @@ export function EditProfileModal({visible, onClose, user, onSave}: EditProfileMo
   };
 
   const handleSave = async () => {
+    // Validate name is not empty
+    if (!formData.name || formData.name.trim() === '') {
+      Alert.alert('Name Required', 'Please enter your name.');
+      return;
+    }
+
     // Validate phone number before saving
     if (formData.phone && !isValidPhoneNumber(formData.phone)) {
       Alert.alert('Invalid Phone Number', 'Please enter a valid 10-digit US phone number.');
       return;
     }
 
+    // Convert empty strings to empty string (backend will convert to null)
+    // This ensures only name is required, all other fields are optional
     const updatedUser: User = {
       ...user,
-      name: formData.name,
-      bio: formData.bio,
-      phone: formData.phone,
-      instagram: formData.instagram,
-      contactEmail: formData.contactEmail,
-      campusLocation: formData.campusLocation,
+      name: formData.name.trim(),
+      bio: formData.bio.trim() || '',
+      phone: formData.phone.trim() || '',
+      instagram: formData.instagram.trim() || '',
+      contactEmail: formData.contactEmail.trim() || '', // Empty string will be converted to null by backend
+      campusLocation: formData.campusLocation.trim() || '',
       activityTags,
       preferredTimes,
     };
@@ -116,7 +124,7 @@ export function EditProfileModal({visible, onClose, user, onSave}: EditProfileMo
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Basic Information</Text>
           <Input
-            label="Name"
+            label="Name *"
             value={formData.name}
             onChangeText={(text) => setFormData({...formData, name: text})}
             placeholder="Enter your name"
@@ -187,6 +195,17 @@ export function EditProfileModal({visible, onClose, user, onSave}: EditProfileMo
           </View>
         </View>
 
+        {/* Location */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Location</Text>
+          <Input
+            label="Campus Location"
+            value={formData.campusLocation}
+            onChangeText={(text) => setFormData({...formData, campusLocation: text})}
+            placeholder="e.g., North Campus Dorms"
+          />
+        </View>
+
         {/* Contact Info */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Contact Information</Text>
@@ -214,12 +233,6 @@ export function EditProfileModal({visible, onClose, user, onSave}: EditProfileMo
             placeholder="your.email@example.com"
             keyboardType="email-address"
             autoCapitalize="none"
-          />
-          <Input
-            label="Campus Location"
-            value={formData.campusLocation}
-            onChangeText={(text) => setFormData({...formData, campusLocation: text})}
-            placeholder="e.g., North Campus Dorms"
           />
         </View>
 
@@ -305,5 +318,11 @@ const styles = StyleSheet.create({
     marginTop: -spacing.sm,
     marginBottom: spacing.sm,
     marginLeft: spacing.xs,
+  },
+  helperText: {
+    ...typography.bodySmall,
+    color: colors.textSecondary,
+    marginBottom: spacing.sm,
+    fontStyle: 'italic',
   },
 });

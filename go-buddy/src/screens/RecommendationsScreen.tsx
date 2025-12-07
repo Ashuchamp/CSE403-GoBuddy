@@ -120,9 +120,23 @@ export function RecommendationsScreen({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [users, isInDemoMode]);
 
-  const renderActivityCard = ({item}: {item: ActivityIntent}) => (
-    <ActivityCard intent={item} onJoin={onJoinActivity} onPress={setSelectedActivity} />
-  );
+  const renderActivityCard = ({item}: {item: ActivityIntent}) => {
+    // Get request status for this activity
+    const req = activityRequests.find(
+      (r) => r.activityId === item.id && r.userId === currentUser.id,
+    );
+    const status =
+      req?.status === 'approved' ? 'joined' : req?.status === 'pending' ? 'sent' : undefined;
+    return (
+      <ActivityCard
+        intent={item}
+        onJoin={onJoinActivity}
+        onPress={setSelectedActivity}
+        {...(status ? {joinStatus: status} : {})}
+        currentUser={currentUser}
+      />
+    );
+  };
 
   return (
     <View style={styles.container}>

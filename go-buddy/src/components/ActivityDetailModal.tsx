@@ -22,7 +22,7 @@ type ActivityDetailModalProps = {
   visible: boolean;
   onClose: () => void;
   currentUserId?: string;
-  onJoinActivity?: (activityId: string) => void;
+  onJoinActivity?: (activityId: string) => void | Promise<void>;
   activityRequests?: ActivityRequest[];
 };
 
@@ -48,7 +48,7 @@ export function ActivityDetailModal({
 
   const statusColor = isFull ? colors.error : isAlmostFull ? colors.warning : colors.success;
 
-  const handleJoin = () => {
+  const handleJoin = async () => {
     if (!onJoinActivity) return;
     if (isOwnActivity) {
       Alert.alert('Cannot Join', 'You cannot join your own activity.');
@@ -66,9 +66,13 @@ export function ActivityDetailModal({
       Alert.alert('Request Pending', 'Your request to join is already pending.');
       return;
     }
-    onJoinActivity(activity.id);
-    // Optionally close the modal after joining
-    // onClose();
+    try {
+      await onJoinActivity(activity.id);
+      // Optionally close the modal after joining
+      // onClose();
+    } catch (error) {
+      // Error is already handled in handleJoinActivity
+    }
   };
 
   const handleLocationPress = async () => {

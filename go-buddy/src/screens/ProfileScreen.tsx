@@ -84,10 +84,10 @@ export function ProfileScreen({
           </View>
         </Card>
 
-        {/* Campus Location */}
+        {/* Location */}
         {user.campusLocation && (
           <Card style={styles.section}>
-            <Text style={styles.sectionTitle}>Campus Location</Text>
+            <Text style={styles.sectionTitle}>Location</Text>
             <View style={styles.locationRow}>
               <Ionicons name="location-outline" size={16} color={colors.textSecondary} />
               <Text style={styles.locationText}>{user.campusLocation}</Text>

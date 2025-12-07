@@ -86,9 +86,8 @@ User.init(
     contactEmail: {
       type: DataTypes.STRING,
       allowNull: true,
-      validate: {
-        isEmail: true,
-      },
+      // No Sequelize validation here - we validate manually in the controller
+      // This allows null/empty values without triggering email validation
     },
     campusLocation: {
       type: DataTypes.STRING,
