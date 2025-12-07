@@ -24,7 +24,10 @@ export type ActivityIntent = {
   currentPeople: number;
   scheduledTimes: string[];
   createdAt: string;
-  campusLocation?: string;
+  campusLocation?: string; // Legacy: text location (for backward compatibility)
+  latitude?: number; // New: latitude coordinate
+  longitude?: number; // New: longitude coordinate
+  locationName?: string; // New: location name from map selection
   status?: 'active' | 'completed' | 'cancelled';
   recommendationScore?: number; // ML recommendation score (0-1)
   recommendationReasons?: string[]; // Reasons why this was recommended

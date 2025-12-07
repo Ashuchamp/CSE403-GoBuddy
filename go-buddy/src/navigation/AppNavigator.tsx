@@ -9,6 +9,7 @@ import {RecommendationsScreen} from '../screens/RecommendationsScreen';
 import {MyActivitiesScreen} from '../screens/MyActivitiesScreen';
 import {ConnectionsScreen} from '../screens/ConnectionsScreen';
 import {ProfileScreen} from '../screens/ProfileScreen';
+import {MapScreen} from '../screens/MapScreen';
 import {NotificationCenterScreen} from '../screens/NotificationCenterScreen';
 import {NotificationButton} from '../components/NotificationButton';
 import {colors} from '../theme';
@@ -70,6 +71,8 @@ function TabNavigator({
             iconName = focused ? 'search' : 'search-outline';
           } else if (route.name === 'For You') {
             iconName = focused ? 'sparkles' : 'sparkles-outline';
+          } else if (route.name === 'Map') {
+            iconName = focused ? 'map' : 'map-outline';
           } else if (route.name === 'My Activities') {
             iconName = focused ? 'calendar' : 'calendar-outline';
           } else if (route.name === 'Connections') {
@@ -121,6 +124,17 @@ function TabNavigator({
       <Tab.Screen name="For You">
         {() => (
           <RecommendationsScreen
+            currentUser={currentUser}
+            activityIntents={activityIntents}
+            activityRequests={activityRequests}
+            onJoinActivity={handleJoinActivity}
+          />
+        )}
+      </Tab.Screen>
+
+      <Tab.Screen name="Map" options={{headerTitle: 'Nearby Activities'}}>
+        {() => (
+          <MapScreen
             currentUser={currentUser}
             activityIntents={activityIntents}
             activityRequests={activityRequests}

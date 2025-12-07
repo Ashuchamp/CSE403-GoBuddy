@@ -13,7 +13,10 @@ interface ActivityAttributes {
   maxPeople: number;
   currentPeople: number;
   scheduledTimes: string[];
-  campusLocation?: string;
+  campusLocation?: string; // Legacy: text location (for backward compatibility)
+  latitude?: number; // New: latitude coordinate
+  longitude?: number; // New: longitude coordinate
+  locationName?: string; // New: location name from map selection
   status: ActivityStatus;
   createdAt?: Date;
   updatedAt?: Date;
@@ -31,6 +34,9 @@ class Activity extends Model<ActivityAttributes, ActivityCreationAttributes> imp
   public currentPeople!: number;
   public scheduledTimes!: string[];
   public campusLocation?: string;
+  public latitude?: number;
+  public longitude?: number;
+  public locationName?: string;
   public status!: ActivityStatus;
 
   public readonly createdAt!: Date;
@@ -84,6 +90,18 @@ Activity.init(
       allowNull: false,
     },
     campusLocation: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    latitude: {
+      type: DataTypes.DOUBLE,
+      allowNull: true,
+    },
+    longitude: {
+      type: DataTypes.DOUBLE,
+      allowNull: true,
+    },
+    locationName: {
       type: DataTypes.STRING,
       allowNull: true,
     },

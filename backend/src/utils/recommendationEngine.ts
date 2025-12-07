@@ -131,10 +131,17 @@ export class RecommendationEngine {
       reasons.push('Popular with users like you');
     }
 
-    // 3. Location matching
-    if (user.campusLocation && activity.campusLocation) {
-      if (user.campusLocation === activity.campusLocation) {
-        totalScore += 15; // Weight: 15%
+    // 3. Location matching (supports both coordinate-based and text-based)
+    const locationScore = this.calculateLocationScore(user, activity);
+    totalScore += locationScore;
+    if (locationScore > 0) {
+      if (locationScore >= 12) {
+        reasons.push('Very close to your location');
+      } else if (locationScore >= 8) {
+        reasons.push('Near your location');
+      } else if (locationScore >= 5) {
+        reasons.push('Within reasonable distance');
+      } else {
         reasons.push('Near your preferred location');
       }
     }
@@ -335,6 +342,81 @@ export class RecommendationEngine {
     }
 
     return dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2));
+  }
+
+  /**
+   * Calculate location score based on distance or text matching
+   * Supports both coordinate-based (new) and text-based (legacy) matching
+   */
+  private calculateLocationScore(user: User, activity: Activity): number {
+    // Priority 1: If both have coordinates, use distance-based matching
+    // Use type assertion to check for optional coordinate fields
+    const userLat = (user as any).latitude;
+    const userLon = (user as any).longitude;
+    const activityLat = activity.latitude;
+    const activityLon = activity.longitude;
+
+    if (userLat && userLon && activityLat && activityLon) {
+      const distance = this.calculateDistance(
+        userLat,
+        userLon,
+        activityLat,
+        activityLon
+      );
+
+      // Distance-based scoring (in kilometers)
+      // 0-500m: 15 points, 500m-1km: 12 points, 1km-2km: 8 points, 2km-5km: 5 points, >5km: 0 points
+      if (distance <= 0.5) return 15;
+      if (distance <= 1) return 12;
+      if (distance <= 2) return 8;
+      if (distance <= 5) return 5;
+      return 0;
+    }
+
+    // Priority 2: Backward compatibility - text-based matching
+    if (user.campusLocation && activity.campusLocation) {
+      if (user.campusLocation === activity.campusLocation) {
+        return 15; // Same score as before for exact text match
+      }
+    }
+
+    // Priority 3: If activity has coordinates but user only has text location,
+    // try to match text location name with activity location name
+    if (user.campusLocation && activity.locationName) {
+      if (user.campusLocation.toLowerCase() === activity.locationName.toLowerCase()) {
+        return 15;
+      }
+    }
+
+    return 0;
+  }
+
+  /**
+   * Calculate distance between two coordinates using Haversine formula
+   * Returns distance in kilometers
+   */
+  private calculateDistance(
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number
+  ): number {
+    const R = 6371; // Earth's radius in kilometers
+    const dLat = this.toRad(lat2 - lat1);
+    const dLon = this.toRad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.toRad(lat1)) *
+        Math.cos(this.toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  /**
+   * Convert degrees to radians
+   */
+  private toRad(degrees: number): number {
+    return degrees * (Math.PI / 180);
   }
 }
 

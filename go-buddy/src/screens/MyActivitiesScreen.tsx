@@ -19,6 +19,7 @@ import {Badge} from '../components/Badge';
 import {ActivityDetailScreen} from './ActivityDetailScreen';
 import {ActivityDetailModal} from '../components/ActivityDetailModal';
 import {DateTimePicker} from '../components/DateTimePicker';
+import {LocationPicker, SelectedLocation} from '../components/LocationPicker';
 import {colors, spacing, typography, borderRadius} from '../theme';
 
 type MyActivitiesScreenProps = {
@@ -62,7 +63,8 @@ export function MyActivitiesScreen({
   const [description, setDescription] = useState('');
   const [maxPeople, setMaxPeople] = useState('');
   const [scheduledTimes, setScheduledTimes] = useState<string[]>([]);
-  const [location, setLocation] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState<SelectedLocation | null>(null);
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
 
   // Get activities I'm organizing
   const myActivities = effectiveActivityIntents.filter(
@@ -121,7 +123,12 @@ export function MyActivitiesScreen({
       maxPeople: maxPeopleNum,
       currentPeople: 1,
       scheduledTimes: scheduledTimes,
-      campusLocation: location.trim() || undefined,
+      // New location fields
+      latitude: selectedLocation?.latitude,
+      longitude: selectedLocation?.longitude,
+      locationName: selectedLocation?.name,
+      // Legacy field for backward compatibility
+      campusLocation: selectedLocation?.name || undefined,
       status: 'active' as const,
     };
 
@@ -135,7 +142,7 @@ export function MyActivitiesScreen({
       setDescription('');
       setMaxPeople('');
       setScheduledTimes([]);
-      setLocation('');
+      setSelectedLocation(null);
 
       // Switch to organizing tab
       setViewMode('organizing');
@@ -408,11 +415,25 @@ export function MyActivitiesScreen({
 
             <View style={styles.formSection}>
               <Text style={styles.label}>Location</Text>
-              <Input
-                placeholder="e.g., Suzzallo Library, IMA"
-                value={location}
-                onChangeText={setLocation}
-              />
+              <TouchableOpacity
+                onPress={() => setShowLocationPicker(true)}
+                style={styles.locationPickerButton}
+              >
+                <Ionicons
+                  name={selectedLocation ? 'location' : 'location-outline'}
+                  size={20}
+                  color={selectedLocation ? colors.primary : colors.textSecondary}
+                />
+                <Text
+                  style={[
+                    styles.locationPickerText,
+                    selectedLocation && styles.locationPickerTextSelected,
+                  ]}
+                >
+                  {selectedLocation?.name || 'Tap to select location on map'}
+                </Text>
+                <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+              </TouchableOpacity>
             </View>
 
             <Button onPress={handleCreateActivity} fullWidth>
@@ -642,6 +663,17 @@ export function MyActivitiesScreen({
         visible={selectedParticipatingActivity !== null}
         onClose={() => setSelectedParticipatingActivity(null)}
         currentUserId={currentUser.id}
+      />
+
+      {/* Location Picker Modal */}
+      <LocationPicker
+        visible={showLocationPicker}
+        onClose={() => setShowLocationPicker(false)}
+        onSelect={(location) => {
+          setSelectedLocation(location);
+          setShowLocationPicker(false);
+        }}
+        initialLocation={selectedLocation || undefined}
       />
     </View>
   );
@@ -952,5 +984,24 @@ const styles = StyleSheet.create({
   contactText: {
     ...typography.caption,
     color: colors.textSecondary,
+  },
+  locationPickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.sm,
+    backgroundColor: colors.card,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+    gap: spacing.sm,
+  },
+  locationPickerText: {
+    ...typography.body,
+    color: colors.textSecondary,
+    flex: 1,
+  },
+  locationPickerTextSelected: {
+    color: colors.text,
+    fontWeight: '500',
   },
 });

@@ -7,6 +7,8 @@ import {
   Platform,
   ScrollView,
   Alert,
+  TextInput,
+  TouchableOpacity,
 } from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {Button} from '../components/Button';
@@ -22,6 +24,13 @@ type AuthScreenProps = {
 
 export function AuthScreen({onAuthenticated}: AuthScreenProps) {
   const [loading, setLoading] = useState(false);
+  const [showReviewMode, setShowReviewMode] = useState(false);
+  const [reviewCode, setReviewCode] = useState('');
+  const [reviewModeLoading, setReviewModeLoading] = useState(false);
+
+  // Review mode access code (can be set via environment variable)
+  // Default code for App Store review - change this to a secure code
+  const REVIEW_ACCESS_CODE = process.env.EXPO_PUBLIC_REVIEW_ACCESS_CODE || 'GOBUDDY-REVIEW-2024';
 
   // Check if Google Auth is configured before using the hook
   const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || '';
@@ -115,6 +124,61 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
     }
   };
 
+  const handleReviewModeLogin = async () => {
+    if (!reviewCode.trim()) {
+      Alert.alert('Error', 'Please enter a review access code.');
+      return;
+    }
+
+    if (reviewCode.trim() !== REVIEW_ACCESS_CODE) {
+      Alert.alert('Invalid Code', 'The review access code is incorrect.');
+      return;
+    }
+
+    setReviewModeLoading(true);
+
+    try {
+      // Create a review test user
+      const reviewUser: User = {
+        id: 'review-user-' + Date.now(),
+        name: 'App Review Tester',
+        email: 'reviewer@gobuddy.app',
+        bio: 'This is a test account for App Store review purposes.',
+        activityTags: ['Testing', 'Review'],
+        preferredTimes: ['Weekday Evenings'],
+        campusLocation: 'Central Campus',
+        skills: ['Testing'],
+        phone: '',
+        instagram: '',
+      };
+
+      // Try to authenticate with backend (may fail if backend requires UW email)
+      try {
+        const backendUser = await api.users.googleAuth({
+          googleId: reviewUser.id,
+          email: reviewUser.email,
+          name: reviewUser.name,
+          profilePicture: '',
+        });
+
+        if (backendUser) {
+          onAuthenticated(backendUser);
+        } else {
+          // Fallback to local user if backend rejects
+          onAuthenticated(reviewUser);
+        }
+      } catch (backendError) {
+        // Backend may reject non-UW email, use local user
+        onAuthenticated(reviewUser);
+      }
+
+      setReviewModeLoading(false);
+    } catch (error) {
+      setReviewModeLoading(false);
+      Alert.alert('Error', 'Failed to initialize review mode. Please try again.');
+    }
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -166,6 +230,50 @@ export function AuthScreen({onAuthenticated}: AuthScreenProps) {
               <Text style={styles.notice}>Only @uw.edu email addresses are allowed.</Text>
             </>
           )}
+
+          {/* Review Mode Access (for App Store Review) */}
+          <View style={styles.reviewModeContainer}>
+            <TouchableOpacity
+              onPress={() => setShowReviewMode(!showReviewMode)}
+              style={styles.reviewModeToggle}
+            >
+              <Text style={styles.reviewModeToggleText}>
+                {showReviewMode ? 'Hide' : 'Show'} Review Mode Access
+              </Text>
+              <Ionicons
+                name={showReviewMode ? 'chevron-up' : 'chevron-down'}
+                size={20}
+                color={colors.textSecondary}
+              />
+            </TouchableOpacity>
+
+            {showReviewMode && (
+              <View style={styles.reviewModeForm}>
+                <Text style={styles.reviewModeTitle}>App Store Review Access</Text>
+                <Text style={styles.reviewModeSubtitle}>
+                  Enter the review access code to test the app without a UW email.
+                </Text>
+                <TextInput
+                  style={styles.reviewCodeInput}
+                  placeholder="Enter review access code"
+                  placeholderTextColor={colors.textMuted}
+                  value={reviewCode}
+                  onChangeText={setReviewCode}
+                  secureTextEntry
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+                <Button
+                  onPress={handleReviewModeLogin}
+                  loading={reviewModeLoading}
+                  fullWidth
+                  style={styles.reviewModeButton}
+                >
+                  Access Review Mode
+                </Button>
+              </View>
+            )}
+          </View>
         </Card>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -248,5 +356,50 @@ const styles = StyleSheet.create({
     color: colors.error || '#ff0000',
     textAlign: 'center',
     marginTop: spacing.sm,
+  },
+  reviewModeContainer: {
+    marginTop: spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: spacing.md,
+  },
+  reviewModeToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.sm,
+  },
+  reviewModeToggleText: {
+    ...typography.bodySmall,
+    color: colors.textSecondary,
+    marginRight: spacing.xs,
+  },
+  reviewModeForm: {
+    marginTop: spacing.md,
+  },
+  reviewModeTitle: {
+    ...typography.h4,
+    color: colors.text,
+    textAlign: 'center',
+    marginBottom: spacing.xs,
+  },
+  reviewModeSubtitle: {
+    ...typography.bodySmall,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: spacing.md,
+  },
+  reviewCodeInput: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    padding: spacing.sm,
+    ...typography.body,
+    color: colors.text,
+    backgroundColor: colors.background,
+    marginBottom: spacing.md,
+  },
+  reviewModeButton: {
+    backgroundColor: colors.primary,
   },
 });

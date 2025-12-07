@@ -6,6 +6,7 @@ import {Input} from '../components/Input';
 import {Button} from '../components/Button';
 import {Card} from '../components/Card';
 import {ActivityCard} from '../components/ActivityCard';
+import {LocationPicker, SelectedLocation} from '../components/LocationPicker';
 import {colors, spacing, typography} from '../theme';
 
 type CreateActivityScreenProps = {
@@ -30,7 +31,8 @@ export function CreateActivityScreen({
   const [description, setDescription] = useState('');
   const [maxPeople, setMaxPeople] = useState('4');
   const [scheduledTime, setScheduledTime] = useState('');
-  const [location, setLocation] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState<SelectedLocation | null>(null);
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [tags, setTags] = useState('');
 
   // Get user's activities
@@ -73,7 +75,12 @@ export function CreateActivityScreen({
         .split(',')
         .map((t) => t.trim())
         .filter((t) => t),
-      campusLocation: location.trim() || undefined,
+      // New location fields
+      latitude: selectedLocation?.latitude,
+      longitude: selectedLocation?.longitude,
+      locationName: selectedLocation?.name,
+      // Legacy field for backward compatibility
+      campusLocation: selectedLocation?.name || undefined,
     };
 
     try {
@@ -89,7 +96,7 @@ export function CreateActivityScreen({
       setDescription('');
       setMaxPeople('4');
       setScheduledTime('');
-      setLocation('');
+      setSelectedLocation(null);
       setTags('');
     } catch (error) {
       // Error is already handled in App.tsx, just don't show success or reset form
@@ -202,11 +209,25 @@ export function CreateActivityScreen({
 
             <View style={styles.formSection}>
               <Text style={styles.label}>Location</Text>
-              <Input
-                placeholder="e.g., Suzzallo Library, IMA"
-                value={location}
-                onChangeText={setLocation}
-              />
+              <TouchableOpacity
+                onPress={() => setShowLocationPicker(true)}
+                style={styles.locationPickerButton}
+              >
+                <Ionicons
+                  name={selectedLocation ? 'location' : 'location-outline'}
+                  size={20}
+                  color={selectedLocation ? colors.primary : colors.textSecondary}
+                />
+                <Text
+                  style={[
+                    styles.locationPickerText,
+                    selectedLocation && styles.locationPickerTextSelected,
+                  ]}
+                >
+                  {selectedLocation?.name || 'Tap to select location on map'}
+                </Text>
+                <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+              </TouchableOpacity>
             </View>
 
             <View style={styles.formSection}>
@@ -263,6 +284,17 @@ export function CreateActivityScreen({
           }
         />
       )}
+
+      {/* Location Picker Modal */}
+      <LocationPicker
+        visible={showLocationPicker}
+        onClose={() => setShowLocationPicker(false)}
+        onSelect={(location) => {
+          setSelectedLocation(location);
+          setShowLocationPicker(false);
+        }}
+        initialLocation={selectedLocation || undefined}
+      />
     </View>
   );
 }
@@ -364,5 +396,24 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textMuted,
     marginTop: spacing.xs,
+  },
+  locationPickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.sm,
+    backgroundColor: colors.card,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+    gap: spacing.sm,
+  },
+  locationPickerText: {
+    ...typography.body,
+    color: colors.textSecondary,
+    flex: 1,
+  },
+  locationPickerTextSelected: {
+    color: colors.text,
+    fontWeight: '500',
   },
 });

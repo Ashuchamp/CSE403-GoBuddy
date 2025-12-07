@@ -1,9 +1,20 @@
 import React from 'react';
-import {View, Text, StyleSheet, Modal, ScrollView, TouchableOpacity} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Modal,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+  Linking,
+  ViewStyle,
+} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
-import {ActivityIntent} from '../types';
+import {ActivityIntent, ActivityRequest} from '../types';
 import {Card} from './Card';
 import {Badge} from './Badge';
+import {Button} from './Button';
 import {colors, spacing, typography, borderRadius} from '../theme';
 
 type ActivityDetailModalProps = {
@@ -11,21 +22,87 @@ type ActivityDetailModalProps = {
   visible: boolean;
   onClose: () => void;
   currentUserId?: string;
+  onJoinActivity?: (activityId: string) => void;
+  activityRequests?: ActivityRequest[];
 };
 
 export function ActivityDetailModal({
   activity,
   visible,
   onClose,
-  currentUserId: _currentUserId,
+  currentUserId,
+  onJoinActivity,
+  activityRequests = [],
 }: ActivityDetailModalProps) {
   if (!activity) return null;
 
   const isAlmostFull = activity.currentPeople >= activity.maxPeople * 0.8;
   const isFull = activity.currentPeople >= activity.maxPeople;
-  // const isOwnActivity = currentUserId === activity.userId; // Unused for now
+  const isOwnActivity = currentUserId === activity.userId;
+
+  // Check if user has already requested to join
+  const userRequest = activityRequests.find(
+    (r) => r.activityId === activity.id && r.userId === currentUserId,
+  );
+  const requestStatus = userRequest?.status; // 'pending' | 'approved' | 'declined' | undefined
 
   const statusColor = isFull ? colors.error : isAlmostFull ? colors.warning : colors.success;
+
+  const handleJoin = () => {
+    if (!onJoinActivity) return;
+    if (isOwnActivity) {
+      Alert.alert('Cannot Join', 'You cannot join your own activity.');
+      return;
+    }
+    if (isFull) {
+      Alert.alert('Activity Full', 'This activity is already full.');
+      return;
+    }
+    if (requestStatus === 'approved') {
+      Alert.alert('Already Joined', 'You have already joined this activity.');
+      return;
+    }
+    if (requestStatus === 'pending') {
+      Alert.alert('Request Pending', 'Your request to join is already pending.');
+      return;
+    }
+    onJoinActivity(activity.id);
+    // Optionally close the modal after joining
+    // onClose();
+  };
+
+  const handleLocationPress = async () => {
+    const locationName = activity.locationName || activity.campusLocation;
+
+    if (!locationName && !activity.latitude && !activity.longitude) {
+      Alert.alert('No Location', 'This activity does not have location information.');
+      return;
+    }
+
+    try {
+      let url: string;
+
+      // If we have coordinates, use them for more accurate navigation
+      if (activity.latitude && activity.longitude) {
+        // Use Google Maps with coordinates
+        url = `https://www.google.com/maps/search/?api=1&query=${activity.latitude},${activity.longitude}`;
+      } else {
+        // Fallback to location name search
+        const encodedLocation = encodeURIComponent(locationName!);
+        url = `https://www.google.com/maps/search/?api=1&query=${encodedLocation}`;
+      }
+
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert('Error', 'Unable to open Google Maps. Please install Google Maps app.');
+      }
+    } catch (error) {
+      console.error('Error opening Google Maps:', error);
+      Alert.alert('Error', 'Failed to open Google Maps. Please try again.');
+    }
+  };
 
   return (
     <Modal
@@ -85,13 +162,26 @@ export function ActivityDetailModal({
             )}
 
             {/* Location */}
-            {activity.campusLocation && (
+            {(activity.campusLocation || activity.locationName) && (
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Location</Text>
-                <View style={styles.locationContainer}>
-                  <Ionicons name="location-outline" size={16} color={colors.textSecondary} />
-                  <Text style={styles.locationText}>{activity.campusLocation}</Text>
-                </View>
+                <TouchableOpacity
+                  onPress={handleLocationPress}
+                  style={styles.locationContainer}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="location-outline" size={16} color={colors.primary} />
+                  <Text style={styles.locationText}>
+                    {activity.locationName || activity.campusLocation}
+                  </Text>
+                  <Ionicons
+                    name="open-outline"
+                    size={14}
+                    color={colors.textSecondary}
+                    style={styles.locationArrow}
+                  />
+                </TouchableOpacity>
+                <Text style={styles.locationHint}>Tap to open in Google Maps</Text>
               </View>
             )}
 
@@ -114,6 +204,75 @@ export function ActivityDetailModal({
               </View>
             </View>
           </Card>
+
+          {/* Join Button */}
+          {onJoinActivity && (
+            <View style={styles.joinSection}>
+              <Button
+                onPress={handleJoin}
+                disabled={
+                  isOwnActivity ||
+                  isFull ||
+                  requestStatus === 'approved' ||
+                  requestStatus === 'pending'
+                }
+                variant={isFull ? 'outline' : 'default'}
+                fullWidth
+                style={
+                  StyleSheet.flatten([
+                    styles.joinButton,
+                    requestStatus === 'approved' && styles.joinButtonJoined,
+                    requestStatus === 'pending' && styles.joinButtonPending,
+                  ]) as ViewStyle
+                }
+              >
+                <View style={styles.buttonContent}>
+                  <Ionicons
+                    name={
+                      isOwnActivity
+                        ? 'person-outline'
+                        : requestStatus === 'approved'
+                          ? 'checkmark-circle'
+                          : requestStatus === 'pending'
+                            ? 'time-outline'
+                            : isFull
+                              ? 'close-circle-outline'
+                              : 'checkmark-circle-outline'
+                    }
+                    size={18}
+                    color={
+                      requestStatus === 'approved'
+                        ? '#fff'
+                        : requestStatus === 'pending'
+                          ? '#fff'
+                          : isOwnActivity || isFull
+                            ? colors.textSecondary
+                            : '#fff'
+                    }
+                    style={styles.buttonIcon}
+                  />
+                  <Text
+                    style={[
+                      styles.buttonText,
+                      (isOwnActivity ||
+                        (isFull && requestStatus !== 'approved' && requestStatus !== 'pending')) &&
+                        styles.buttonTextDisabled,
+                    ]}
+                  >
+                    {isOwnActivity
+                      ? 'Your Activity'
+                      : requestStatus === 'approved'
+                        ? 'Joined'
+                        : requestStatus === 'pending'
+                          ? 'Request Sent'
+                          : isFull
+                            ? 'Full'
+                            : 'Join Activity'}
+                  </Text>
+                </View>
+              </Button>
+            </View>
+          )}
         </ScrollView>
       </View>
     </Modal>
@@ -209,10 +368,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.borderLight,
   },
   locationText: {
     ...typography.body,
     color: colors.text,
+    flex: 1,
+  },
+  locationArrow: {
+    marginLeft: 'auto',
+  },
+  locationHint: {
+    ...typography.bodySmall,
+    color: colors.textSecondary,
+    marginTop: spacing.xs,
+    marginLeft: spacing.sm + 16 + spacing.sm, // Align with location icon
+    fontStyle: 'italic',
   },
   infoGrid: {
     gap: spacing.md,
@@ -231,5 +405,35 @@ const styles = StyleSheet.create({
     ...typography.bodySmall,
     color: colors.text,
     fontWeight: '600',
+  },
+  joinSection: {
+    marginTop: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  joinButton: {
+    marginTop: spacing.sm,
+  },
+  joinButtonJoined: {
+    backgroundColor: colors.success,
+  },
+  joinButtonPending: {
+    backgroundColor: colors.warning,
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+  },
+  buttonIcon: {
+    marginRight: 0,
+  },
+  buttonText: {
+    ...typography.body,
+    color: '#fff',
+    fontWeight: '600',
+  },
+  buttonTextDisabled: {
+    color: colors.textSecondary,
   },
 });

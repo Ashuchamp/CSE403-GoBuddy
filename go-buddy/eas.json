@@ -35,7 +35,8 @@
         }
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://gobuddy-backend-qvci.onrender.com/api"
+        "EXPO_PUBLIC_API_URL": "https://gobuddy-backend-qvci.onrender.com/api",
+        "EXPO_PUBLIC_REVIEW_ACCESS_CODE": "GOBUDDY-REVIEW-2024"
       }
     }
   },
