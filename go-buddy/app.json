@@ -23,7 +23,8 @@
       "infoPlist": {
         "NSCameraUsageDescription": "This app uses the camera to upload profile pictures and activity photos.",
         "NSPhotoLibraryUsageDescription": "This app accesses your photo library to select profile pictures and activity photos.",
-        "NSLocationWhenInUseUsageDescription": "This app uses your location to show nearby activities and buddies."
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to show nearby activities and buddies.",
+        "GMSApiKey": "${EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}"
       }
     },
     "android": {
