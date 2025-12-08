@@ -119,6 +119,10 @@ export const userController = {
     try {
       const { id } = req.params;
       const updates = req.body;
+      
+      // Debug log to verify backend is processing updates correctly
+      console.log('[userController] Update request received for user:', id);
+      console.log('[userController] Update fields:', Object.keys(updates));
 
       // Validate name is provided and not empty - this is the ONLY required field
       if (updates.name !== undefined && (!updates.name || updates.name.trim() === '')) {
@@ -146,18 +150,23 @@ export const userController = {
       }
       if (updates.contactEmail !== undefined) {
         const emailValue = updates.contactEmail;
+        console.log('[userController] contactEmail received:', emailValue, 'type:', typeof emailValue);
         // CRITICAL: Convert empty string to null to avoid any validation issues
         // Handle all possible empty cases
         if (emailValue === null || emailValue === undefined) {
           updates.contactEmail = null; // Explicitly set to null
+          console.log('[userController] contactEmail set to null (was null/undefined)');
         } else if (typeof emailValue === 'string') {
           const trimmed = emailValue.trim();
+          console.log('[userController] contactEmail trimmed:', trimmed, 'length:', trimmed.length);
           if (trimmed === '') {
             updates.contactEmail = null; // Empty string becomes null
+            console.log('[userController] contactEmail set to null (empty string)');
           } else {
             // Validate email format only if a value is provided
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(trimmed)) {
+              console.log('[userController] contactEmail failed validation:', trimmed);
               res.status(400).json({ 
                 success: false, 
                 error: 'Contact email must be a valid email address' 
@@ -165,9 +174,11 @@ export const userController = {
               return;
             }
             updates.contactEmail = trimmed;
+            console.log('[userController] contactEmail validated and set:', trimmed);
           }
         } else {
           updates.contactEmail = null; // Fallback: set to null for any other type
+          console.log('[userController] contactEmail set to null (fallback, was type:', typeof emailValue, ')');
         }
       }
       if (updates.campusLocation !== undefined) {
