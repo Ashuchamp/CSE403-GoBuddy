@@ -17,10 +17,10 @@ A mobile app that helps students discover, propose, and coordinate activities wi
 
 ## Documentation & Resources
 
-### User documentations
+### User documentation
 - **[User Manual](docs/user-manual.md)**
 
-### Developer Documentations
+### Developer Documentation
 - **[Developer Guide](docs/developer-guide.md)**
 
 ### Coding Guidelines

@@ -6,20 +6,10 @@
 import {User, ActivityIntent, ActivityRequest} from '../types';
 
 // API Configuration
-// For iOS simulator: use localhost
-// For Android emulator: use 10.0.2.2
-// For physical device: use your computer's IP address
-// const getBaseUrl = () => {
-//   // You can set this in .env or hardcode for now
-//   const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api';
-//   return API_URL;
-// };
-
-// For iOS Simulator: use localhost
-// For Android Emulator: use 10.0.2.2
-// For Physical Device: use your computer's actual IP (run: ipconfig getifaddr en0)
-// Use environment variable if set, otherwise default to localhost for iOS simulator
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api';
+// Production backend hosted on Render
+// For local development with a local backend, set EXPO_PUBLIC_API_URL in .env to 'http://localhost:3000/api'
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL || 'https://gobuddy-backend-qvci.onrender.com/api';
 
 interface ApiResponse<T> {
   success: boolean;
