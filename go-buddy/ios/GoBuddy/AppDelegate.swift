@@ -14,17 +14,54 @@ public class AppDelegate: ExpoAppDelegate {
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
-    // Initialize Google Maps SDK using runtime check to avoid linking issues
-    if let apiKey = Bundle.main.object(forInfoDictionaryKey: "GMSApiKey") as? String,
-       !apiKey.isEmpty,
-       apiKey != "${EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}" {
-      // Use Objective-C runtime to initialize Google Maps SDK
-      if let gmsServicesClass = NSClassFromString("GMSServices") as? NSObject.Type {
-        let selector = NSSelectorFromString("provideAPIKey:")
-        if gmsServicesClass.responds(to: selector) {
-          gmsServicesClass.perform(selector, with: apiKey)
-        }
+    // Initialize Google Maps SDK - must be called before any map views are created
+    var apiKey: String? = nil
+    
+    // Strategy 1: Try to get from Config.plist (works when building from Xcode)
+    if let configPath = Bundle.main.path(forResource: "Config", ofType: "plist"),
+       let config = NSDictionary(contentsOfFile: configPath),
+       let key = config["GOOGLE_MAPS_API_KEY"] as? String,
+       !key.isEmpty {
+      apiKey = key
+      print("📍 Loaded Google Maps API key from Config.plist")
+    }
+    
+    // Strategy 2: Try to get from Info.plist (works when building via expo)
+    if apiKey == nil || apiKey?.isEmpty == true {
+      if let plistKey = Bundle.main.object(forInfoDictionaryKey: "GMSApiKey") as? String,
+         !plistKey.isEmpty,
+         plistKey != "${EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}" {
+        apiKey = plistKey
+        print("📍 Loaded Google Maps API key from Info.plist")
       }
+    }
+    
+    // Strategy 3: Try environment variable (for development)
+    if apiKey == nil || apiKey?.isEmpty == true {
+      if let envKey = ProcessInfo.processInfo.environment["EXPO_PUBLIC_GOOGLE_MAPS_API_KEY"],
+         !envKey.isEmpty {
+        apiKey = envKey
+        print("📍 Loaded Google Maps API key from environment variable")
+      }
+    }
+    
+    // Initialize Google Maps with the API key
+    if let key = apiKey, !key.isEmpty {
+      GMSServices.provideAPIKey(key)
+      print("✅ Google Maps SDK initialized successfully with key: \(String(key.prefix(10)))...")
+    } else {
+      let errorMsg = """
+      ⚠️ ERROR: Google Maps API key not found!
+      
+      To fix this:
+      1. For Xcode builds: Ensure Config.plist exists in ios/GoBuddy/ with your API key
+      2. For Expo builds: Add EXPO_PUBLIC_GOOGLE_MAPS_API_KEY to your .env file
+      
+      Note: The API key must be valid and have Maps SDK for iOS enabled.
+      """
+      print(errorMsg)
+      // Don't initialize with empty key - let it fail properly
+      fatalError("Google Maps API key is required. Please configure Config.plist or .env file.")
     }
 
     let delegate = ReactNativeDelegate()

@@ -41,6 +41,7 @@ target 'GoBuddy' do
   # Google Maps SDK for react-native-maps PROVIDER_GOOGLE
   # Required when using Google Maps provider
   pod 'GoogleMaps'
+  pod 'Google-Maps-iOS-Utils'
 
   use_frameworks! :linkage => podfile_properties['ios.useFrameworks'].to_sym if podfile_properties['ios.useFrameworks']
   use_frameworks! :linkage => ENV['USE_FRAMEWORKS'].to_sym if ENV['USE_FRAMEWORKS']
@@ -68,6 +69,12 @@ target 'GoBuddy' do
         # Fix for missing frameworks
         config.build_settings['OTHER_LDFLAGS'] ||= ['$(inherited)']
         config.build_settings['OTHER_LDFLAGS'] << '-ObjC' unless config.build_settings['OTHER_LDFLAGS'].include?('-ObjC')
+        
+        # Add HAVE_GOOGLE_MAPS preprocessor definition for react-native-maps
+        if target.name.include?('react-native-maps') || target.name.include?('react_native_maps')
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'HAVE_GOOGLE_MAPS=1' unless config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'].include?('HAVE_GOOGLE_MAPS=1')
+        end
       end
     end
   end
