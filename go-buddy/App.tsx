@@ -9,6 +9,7 @@ import {AppNavigator} from './src/navigation/AppNavigator';
 import api from './src/services/api';
 import {colors, typography, spacing} from './src/theme';
 import {hasCompleteProfile} from './src/utils/userValidation';
+import {authStorage} from './src/services/authStorage';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -18,6 +19,36 @@ export default function App() {
   const [backendConnected, setBackendConnected] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const notificationIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Handle user authentication - save to storage and set state
+  const handleAuthentication = async (user: User) => {
+    try {
+      await authStorage.saveUser(user);
+      setCurrentUser(user);
+    } catch (error) {
+      console.error('Failed to save user session:', error);
+      // Still set user locally even if storage fails
+      setCurrentUser(user);
+    }
+  };
+
+  // Restore saved user session on startup
+  useEffect(() => {
+    const restoreSession = async () => {
+      try {
+        const savedUser = await authStorage.loadUser();
+        if (savedUser) {
+          setCurrentUser(savedUser);
+          // Successfully restored user session
+        }
+      } catch (error) {
+        // Failed to restore session
+        console.error('Failed to restore user session:', error);
+      }
+    };
+
+    restoreSession();
+  }, []);
 
   // Check backend connection and load initial data
   useEffect(() => {
@@ -141,8 +172,15 @@ export default function App() {
     }
   }, [activityRequests, currentUser, backendConnected]);
 
-  const handleLogout = () => {
-    setCurrentUser(null);
+  const handleLogout = async () => {
+    try {
+      await authStorage.clearUser();
+      setCurrentUser(null);
+    } catch (error) {
+      console.error('Failed to clear user session:', error);
+      // Still log out locally even if storage clear fails
+      setCurrentUser(null);
+    }
   };
 
   const handleUpdateProfile = async (updatedUser: User) => {
@@ -154,6 +192,8 @@ export default function App() {
     try {
       const updated = await api.users.update(currentUser.id, updatedUser);
       if (updated) {
+        // Save updated user to storage
+        await authStorage.saveUser(updated);
         setCurrentUser(updated);
         Alert.alert('Success', 'Profile updated successfully!');
       }
@@ -407,7 +447,7 @@ export default function App() {
         <NavigationContainer>
           <StatusBar style="auto" />
           {!currentUser ? (
-            <AuthScreen onAuthenticated={setCurrentUser} />
+            <AuthScreen onAuthenticated={handleAuthentication} />
           ) : (
             <AppNavigator
               currentUser={currentUser}
