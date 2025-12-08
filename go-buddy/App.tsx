@@ -1,8 +1,8 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {StatusBar} from 'expo-status-bar';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {NavigationContainer} from '@react-navigation/native';
-import {View, Text, ActivityIndicator, StyleSheet, Alert} from 'react-native';
+import {View, Text, ActivityIndicator, StyleSheet, Alert, AppState} from 'react-native';
 import {User, ActivityIntent, ActivityRequest} from './src/types';
 import {AuthScreen} from './src/screens/AuthScreen';
 import {AppNavigator} from './src/navigation/AppNavigator';
@@ -19,6 +19,8 @@ export default function App() {
   const [backendConnected, setBackendConnected] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const notificationIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const dataIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const appState = useRef(AppState.currentState);
 
   // Handle user authentication - save to storage and set state
   const handleAuthentication = async (user: User) => {
@@ -50,29 +52,9 @@ export default function App() {
     restoreSession();
   }, []);
 
-  // Check backend connection and load initial data
-  useEffect(() => {
-    const checkBackend = async () => {
-      try {
-        await api.health();
-        setBackendConnected(true);
-        // Backend connected successfully
-      } catch (error) {
-        // Backend not available
-        setBackendConnected(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkBackend();
-  }, []);
-
-  // Fetch data from backend when user logs in and periodically refresh
-  useEffect(() => {
-    if (!currentUser || !backendConnected) return;
-
-    const fetchData = async (isInitial = false) => {
+  // Helper function to fetch data once (used by both polling and foreground refresh)
+  const fetchDataOnce = useCallback(
+    async (isInitial = false) => {
       try {
         // Only show loading on initial load
         if (isInitial) {
@@ -99,7 +81,7 @@ export default function App() {
           );
 
           // Check if database is empty and show helpful message
-          if (activities.length === 0 && currentUser.email === 'demo@uw.edu') {
+          if (activities.length === 0 && currentUser?.email === 'demo@uw.edu') {
             Alert.alert(
               'No Demo Data Found',
               'The database is empty. To see demo activities and users, run:\n\ncd backend\nnpm run seed\n\nThen refresh the app.',
@@ -107,29 +89,83 @@ export default function App() {
             );
           }
         }
-
-        // Loaded activities and requests successfully
       } catch (error) {
-        // Failed to fetch data from backend
-        setActivityIntents([]);
-        setActivityRequests([]);
+        // Failed to fetch data - but DON'T clear existing data!
+        // Just log the error and keep showing what we have
+        console.error('Failed to fetch data from backend:', error);
+        // Don't call setActivityIntents([]) or setActivityRequests([]) here
+        // This prevents data from disappearing when network is temporarily unavailable
       } finally {
         if (isInitial) {
           setLoading(false);
         }
       }
-    };
+    },
+    [currentUser],
+  );
 
-    // Fetch immediately with loading indicator
-    fetchData(true);
-
-    // Poll every 15 seconds to refresh data (without loading indicator)
-    const dataInterval = setInterval(() => fetchData(false), 15000);
+  // Handle app state changes (background/foreground)
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      // When app comes to foreground from background
+      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+        console.log('App has come to the foreground - refreshing data');
+        // Trigger an immediate data refresh when app comes back to foreground
+        if (currentUser && backendConnected) {
+          // Fetch data without showing loading indicator
+          fetchDataOnce(false);
+        }
+      }
+      appState.current = nextAppState;
+    });
 
     return () => {
-      clearInterval(dataInterval);
+      subscription.remove();
     };
-  }, [currentUser, backendConnected]);
+  }, [currentUser, backendConnected, fetchDataOnce]);
+
+  // Check backend connection and load initial data
+  useEffect(() => {
+    const checkBackend = async () => {
+      try {
+        await api.health();
+        setBackendConnected(true);
+        // Backend connected successfully
+      } catch (error) {
+        // Backend not available
+        setBackendConnected(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkBackend();
+  }, []);
+
+  // Fetch data from backend when user logs in and periodically refresh
+  useEffect(() => {
+    if (!currentUser || !backendConnected) {
+      // Clean up interval if user logs out or backend disconnects
+      if (dataIntervalRef.current) {
+        clearInterval(dataIntervalRef.current);
+        dataIntervalRef.current = null;
+      }
+      return;
+    }
+
+    // Fetch immediately with loading indicator
+    fetchDataOnce(true);
+
+    // Poll every 15 seconds to refresh data (without loading indicator)
+    dataIntervalRef.current = setInterval(() => fetchDataOnce(false), 15000);
+
+    return () => {
+      if (dataIntervalRef.current) {
+        clearInterval(dataIntervalRef.current);
+        dataIntervalRef.current = null;
+      }
+    };
+  }, [currentUser, backendConnected, fetchDataOnce]);
 
   // Poll for notifications
   useEffect(() => {
