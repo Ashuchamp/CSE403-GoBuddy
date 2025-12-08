@@ -8,7 +8,8 @@ import {User, ActivityIntent, ActivityRequest} from '../types';
 // API Configuration
 // Production backend hosted on Render
 // For local development with a local backend, set EXPO_PUBLIC_API_URL in .env to 'http://localhost:3000/api'
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://gobuddy-backend-qvci.onrender.com/api';
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL || 'https://gobuddy-backend-qvci.onrender.com/api';
 
 interface ApiResponse<T> {
   success: boolean;
