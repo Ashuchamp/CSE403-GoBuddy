@@ -14,35 +14,22 @@ GoBuddy is distributed through **Apple TestFlight** for iOS devices.
 
 - #### iOS Device
   - iPhone or iPad running **iOS 15 or higher**
-    
-- #### TestFlight App
-    Install TestFlight from the App Store:  
-    https://apps.apple.com/us/app/testflight/id899247664
-    
-- #### Apple ID：
-  Required to sign into TestFlight.
-    
-- #### External Tester Access
-    🚫 **Public link (pending Apple review, not available now):**  
-    https://testflight.apple.com/join/N1QJS5Sr  
-    
-    ⚠️ To request access while the link is unavailable, email:  
-    **jinkehan04@gmail.com**
 
+- #### Apple ID：
+  - Required to sign into TestFlight.
+    
 ### Installation Steps
 
-#### 1. Receive TestFlight Invitation
-Once added as an external tester, you will receive an email from Apple TestFlight.  
-Tap: **“View in TestFlight” → “Start Testing”**
-    
-#### 2. Install GoBuddy via TestFlight
-- Open the **TestFlight** app  
-- Select **GoBuddy**  
-- Tap **Install**
-    
-  > If the public link is not approved yet, TestFlight may display:  
-  > **“This beta is not available.”**  
-  > Request manual tester access.
+1. **Open the public TestFlight link on your iOS device:**  
+   https://testflight.apple.com/join/N1QJS5Sr
+   
+2. **Follow the Instructions on the web page**  
+   Step 1: Tap "Get TestFlight" to install Testflight app from App Store
+
+   Step 2: tap "View in TestFlight"
+   
+3. **Tap "Install" in TestFlight**  
+   GoBuddy will be downloaded and installed on your device.
 
 ---
 
