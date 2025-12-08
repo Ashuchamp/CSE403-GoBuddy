@@ -30,7 +30,7 @@ export function useApiData(currentUserId?: string): UseApiDataResult {
       // Fetch all data in parallel
       const [usersData, activitiesData] = await Promise.all([
         api.users.getAll(),
-        api.activities.getAll({status: 'active'}),
+        api.activities.getAll(),
       ]);
 
       setUsers(usersData);

@@ -8,6 +8,7 @@ import {Card} from '../components/Card';
 import {Badge} from '../components/Badge';
 import {UserProfileModal} from '../components/UserProfileModal';
 import {DateTimePicker} from '../components/DateTimePicker';
+import {LocationPicker, SelectedLocation} from '../components/LocationPicker';
 import {colors, spacing, typography} from '../theme';
 import api from '../services/api';
 
@@ -38,6 +39,16 @@ export function ActivityDetailScreen({
   const [editedMaxPeople, setEditedMaxPeople] = useState(activity.maxPeople.toString());
   const [editedScheduledTimes, setEditedScheduledTimes] = useState(activity.scheduledTimes);
   const [editedLocation, setEditedLocation] = useState(activity.campusLocation || '');
+  const [selectedLocation, setSelectedLocation] = useState<SelectedLocation | null>(
+    activity.latitude && activity.longitude
+      ? {
+          latitude: activity.latitude,
+          longitude: activity.longitude,
+          name: activity.locationName || activity.campusLocation,
+        }
+      : null,
+  );
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedUserShowContact, setSelectedUserShowContact] = useState(false);
   const [approvedCountLocal, setApprovedCountLocal] = useState(0);
@@ -50,6 +61,15 @@ export function ActivityDetailScreen({
     setEditedMaxPeople(activity.maxPeople.toString());
     setEditedScheduledTimes(activity.scheduledTimes);
     setEditedLocation(activity.campusLocation || '');
+    setSelectedLocation(
+      activity.latitude && activity.longitude
+        ? {
+            latitude: activity.latitude,
+            longitude: activity.longitude,
+            name: activity.locationName || activity.campusLocation,
+          }
+        : null,
+    );
   }, [activity]);
 
   const pendingRequests = requests.filter((r) => r.status === 'pending');
@@ -147,7 +167,12 @@ export function ActivityDetailScreen({
         description: editedDescription.trim(),
         maxPeople,
         scheduledTimes: editedScheduledTimes,
-        campusLocation: editedLocation.trim() || undefined,
+        // New location fields
+        latitude: selectedLocation?.latitude,
+        longitude: selectedLocation?.longitude,
+        locationName: selectedLocation?.name,
+        // Legacy field for backward compatibility
+        campusLocation: selectedLocation?.name || editedLocation.trim() || undefined,
       });
       // Only show success and exit edit mode if update was successful
       setIsEditing(false);
@@ -347,7 +372,35 @@ export function ActivityDetailScreen({
 
               <View style={styles.formSection}>
                 <Text style={styles.label}>Location</Text>
-                <Input value={editedLocation} onChangeText={setEditedLocation} />
+                {selectedLocation ? (
+                  <View style={styles.locationDisplay}>
+                    <Text style={styles.currentLocationLabel}>Current Location:</Text>
+                    <View style={styles.locationTextContainer}>
+                      <Ionicons name="location" size={20} color={colors.primary} />
+                      <Text style={styles.locationDisplayText} numberOfLines={2}>
+                        {selectedLocation.name || 'Selected Location'}
+                      </Text>
+                    </View>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onPress={() => setShowLocationPicker(true)}
+                      style={styles.changeLocationButton}
+                    >
+                      <Ionicons name="location-outline" size={18} color={colors.primary} />
+                      <Text style={styles.buttonTextWithIcon}>Reselect Location</Text>
+                    </Button>
+                  </View>
+                ) : (
+                  <Button
+                    variant="outline"
+                    onPress={() => setShowLocationPicker(true)}
+                    style={styles.selectLocationButton}
+                  >
+                    <Ionicons name="location-outline" size={20} color={colors.primary} />
+                    <Text style={styles.selectLocationText}>Select Location</Text>
+                  </Button>
+                )}
               </View>
 
               <View style={styles.buttonRow}>
@@ -399,10 +452,12 @@ export function ActivityDetailScreen({
                 </View>
               )}
 
-              {activity.campusLocation && (
+              {(activity.locationName || activity.campusLocation) && (
                 <View style={styles.infoRow}>
                   <Ionicons name="location-outline" size={16} color={colors.textSecondary} />
-                  <Text style={styles.infoText}>{activity.campusLocation}</Text>
+                  <Text style={styles.infoText}>
+                    {activity.locationName || activity.campusLocation}
+                  </Text>
                 </View>
               )}
             </View>
@@ -553,6 +608,18 @@ export function ActivityDetailScreen({
         onClose={() => setSelectedUser(null)}
         currentUserId={currentUser.id}
         showContactInfo={selectedUserShowContact}
+      />
+
+      {/* Location Picker Modal */}
+      <LocationPicker
+        visible={showLocationPicker}
+        onClose={() => setShowLocationPicker(false)}
+        onSelect={(location) => {
+          setSelectedLocation(location);
+          setEditedLocation(location.name || '');
+          setShowLocationPicker(false);
+        }}
+        initialLocation={selectedLocation || undefined}
       />
     </View>
   );
@@ -779,5 +846,50 @@ const styles = StyleSheet.create({
   contactText: {
     ...typography.bodySmall,
     color: colors.text,
+  },
+  locationDisplay: {
+    gap: spacing.sm,
+  },
+  currentLocationLabel: {
+    ...typography.bodySmall,
+    color: colors.textSecondary,
+    fontWeight: '600',
+    marginBottom: spacing.xs,
+  },
+  locationTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.md,
+    backgroundColor: colors.background,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+    gap: spacing.sm,
+  },
+  locationDisplayText: {
+    ...typography.body,
+    color: colors.text,
+    flex: 1,
+  },
+  changeLocationButton: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  selectLocationButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    justifyContent: 'center',
+  },
+  selectLocationText: {
+    ...typography.body,
+    color: colors.primary,
+    marginLeft: spacing.xs,
+  },
+  buttonTextWithIcon: {
+    ...typography.body,
+    color: colors.primary,
   },
 });

@@ -79,8 +79,8 @@ export default function App() {
           setLoading(true);
         }
 
-        // Fetch only active activities (exclude cancelled and completed)
-        const activities = await api.activities.getAll({status: 'active'});
+        // Fetch all activities (including completed and cancelled for My Activities screen)
+        const activities = await api.activities.getAll();
         setActivityIntents(activities);
 
         // Fetch ALL requests (for activities you created AND requests you made)
@@ -434,8 +434,11 @@ export default function App() {
     return (
       <SafeAreaProvider>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Loading...</Text>
+          <View style={styles.loadingContent}>
+            <ActivityIndicator size="large" color={colors.primary} />
+            <Text style={styles.loadingText}>Loading GoBuddy...</Text>
+            <Text style={styles.loadingSubtext}>Connecting to server</Text>
+          </View>
         </View>
       </SafeAreaProvider>
     );
@@ -492,9 +495,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.background,
   },
+  loadingContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   loadingText: {
+    ...typography.h3,
+    color: colors.text,
+    marginTop: spacing.lg,
+    fontWeight: '600',
+  },
+  loadingSubtext: {
     ...typography.body,
     color: colors.textSecondary,
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
   },
 });
