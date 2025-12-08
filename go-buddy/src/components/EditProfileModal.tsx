@@ -30,6 +30,15 @@ const isValidPhoneNumber = (phone: string): boolean => {
   return phoneRegex.test(phone);
 };
 
+// Email validation function
+const isValidEmail = (email: string): boolean => {
+  if (!email || email.trim() === '') return true; // Empty is valid (optional field)
+
+  // Basic email validation regex
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
 export function EditProfileModal({visible, onClose, user, onSave}: EditProfileModalProps) {
   const [formData, setFormData] = useState({
     name: user.name,
@@ -46,6 +55,7 @@ export function EditProfileModal({visible, onClose, user, onSave}: EditProfileMo
   const [newTag, setNewTag] = useState('');
   const [newTime, setNewTime] = useState('');
   const [phoneError, setPhoneError] = useState('');
+  const [emailError, setEmailError] = useState('');
 
   const validateAndSetPhone = (text: string) => {
     setFormData({...formData, phone: text});
@@ -59,6 +69,18 @@ export function EditProfileModal({visible, onClose, user, onSave}: EditProfileMo
     }
   };
 
+  const validateAndSetEmail = (text: string) => {
+    setFormData({...formData, contactEmail: text});
+
+    if (text.trim() === '') {
+      setEmailError('');
+    } else if (!isValidEmail(text)) {
+      setEmailError('Invalid email format. Use: your.email@example.com');
+    } else {
+      setEmailError('');
+    }
+  };
+
   const handleSave = async () => {
     // Validate name is not empty
     if (!formData.name || formData.name.trim() === '') {
@@ -69,6 +91,12 @@ export function EditProfileModal({visible, onClose, user, onSave}: EditProfileMo
     // Validate phone number before saving
     if (formData.phone && !isValidPhoneNumber(formData.phone)) {
       Alert.alert('Invalid Phone Number', 'Please enter a valid 10-digit US phone number.');
+      return;
+    }
+
+    // Validate email before saving
+    if (formData.contactEmail && !isValidEmail(formData.contactEmail)) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
 
@@ -226,14 +254,17 @@ export function EditProfileModal({visible, onClose, user, onSave}: EditProfileMo
             placeholder="@your_instagram_handle"
             autoCapitalize="none"
           />
-          <Input
-            label="Contact Email"
-            value={formData.contactEmail}
-            onChangeText={(text) => setFormData({...formData, contactEmail: text})}
-            placeholder="your.email@example.com"
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
+          <View>
+            <Input
+              label="Contact Email"
+              value={formData.contactEmail}
+              onChangeText={validateAndSetEmail}
+              placeholder="your.email@example.com"
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+            {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+          </View>
         </View>
 
         {/* Save Button */}
