@@ -23,3 +23,6 @@ A mobile app that helps students discover, propose, and coordinate activities wi
 ### Developer Documentations
 - **[Developer Guide](docs/developer-guide.md)**
 
+### Coding Guidelines
+- **[Coding Guidelines](docs/coding-guidelines.md)**
+
