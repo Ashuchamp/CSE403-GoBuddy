@@ -10,6 +10,8 @@ node_modules/
 go-buddy/node_modules/
 
 # Expo
+.expo/
+.expo-shared/
 go-buddy/.expo/
 go-buddy/.expo-shared/
 
