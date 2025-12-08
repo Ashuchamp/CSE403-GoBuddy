@@ -2,121 +2,76 @@
 
 ## High-Level Description
 
-GoBuddy is a mobile-first platform designed for University of Washington (UW) students to meet new people, join or host group activities, and build connections based on shared interests. Users can search for students or events, view AI-powered recommendations, send connection requests, and create or join social groups. Our mission is to promote social discovery and community-building within the UW campus.
+GoBuddy is a mobile-first platform designed for University of Washington (UW) students to meet new people, join or host group activities, and build connections based on shared interests. Users can search for students or events, view AI-powered recommendations, send connection requests, and create or join social groups. GoBuddy is currently available as an **iOS-only app** distributed through Apple TestFlight. Our mission is to promote social discovery and community-building within the UW campus.
 
 ---
 
 ## How to Install the Software
 
+GoBuddy is distributed through **Apple TestFlight** for iOS devices.
+
 ### Prerequisites
 
-* **Node.js** v18 or higher
-* **npm** v9 or higher
-* **Expo CLI**: `npm install -g expo-cli`
-* **Expo Go** app (iOS/Android) for running the mobile app
-*  **PostgreSQL** 12+
-*  **Xcode** (macOS, for iOS development) or **Android Studio** (for Android development)
+- #### iOS Device
+  - iPhone or iPad running **iOS 15 or higher**
+    
+- #### TestFlight App
+    Install TestFlight from the App Store:  
+    https://apps.apple.com/us/app/testflight/id899247664
+    
+- #### Apple ID：
+  Required to sign into TestFlight.
+    
+- #### External Tester Access
+    🚫 **Public link (pending Apple review, not available now):**  
+    https://testflight.apple.com/join/N1QJS5Sr  
+    
+    ⚠️ To request access while the link is unavailable, email:  
+    **jinkehan04@gmail.com**
 
 ### Installation Steps
 
-1. Clone the GitHub repository:
+#### 1. Receive TestFlight Invitation
+Once added as an external tester, you will receive an email from Apple TestFlight.  
+Tap: **“View in TestFlight” → “Start Testing”**
+    
+#### 2. Install GoBuddy via TestFlight
+- Open the **TestFlight** app  
+- Select **GoBuddy**  
+- Tap **Install**
+    
+  > If the public link is not approved yet, TestFlight may display:  
+  > **“This beta is not available.”**  
+  > Request manual tester access.
 
-```bash
-git clone https://github.com/Ashuchamp/CSE403-GoBuddy.git
-cd CSE403-GoBuddy
-```
-
-2. Install frontend dependencies:
-
-    ```bash
-    cd go-buddy
-    npm install
-    npm run type-check
-    ```
-
-3. Install backend dependencies and configure environment:
-
-    ```bash
-    cd ../backend
-    npm install
-    createdb gobuddy
-    ./setup.sh
-    ```
-
-    > Alternatively: copy `.env.example` to `.env` and manually fill in DB credentials
 ---
 
 ## How to Run the Software
 
-### Mobile App (Recommended)
-### Option 1: Real App Mode (Google OAuth)
+### 1. Open GoBuddy
+After installation, launch the app by either:
 
-> Use this for real development with your own @uw.edu Google account.
+- Tapping **Open** inside TestFlight  
+- Opening the **GoBuddy** icon on your home screen  
 
-1. Start the backend (without seeding):
+### 2. Grant Necessary Permissions
+On first launch, GoBuddy may request the following:
 
-    ```bash
-    cd backend
-    npm run dev
-    ```
+- **Location Access** — required for map-based activity discovery  
+- **Notification Access** — used for activity and connection alerts  
 
-2. Start the mobile app:
+Granting these permissions is recommended for full functionality.
 
-    ```bash
-    cd ../go-buddy
-    npm start
-    ```
+### 3. Sign In
+GoBuddy uses **Google OAuth** authentication.
 
-3. On the app:
+- Tap **“Sign in with Google”**  
+- Use your **@uw.edu** email  
 
-    - Select **“Sign in with Google”**
-    - Use your **@uw.edu** email
-    - Your account will be created in the database
+A new profile will be created on first login.
 
-> Do **not** run `npm run seed` in this mode.
-> You’ll start with an empty database and your own profile.
+### 4. Start Using GoBuddy
 
----
-
-### Option 2: Demo Mode (Recommended for Showcase)
-
-> Use this mode to demo features with pre-filled users and activities.
-
-1. Seed the database:
-
-    ```bash
-    cd backend
-    npm run seed
-    ```
-
-2. Start the backend:
-
-    ```bash
-    npm run dev
-    ```
-
-3. Start the mobile app:
-
-    ```bash
-    cd ../go-buddy
-    npm start
-    ```
-
-4. On the app:
-
-    - Select **“Skip to Demo”**
-    - You’ll be logged in as **Demo User** with access to existing data
-      
-   Both Demo and Google users can co-exist in the database and see each other in Browse.
-
----
-
-### Web Fallback (for demo only)
-
-```bash
-cd go-buddy
-npm run web
-```
 ---
 
 ## How to Use the Software
