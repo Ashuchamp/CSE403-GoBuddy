@@ -92,7 +92,7 @@ A new profile will be created on first login.
         - Browse only shows *other users* and *other users' activities* that you are **not already connected with**. Users you have already **sent a request to**, **received a request from**, or are **connected with** will **not appear** in Browse or search results (intentional for this iteration).  
         - Your **own/joined/pending request activities**  also do **not appear** in Browse.  
 
-* **For You(Bottom Tabs)**: Get matched with groups based on interests.  
+* **For You(Bottom Tabs)**: Get matched with groups based on AI-powered activity recommendations.  
 * **Map(Bottom Tabs)**: View nearby active activities based on your location.  
   The map provides a spatial overview of activities happening around you:
 
