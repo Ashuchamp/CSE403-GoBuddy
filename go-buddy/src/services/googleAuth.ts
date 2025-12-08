@@ -26,7 +26,9 @@ export const useGoogleAuth = () => {
   const iosReversedClientId = iosClientId ? iosClientId.split('.').reverse().join('.') : '';
 
   // Use the reversed client ID as redirect URI for iOS
-  const redirectUri = iosReversedClientId ? `${iosReversedClientId}:/oauth2redirect/google` : undefined;
+  const redirectUri = iosReversedClientId
+    ? `${iosReversedClientId}:/oauth2redirect/google`
+    : undefined;
 
   // Configure Google Auth request for iOS only
   const [request, response, promptAsync] = Google.useAuthRequest({
