@@ -117,8 +117,15 @@ npm install
 
 #### Frontend Dependencies
 ```bash
+# From project root
 cd go-buddy
+
+# Set up environment variables (required for Google Sign-In)
+cp .env.example .env
+
+# Install dependencies and run
 npm install
+npm run ios
 ```
 
 #### Backend Dependencies
