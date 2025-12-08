@@ -13,6 +13,9 @@ This guide provides comprehensive instructions for developers to obtain, build, 
 git clone https://github.com/Ashuchamp/CSE403-GoBuddy.git
 cd CSE403-GoBuddy/go-buddy
 
+# Set up environment variables (required for Google Sign-In)
+cp .env.example .env
+
 # Install dependencies and run
 npm install
 npm run ios
@@ -27,7 +30,7 @@ npm run ios
 
 **Note:** 
 - `npm run ios` only works on macOS with Xcode installed
-- Windows/Linux users: See section 3.2.2 for alternative testing methods using physical devices
+- Windows/Linux users: See section 4.2.1 for alternative testing methods using physical devices
 
 For detailed setup, testing, and backend development, continue reading below.
 
@@ -86,7 +89,7 @@ npm -v     # Should show 9.x.x or higher
 eas --version  # Should show latest EAS CLI version
 ```
 
-See section 3.2.1 for instructions on testing with Windows/Linux.
+See section 4.2.1 for instructions on testing with Windows/Linux.
 
 #### Optional (for backend development only)
 
@@ -158,20 +161,58 @@ CSE403-GoBuddy/
 
 ---
 
-## 3. Building the Software
+## 3. Environment Configuration
 
-### 3.1 Quick Start (Recommended)
+### 3.1 Setting Up Environment Variables
+
+The GoBuddy app requires certain environment variables to be configured for full functionality. A template file `.env.example` is provided in the `go-buddy` directory.
+
+**To set up your environment:**
+
+```bash
+cd go-buddy
+cp .env.example .env
+```
+
+The `.env.example` file contains the following pre-configured values:
+
+| Variable | Required | Description | Default Value |
+|----------|----------|-------------|---------------|
+| `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` | **Yes** | Google OAuth Client ID for iOS authentication | Pre-configured for production |
+| `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID` | No | Google OAuth Client ID for Android (optional) | Empty |
+| `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` | No | Google OAuth Client ID for Web (optional) | Empty |
+| `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY` | No | Google Maps API key for map features | Empty (maps will work with limited features) |
+| `EXPO_PUBLIC_API_URL` | No | Backend API URL | Production backend (auto-configured) |
+| `EXPO_PUBLIC_REVIEW_ACCESS_CODE` | No | Access code for App Store review mode | `GOBUDDY-REVIEW-2024` |
+
+**Important Notes:**
+
+- The **iOS Client ID is required** for Google Sign-In to work on iOS. The `.env.example` file includes a pre-configured client ID that works out of the box.
+- The Google Maps API key is optional but recommended for full map functionality. See `GOOGLE_MAPS_SETUP.md` for instructions on obtaining your own API key.
+- All other variables have sensible defaults and don't need to be changed for development.
+
+---
+
+## 4. Building the Software
+
+### 4.1 Quick Start (Recommended)
 
 The mobile app is pre-configured to connect to a hosted backend. No backend setup required!
 
 ```bash
 # From project root
 cd go-buddy
+
+# Set up environment variables (required for Google Sign-In)
+cp .env.example .env
+
+# Install dependencies and run
 npm install
 npm run ios
 ```
 
 This will:
+- Configure Google OAuth for iOS authentication
 - Install all frontend dependencies
 - Build and launch the app on iOS Simulator
 - Connect to the production backend hosted on Render
@@ -181,13 +222,13 @@ This will:
 **Requirements:**
 - macOS with Xcode 14+ installed
 - The app runs on iOS Simulator only via this method
-- Windows/Linux users: See section 3.2.2 below
+- Windows/Linux users: See section 4.2.1 below
 
 ---
 
-### 3.2 Advanced Setup
+### 4.2 Advanced Setup
 
-#### 3.2.1 Testing on Windows/Linux (Physical Device)
+#### 4.2.1 Testing on Windows/Linux (Physical Device)
 
 If you don't have access to macOS, you can test the app on a physical iOS device using one of these methods:
 
@@ -230,7 +271,7 @@ Download and install the latest production build from TestFlight or the App Stor
 
 **Note:** The standard Expo Go app won't work because GoBuddy uses custom native modules (Google Sign-In, Maps, etc.).
 
-#### 3.2.2 Local Backend Development (Optional)
+#### 4.2.2 Local Backend Development (Optional)
 
 Only follow these steps if you need to modify the backend or run it locally.
 
