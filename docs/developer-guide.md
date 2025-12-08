@@ -4,38 +4,6 @@ This guide provides comprehensive instructions for developers to obtain, build, 
 
 ---
 
-## Quick Start
-
-**Want to run the app immediately?** Here's all you need:
-
-```bash
-# Clone the repository
-git clone https://github.com/Ashuchamp/CSE403-GoBuddy.git
-cd CSE403-GoBuddy/go-buddy
-
-# Set up environment variables (required for Google Sign-In)
-cp .env.example .env
-
-# Install dependencies and run
-npm install
-npm run ios
-```
-
-**That's it!** The app will build and launch on iOS Simulator, connecting to our production backend automatically.
-
-**Prerequisites:**
-- macOS (required for iOS Simulator)
-- Node.js v18+ or v20+
-- Xcode 14+ (for iOS Simulator)
-
-**Note:** 
-- `npm run ios` only works on macOS with Xcode installed
-- Windows/Linux users: See section 4.2.1 for alternative testing methods using physical devices
-
-For detailed setup, testing, and backend development, continue reading below.
-
----
-
 ## 1. Obtaining the Source Code
 
 ### Repository
@@ -56,46 +24,23 @@ cd CSE403-GoBuddy
 
 ### Prerequisites
 
-#### For macOS Development (iOS Simulator)
+Ensure the following software is installed on your development machine:
 
 | Software | Version | Purpose |
 |----------|---------|---------|
-| **Node.js** | v18.x or v20.x | JavaScript runtime for frontend |
+| **Node.js** | v18.x or v20.x | JavaScript runtime for frontend and backend |
 | **npm** | v9+ | Package manager (comes with Node.js) |
-| **Xcode** | 14+ | For iOS Simulator |
+| **PostgreSQL** | v12+ | Database for backend |
+| **Expo CLI** | Latest | React Native development (optional but recommended) |
+| **iOS Development** | Xcode 14+ | For iOS builds (macOS only) |
 
 **Verify installations:**
 
 ```bash
 node -v    # Should show v18.x.x or v20.x.x
 npm -v     # Should show 9.x.x or higher
-xcodebuild -version  # Should show Xcode 14 or higher
+psql --version  # Should show PostgreSQL 12 or higher
 ```
-
-#### For Windows/Linux Development (Physical Device)
-
-| Software | Version | Purpose |
-|----------|---------|---------|
-| **Node.js** | v18.x or v20.x | JavaScript runtime for frontend |
-| **npm** | v9+ | Package manager (comes with Node.js) |
-| **EAS CLI** | Latest | For building iOS apps without macOS |
-| **iOS Device** | iOS 13+ | Physical device for testing |
-
-**Verify installations:**
-
-```bash
-node -v    # Should show v18.x.x or v20.x.x
-npm -v     # Should show 9.x.x or higher
-eas --version  # Should show latest EAS CLI version
-```
-
-See section 4.2.1 for instructions on testing with Windows/Linux.
-
-#### Optional (for backend development only)
-
-| Software | Version | Purpose |
-|----------|---------|---------|
-| **PostgreSQL** | v12+ | Local database for backend development |
 
 ---
 
@@ -161,45 +106,16 @@ CSE403-GoBuddy/
 
 ---
 
-## 3. Environment Configuration
+## 3. Building the Software
 
-### 3.1 Setting Up Environment Variables
+### 3.1 Install Dependencies
 
-The GoBuddy app requires certain environment variables to be configured for full functionality. A template file `.env.example` is provided in the `go-buddy` directory.
-
-**To set up your environment:**
-
+#### Root Dependencies (Optional)
 ```bash
-# From project root
-cd go-buddy
-cp .env.example .env
+npm install
 ```
 
-The `.env.example` file contains the following pre-configured values:
-
-| Variable | Required | Description | Default Value |
-|----------|----------|-------------|---------------|
-| `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` | **Yes** | Google OAuth Client ID for iOS authentication | Pre-configured for production |
-| `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID` | No | Google OAuth Client ID for Android (optional) | Empty |
-| `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` | No | Google OAuth Client ID for Web (optional) | Empty |
-| `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY` | No | Google Maps API key for map features | Empty (maps will work with limited features) |
-| `EXPO_PUBLIC_API_URL` | No | Backend API URL | Production backend (auto-configured) |
-| `EXPO_PUBLIC_REVIEW_ACCESS_CODE` | No | Access code for App Store review mode | `GOBUDDY-REVIEW-2024` |
-
-**Important Notes:**
-
-- The **iOS Client ID is required** for Google Sign-In to work on iOS. The `.env.example` file includes a pre-configured client ID that works out of the box.
-- The Google Maps API key is optional but recommended for full map functionality. See `GOOGLE_MAPS_SETUP.md` for instructions on obtaining your own API key.
-- All other variables have sensible defaults and don't need to be changed for development.
-
----
-
-## 4. Building the Software
-
-### 4.1 Quick Start (Recommended)
-
-The mobile app is pre-configured to connect to a hosted backend. No backend setup required!
-
+#### Frontend Dependencies
 ```bash
 # From project root
 cd go-buddy
@@ -212,98 +128,59 @@ npm install
 npm run ios
 ```
 
-This will:
-- Configure Google OAuth for iOS authentication
-- Install all frontend dependencies
-- Build and launch the app on iOS Simulator
-- Connect to the production backend hosted on Render
+#### Backend Dependencies
+```bash
+cd backend
+npm install
+```
 
-**That's it!** The app is ready to use.
+### 3.2 Backend Build & Setup
 
-**Requirements:**
-- macOS with Xcode 14+ installed
-- The app runs on iOS Simulator only via this method
-- Windows/Linux users: See section 4.2.1 below
+#### Automated Setup (Recommended)
 
----
+The `setup.sh` script automates database configuration:
 
-### 4.2 Advanced Setup
+```bash
+cd backend
+./setup.sh
+```
 
-#### 4.2.1 Testing on Windows/Linux (Physical Device)
+This script:
+- Verifies Node.js and PostgreSQL installations
+- Installs npm dependencies
+- Creates `.env` file from `.env.example`
+- Auto-configures database credentials for macOS
+- Prompts manual configuration for Linux/Windows
 
-If you don't have access to macOS, you can test the app on a physical iOS device using one of these methods:
+#### Manual Setup
 
-**Option A: Install Production Build (Recommended)**
-
-Download and install the latest production build from TestFlight or the App Store:
-- No development environment needed
-- Fully functional app
-- Best for testing user experience
-
-**Option B: Create a Development Build**
-
-1. **Install EAS CLI:**
-   ```bash
-   npm install -g eas-cli
-   ```
-
-2. **Login to Expo:**
-   ```bash
-   eas login
-   ```
-
-3. **Build a development client:**
-   ```bash
-   cd go-buddy
-   eas build --profile development --platform ios
-   ```
-
-4. **Install the build on your iOS device:**
-   - Download the .ipa file from the EAS build page
-   - Install via TestFlight or direct installation
-
-5. **Start the development server:**
-   ```bash
-   npm start
-   ```
-
-6. **Connect your device:**
-   - Scan the QR code with the development client app
-
-**Note:** The standard Expo Go app won't work because GoBuddy uses custom native modules (Google Sign-In, Maps, etc.).
-
-#### 4.2.2 Local Backend Development (Optional)
-
-Only follow these steps if you need to modify the backend or run it locally.
-
-**Prerequisites:**
-- PostgreSQL v12+ installed and running
-- Node.js v18.x or v20.x
-
-**Setup Steps:**
-
-1. **Navigate to backend:**
+1. **Copy environment template:**
    ```bash
    cd backend
+   cp .env.example .env
    ```
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Run automated setup:**
-   ```bash
-   ./setup.sh
+2. **Edit `.env` file** with your database credentials:
+   
+   **macOS:**
+   ```env
+   DB_USER=<your-macos-username>
+   DB_PASSWORD=
+   DB_HOST=localhost
+   DB_NAME=gobuddy
+   DB_PORT=5432
    ```
    
-   This script:
-   - Verifies Node.js and PostgreSQL installations
-   - Creates `.env` file from `.env.example`
-   - Auto-configures database credentials for macOS
-   - Prompts manual configuration for Linux/Windows
+   **Linux/Windows:**
+   ```env
+   DB_USER=postgres
+   DB_PASSWORD=<your-postgres-password>
+   DB_HOST=localhost
+   DB_NAME=gobuddy
+   DB_PORT=5432
+   ```
 
-4. **Create database:**
+3. **Create database:**
    ```bash
    createdb gobuddy
    ```
@@ -313,33 +190,56 @@ Only follow these steps if you need to modify the backend or run it locally.
    CREATE DATABASE gobuddy;
    ```
 
-5. **Build and start backend:**
+4. **Build TypeScript:**
    ```bash
    npm run build
+   ```
+   
+   This compiles `src/` → `dist/` directory.
+
+5. **Start development server:**
+   ```bash
    npm run dev
    ```
    
    Backend runs at `http://localhost:3000`
 
-6. **Configure frontend to use local backend:**
-   
-   Create or edit `go-buddy/.env`:
-   ```env
-   EXPO_PUBLIC_API_URL=http://localhost:3000/api
+6. **Verify backend health:**
+   ```bash
+   curl http://localhost:3000/api/health
    ```
+   
+   Expected response: `{"status":"ok"}`
 
-7. **Restart frontend:**
+### 3.3 Frontend Build & Setup
+
+1. **Navigate to frontend:**
    ```bash
    cd go-buddy
+   ```
+
+2. **Configure Google OAuth (Required for Authentication):**
+   
+   Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+   
+   The `.env.example` file contains:
+   - iOS OAuth Client ID (already configured)
+   - Backend API URL (optional, for local development)
+   - Google Maps API Key (optional)
+   
+   No changes needed unless you want to test against a local backend.
+
+3. **Start Expo development server:**
+   ```bash
    npm start
    ```
 
-**Verify backend health:**
-```bash
-curl http://localhost:3000/api/health
-```
-
-Expected response: `{"status":"ok"}`
+4. **Run on iOS device/simulator:**
+   - Press `i` → iOS Simulator (macOS only)
+   - Scan QR code → Physical iOS device (requires Expo Go app)
 
 ---
 
@@ -411,11 +311,11 @@ npm run format:check  # Check formatting
 npm run format        # Auto-format code
 ```
 
-### 4.3 Backend Testing (Optional)
+### 4.3 Backend Testing
 
-Backend testing is only needed if you're modifying backend code. The production backend is already deployed and tested.
+The backend uses manual API testing with curl/Postman.
 
-#### Start Local Backend
+#### Start Backend
 ```bash
 cd backend
 npm run dev
@@ -423,10 +323,6 @@ npm run dev
 
 #### Health Check
 ```bash
-# For production backend (always available)
-curl https://gobuddy-backend-qvci.onrender.com/api/health
-
-# For local backend (if running)
 curl http://localhost:3000/api/health
 ```
 
@@ -437,7 +333,6 @@ Expected response:
 
 #### Run Test Script
 ```bash
-cd backend
 ./test-api.sh
 ```
 

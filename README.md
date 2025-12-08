@@ -10,9 +10,17 @@ A mobile app that helps students discover, propose, and coordinate activities wi
 - Improve matching via intent, skills, location, and time windows
 - Offer lightweight profiles and simple coordination flows
 
-**Layout**:
+**Repository Structure**:
+```
+├── go-buddy/         # React Native mobile app (iOS)
+├── backend/          # Node.js/Express API + PostgreSQL
+├── docs/             # User manual, developer guide, coding guidelines
+└── reports/          # Weekly progress reports
+```
 
-**Living Document**: [GoBuddy Living Document](https://docs.google.com/document/d/1p3QBh7KAYP06WYBGqdLce5ktvth-cW0wMUFkJ-nHww0/edit?tab=t.0)
+**Tech Stack**: React Native + Expo | Node.js + Express | PostgreSQL + Sequelize | Google OAuth + Maps
+
+**Living Document**: **[GoBuddy Living Document](https://docs.google.com/document/d/1p3QBh7KAYP06WYBGqdLce5ktvth-cW0wMUFkJ-nHww0/edit?tab=t.0)**
 
 
 ## Documentation & Resources
