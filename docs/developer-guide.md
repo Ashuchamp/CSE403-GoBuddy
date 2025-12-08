@@ -125,7 +125,7 @@ cp .env.example .env
 
 # Install dependencies and run
 npm install
-npm run ios
+npm start
 ```
 
 #### Backend Dependencies
