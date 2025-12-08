@@ -170,6 +170,7 @@ The GoBuddy app requires certain environment variables to be configured for full
 **To set up your environment:**
 
 ```bash
+# From project root
 cd go-buddy
 cp .env.example .env
 ```
