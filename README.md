@@ -18,13 +18,8 @@ A mobile app that helps students discover, propose, and coordinate activities wi
 ## Documentation & Resources
 
 ### User documentations
-- **[Backend Setup](backend/SETUP_AND_RUN.md)** - Backend setup and API testing
-- **[Mobile App README](go-buddy/README.md)** - Mobile app documentation
-- **[Setup Guide](SETUP_GUIDE.md)** - Detailed testing infrastructure setup
-- **[Testing Guide](TESTING.md)** - Comprehensive testing documentation
+- **[User Manual](docs/user-manual.md)**
 
 ### Developer Documentations
-- **[Contributing Guidelines](CONTRIBUTING.md)** - How to contribute
-- **[Coding Guidelines](coding-guidelines.md)** - Code style and standards
-- **[Developer Guide](docs/developer-guide.md)** - Developer documentation
-- **[User Manual](docs/user-manual.md)** - End-user guide
+- **[Developer Guide](docs/developer-guide.md)**
+

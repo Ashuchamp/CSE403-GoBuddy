@@ -58,9 +58,8 @@ After installation, launch the app by either:
 On first launch, GoBuddy may request the following:
 
 - **Location Access** — required for map-based activity discovery  
-- **Notification Access** — used for activity and connection alerts  
 
-Granting these permissions is recommended for full functionality.
+Granting this permission is recommended for full functionality.
 
 ### 3. Sign In
 GoBuddy uses **Google OAuth** authentication.
@@ -146,11 +145,6 @@ A new profile will be created on first login.
 
   Notifications help users stay informed without needing to constantly check individual pages.  
   The bell icon in the upper right corner indicates when new notifications are available.
-
-### Work in Progress
-
-* Full chat support is being actively developed.
-* Push notifications and dark mode support coming soon.
 
 ---
 
