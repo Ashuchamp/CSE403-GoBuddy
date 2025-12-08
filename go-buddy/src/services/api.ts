@@ -15,11 +15,11 @@ import {User, ActivityIntent, ActivityRequest} from '../types';
 //   return API_URL;
 // };
 
-// For iOS Simulator: use localhost or your machine's IP
+// For iOS Simulator: use localhost
 // For Android Emulator: use 10.0.2.2
 // For Physical Device: use your computer's actual IP (run: ipconfig getifaddr en0)
-const API_BASE_URL = 'http://192.168.1.103:3000/api';
-// Your current machine IP: 10.19.58.68
+// Use environment variable if set, otherwise default to localhost for iOS simulator
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api';
 
 interface ApiResponse<T> {
   success: boolean;
