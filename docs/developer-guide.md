@@ -184,12 +184,35 @@ This script:
    ```bash
    createdb gobuddy
    ```
-   
-   Or via PostgreSQL prompt:
+   If the command above doesn't work for you, please create database via PostgreSQL prompt(Windows User Recommended):
+
+   1. Connect to psql: Find your PostgreSQL's **\bin\psql.exe** path and replace the example path    in this command.
+   ```
+   & "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres
+   ```
+
+   2. Enter the password you created when you're installing PostgreSQL
+  
+   3. Your are now in sql, copy and run this command
    ```sql
    CREATE DATABASE gobuddy;
    ```
-
+   if succeed, you will see this line
+   ```
+   CREATE DATABASE
+   ```
+   4. Run this command to connect the database
+   ```
+   \c gobuddy
+   ```
+   If succeed, you will see this line
+   ```
+   You are now connected to database "gobuddy" as user "postgres".
+   ```
+   and you can quit sql mode by running this command after you see the message above:
+   ```
+   \q
+   ```
 4. **Build TypeScript:**
    ```bash
    npm run build
@@ -642,4 +665,5 @@ For questions or issues:
 ---
 
 **Last Updated:** December 2024  
+
 **Version:** 1.0.0
